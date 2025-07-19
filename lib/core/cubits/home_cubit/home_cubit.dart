@@ -1,0 +1,199 @@
+import 'package:bloc/bloc.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:meta/meta.dart';
+import 'package:mr_alnagar/core/network/remote/api_endPoints.dart';
+import 'package:mr_alnagar/core/network/remote/dio_helper.dart';
+import 'package:mr_alnagar/core/utils/app_colors.dart';
+import 'package:mr_alnagar/core/utils/text_styles.dart';
+import 'package:mr_alnagar/features/home_screen/home_page.dart';
+import 'package:mr_alnagar/features/lessons_view/lessons_view.dart';
+import 'package:mr_alnagar/features/profile_view/ProfileLayout/profile_layout.dart';
+
+import '../../../features/courses_view/courses_view.dart';
+import '../../../features/notification_view/notification_view.dart';
+import '../../../features/profile_view/profile_view.dart';
+import '../../network/local/cashe_keys.dart';
+import '../../network/local/shared_prefrence.dart';
+import '../auth_cubit/auth_cubit/auth_cubit.dart';
+import '../courses_cubit/courses_cubit.dart';
+
+part 'home_state.dart';
+
+class HomeCubit extends Cubit<HomeState> {
+  HomeCubit() : super(HomeInitial());
+  static HomeCubit get(context) => BlocProvider.of(context);
+
+
+
+
+  List screens = [
+    HomePage(),
+    LessonsView(),
+    CoursesView(),
+    ProfileLayout(),
+    NotificationView(),
+  ];
+
+  int currentIndex = 0;
+  void changeBottomNavBarIndex({required int index}) {
+    currentIndex = index;
+    emit(ChangeNavBarIndex());
+  }
+
+
+
+  var aboutUs;
+  Future<void> getAboutUsData()async{
+    emit(GetAboutUsDataLoading());
+    await DioHelper.getData(url: EndPoints.aboutUs)
+        .then((value){
+          aboutUs=value.data['data'];
+          emit(GetAboutUsDataDone());
+      print(value.data);
+    }).catchError((error){
+      print(error);
+      emit(GetAboutUsDataError(error));
+    });
+
+  }
+
+
+
+  Future<void> POSTaskUS({
+    required String name,
+    required String phone,
+    required String email,
+    required String message,
+    required int id,
+    required BuildContext context,
+  }) async {
+    emit(POSTAskUsLoading());
+    await DioHelper.postData(
+          url: EndPoints.AskUs,
+          data: {
+            "name": name,
+            "phone": phone,
+            "email": email,
+            "message": message,
+            "category_id": id,
+          },
+        )
+        .then((value) {
+          emit(POSTAskUsDone());
+          showSnackBar(
+            context,
+            value.data['message'],
+            5,
+            AppColors.primaryColor,
+          );
+          print(value.data);
+          print(value.realUri);
+        })
+        .catchError((error) {
+          emit(POSTAskUsError(error));
+
+          print(error);
+          print(error.toString());
+          print(error.runtimeType);
+        });
+  }
+  var homeData;
+  List homeSliders = [];
+  List commonQuestion = [];
+  List rates = [];
+  var contactUsData;
+  var howToUse;
+  Future<void> getHomeData({required BuildContext context}) async {
+    emit(GETHomeDataLoading());
+
+    // Trigger other dependent Cubits
+    AuthCubit.get(context).getLevelsForAuthCategories();
+    CoursesCubit.get(context).getCoursesByCategory(
+      categoryID: CacheHelper.getData(key: CacheKeys.id),
+      filter: 'my',
+    );
+
+    await DioHelper.getData(url: EndPoints.home)
+        .then((value) {
+      var data = value.data['data'];
+
+      // Save all parts of the response
+      homeData = data['ask_us'];
+      homeSliders = data['sliders'];
+      commonQuestion = data['CommonQuestion']['question_and_answer'];
+      rates = data['rates'];
+      contactUsData = data['contact_us_data'];
+      howToUse = data['HowUse'];
+
+      books = data['Books'];
+      featuredCourses = data['featured_courses'];
+      courses = data['courses'];
+      categories = data['categories'];
+      heroesByCategory = data['heroes_by_category'];
+
+      emit(GETHomeDataDone());
+    })
+        .catchError((error) {
+      print('Home Data Error: $error');
+
+      emit(GETHomeDataError(error));
+    });
+  }
+
+  List books = [];
+  List featuredCourses = [];
+  List courses = [];
+  List categories = [];
+  List heroesByCategory = [];
+
+  Future<void> GETaskUS() async {
+    emit(GETAskUsLoading());
+    await DioHelper.getData(url: EndPoints.AskUs)
+        .then((value) {
+          emit(GETAskUsDone());
+          print(value.data);
+        })
+        .catchError((error) {
+          emit(GETAskUsError(error));
+          print(error);
+          print(error.toString());
+          print(error.runtimeType);
+        });
+  }
+
+  List topStudents = [];
+  Future<void> getLeaderBoard({required int categoryID}) async {
+    emit(GETLeaderBoardLoading());
+    await DioHelper.getData(
+          url: EndPoints.leaderBoard,
+          query: {"category_id": categoryID},
+        )
+        .then((value) {
+          topStudents=value.data['data']['topStudents'];
+          print(value.data);
+          emit(GETLeaderBoardDone());
+        })
+        .catchError((error) {
+          print(error);
+          emit(GETLeaderBoardError(error));
+        });
+  }
+
+  void showSnackBar(
+    BuildContext context,
+    String message,
+    int duration,
+    Color? color,
+  ) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: Duration(seconds: duration),
+        backgroundColor: color,
+      ),
+    );
+  }
+}

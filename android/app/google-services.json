@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "226156872841",
+    "project_id": "nagar-5f94a",
+    "storage_bucket": "nagar-5f94a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:226156872841:android:4009261642df8297d53258",
+        "android_client_info": {
+          "package_name": "com.mr_alnagar.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBdxfpsXT41CAx9eMclGD0MYR_7Sjvfuiw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
