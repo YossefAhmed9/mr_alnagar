@@ -11,8 +11,12 @@ import 'package:mr_alnagar/core/utils/app_colors.dart';
 import 'package:mr_alnagar/core/utils/text_styles.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:mr_alnagar/features/courses_view/course_reservation_screen.dart';
 import 'package:mr_alnagar/features/courses_view/quiz_view/quiz_result.dart';
+import 'package:mr_alnagar/features/courses_view/videos_view/videos_view.dart';
 import 'package:mr_alnagar/features/home_screen/home_layout.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
 
 class ExamView extends StatefulWidget {
   const ExamView({Key? key, required this.quizID}) : super(key: key);
@@ -23,6 +27,8 @@ class ExamView extends StatefulWidget {
 }
 
 class _ExamViewState extends State<ExamView> {
+  ScrollController scrollController=ScrollController();
+  final Map<int, GlobalKey> questionKeys = {};
   Timer? _timer;
   int remainingSeconds = 0;
   List<Map<String, dynamic>?> studentQuizAnswers = [];
@@ -30,6 +36,7 @@ class _ExamViewState extends State<ExamView> {
 
   @override
   void initState() {
+    CoursesCubit.get(context).isCourseLoading=false;
     super.initState();
     final quizData = CoursesCubit.get(context).quiz;
     final durationMinutes = quizData?['quiz']?['duration_minutes'] ?? 0;
@@ -57,7 +64,7 @@ class _ExamViewState extends State<ExamView> {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (remainingSeconds == 0) {
         timer.cancel();
-        _submitExam(auto: true);
+        _submitExam(auto: true,);
       } else {
         setState(() {
           remainingSeconds--;
@@ -65,24 +72,57 @@ class _ExamViewState extends State<ExamView> {
       }
     });
   }
+  Future<void> _submitExam({bool auto = false}) async {
+    if (!auto) {
+      // ✅ Check for unanswered questions before manual submission
+      // final firstUnansweredIndex = studentQuizAnswers.indexWhere((answer) => answer?['answer'] == null);
+      // if (firstUnansweredIndex != -1) {
+      //   // Scroll to the approximate position of the unanswered question
+      //   scrollController.animateTo(
+      //     firstUnansweredIndex * 250,
+      //     duration: const Duration(milliseconds: 500),
+      //     curve: Curves.easeInOut,
+      //   );
+      //
+      //   if (mounted) {
+      //     CoursesCubit.get(context).showSnackBar(
+      //       context,
+      //       'السؤال رقم ${firstUnansweredIndex + 1} لسه من غير اجابة',
+      //       3,
+      //       Colors.red,
+      //     );
+      //   }
+      //   return;
+      // }
+    }
 
-  void _submitExam({bool auto = false}) async {
     if (auto) {
+      setState(() => isSubmitting = true);
+
+      final value = await CoursesCubit.get(context).submitQuiz(
+        attemptID: CoursesCubit.get(context).quiz['attempt']['attempt_id'],
+        answers: studentQuizAnswers,
+      );
+
+      if (!mounted) return;
+      setState(() => isSubmitting = false);
+
       showDialog(
         context: context,
         barrierDismissible: false,
         builder: (_) => AlertDialog(
           backgroundColor: Colors.white,
-          title: Text(
-            "Time's up!",
-            textAlign: TextAlign.center,
-          ),
-          titleTextStyle: TextStyles.textStyle16w700(context)
-              .copyWith(color: AppColors.secondary),
-          content: Text(
-            "Your exam has been automatically submitted.",
-            textAlign: TextAlign.center,
-            style: TextStyles.textStyle16w700(context),
+          title: Text("تم انتهاء الوقت", textAlign: TextAlign.center),
+          titleTextStyle: TextStyles.textStyle16w700(context).copyWith(color: AppColors.secondary),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "وتاكيد اجاباتك تلقائيا",
+                textAlign: TextAlign.center,
+                style: TextStyles.textStyle16w700(context),
+              ),
+            ],
           ),
           actionsAlignment: MainAxisAlignment.center,
           actionsPadding: const EdgeInsets.only(bottom: 12),
@@ -106,8 +146,7 @@ class _ExamViewState extends State<ExamView> {
                 },
                 child: Text(
                   "OK",
-                  style: TextStyles.textStyle16w700(context)
-                      .copyWith(color: Colors.white),
+                  style: TextStyles.textStyle16w700(context).copyWith(color: Colors.white),
                 ),
               ),
             ),
@@ -118,18 +157,16 @@ class _ExamViewState extends State<ExamView> {
       return;
     }
 
+    // Manual submission dialog
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: Colors.white,
-        title: Text(
-          "Submit Exam",
-          textAlign: TextAlign.center,
-        ),
-        titleTextStyle: TextStyles.textStyle16w700(context)
-            .copyWith(color: AppColors.secondary),
+        title: Text("تسليم الامتحان", textAlign: TextAlign.center),
+        titleTextStyle: TextStyles.textStyle16w700(context).copyWith(color: AppColors.secondary),
         content: Text(
-          "Are you sure you want to submit your exam?",
+          "هل تريد تأكيد اجاباتك ؟"
+              "مع العلم لديك المزيد من الوقت في التفكير",
           textAlign: TextAlign.center,
           style: TextStyles.textStyle16w700(context),
         ),
@@ -148,13 +185,12 @@ class _ExamViewState extends State<ExamView> {
               ),
               onPressed: () => Navigator.of(context).pop(),
               child: Text(
-                "Cancel",
-                style: TextStyles.textStyle16w700(context)
-                    .copyWith(color: AppColors.secondary),
+                "الغاء",
+                style: TextStyles.textStyle16w700(context).copyWith(color: AppColors.secondary),
               ),
             ),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           SizedBox(
             height: 44,
             child: TextButton(
@@ -174,98 +210,121 @@ class _ExamViewState extends State<ExamView> {
                   answers: studentQuizAnswers,
                 );
 
-                CoursesCubit.get(context).quizSubmission;
+                if (!mounted) return;
                 setState(() => isSubmitting = false);
-
                 final result = CoursesCubit.get(context).quizSubmission;
+                _timer?.cancel();
 
                 showDialog(
                   context: context,
                   barrierDismissible: false,
                   builder: (_) => AlertDialog(
                     backgroundColor: Colors.white,
-                    title: Text(
-                      "Result",
-                      textAlign: TextAlign.center,
-                    ),
-                    titleTextStyle: TextStyles.textStyle16w700(context)
-                        .copyWith(color: AppColors.secondary),
-                    content: Text(
-                      "Your Score: ${result['score_text']}",
-                      textAlign: TextAlign.center,
-                      style: TextStyles.textStyle16w700(context),
+                    title: Text("نتيجة الامتحان ", textAlign: TextAlign.center),
+                    titleTextStyle: TextStyles.textStyle16w700(context).copyWith(color: AppColors.secondary),
+                    content: Container(
+                      width: 150,
+                      height: 300,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset('assets/images/submit.png', width: 150, height: 200),
+                          Row(
+                            children: [
+                              Text(
+                                "درجتك: ${result['score_text']}",
+                                textAlign: TextAlign.center,
+                                style: TextStyles.textStyle16w700(context).copyWith(color: AppColors.secondary),
+                              ),
+                              Text(
+                                "حليت الامتحان بنجاح: ",
+                                textAlign: TextAlign.center,
+                                style: TextStyles.textStyle16w700(context),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                     actionsAlignment: MainAxisAlignment.center,
                     actionsPadding: const EdgeInsets.only(bottom: 12),
                     actions: [
-                      SizedBox(
-                        height: 44,
-                        width: 150,
-                        child: TextButton(
-                          style: TextButton.styleFrom(
-                            backgroundColor: Colors.grey[200],
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25),
+                      Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: SizedBox(
+                          height: 44,
+                          width: double.infinity,
+                          child: TextButton(
+                            style: TextButton.styleFrom(
+                              backgroundColor: Colors.grey[200],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25),
+                              ),
                             ),
-                          ),
-                          onPressed: () async {
-                           await CoursesCubit.get(context).getQuizResult(attemptID:CoursesCubit.get(context).quiz['attempt']['attempt_id'] );
-                            Navigator.pushAndRemoveUntil(context,
-                                CupertinoPageRoute(builder: (context)=>QuizResultView()),
-                                (context)=>false
-                            );
-                          },
-                          child: Text(
-                            "عرض الأسئلة المحلولة",
-                            style: TextStyles.textStyle16w700(context)
-                                .copyWith(color: AppColors.secondary),
+                            onPressed: () async {
+                              await CoursesCubit.get(context).getQuizResult(
+                                attemptID: CoursesCubit.get(context).quiz['attempt']['attempt_id'],
+                              );
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                CupertinoPageRoute(builder: (context) => QuizResultView()),
+                                    (context) => false,
+                              );
+                            },
+                            child: Text(
+                              " عرض الاجابات ",
+                              style: TextStyles.textStyle16w700(context).copyWith(color: AppColors.secondary),
+                            ),
                           ),
                         ),
                       ),
                       const SizedBox(width: 12),
-                      SizedBox(
-                        height: 44,
-                        width: 100,
-                        child: TextButton(
-                          style: TextButton.styleFrom(
-                            backgroundColor: AppColors.primaryColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25),
-                            ),
-                          ),
-                          onPressed: () {
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              CupertinoPageRoute(
-                                builder: (context) => HomeLayout(),
+                      Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: SizedBox(
+                          height: 44,
+                          width: double.infinity,
+                          child: TextButton(
+                            style: TextButton.styleFrom(
+                              backgroundColor: AppColors.primaryColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25),
                               ),
-                                  (context) => false,
-                            );
-                          },
-                          child: Text(
-                            "OK",
-                            style: TextStyles.textStyle16w700(context)
-                                .copyWith(color: Colors.white),
+                            ),
+                            onPressed: () {
+                              CoursesCubit.get(context).isCourseLoading = false;
+                              CoursesCubit.get(context).getVideosByCourse(
+                                id: CoursesCubit.get(context).courseResult[0]['id'],
+                                context: context,
+                              );
+                              CoursesCubit.get(context).isCourseLoading = false;
+
+                              Navigator.push(context, CupertinoPageRoute(builder: (context) => HomeLayout()));
+                              Navigator.push(context, CupertinoPageRoute(builder: (context) => CourseReservationScreen(data: CoursesCubit.get(context).courseResult[0]['id'])));
+                              Navigator.push(context, CupertinoPageRoute(builder: (context) => CourseVideoScreen(videoIndex: CoursesCubit.get(context).courseResult[0]['id'])));
+                            },
+                            child: Text(
+                              "ابدا الكورس",
+                              style: TextStyles.textStyle16w700(context).copyWith(color: Colors.white),
+                            ),
                           ),
                         ),
                       ),
                     ],
                   ),
                 );
-
               },
               child: Text(
-                "Submit",
-                style: TextStyles.textStyle16w700(context)
-                    .copyWith(color: Colors.white),
+                "تسليم",
+                style: TextStyles.textStyle16w700(context).copyWith(color: Colors.white),
               ),
             ),
           ),
         ],
       ),
     );
-
   }
+
 
   void updateStudentQuizAnswer({
     required int questionId,
@@ -296,6 +355,8 @@ class _ExamViewState extends State<ExamView> {
   @override
   void dispose() {
     _timer?.cancel();
+   // _submitExam();
+
     super.dispose();
   }
 
@@ -317,7 +378,7 @@ class _ExamViewState extends State<ExamView> {
             return [
               //const SizedBox(height: 16),
               Text(
-                HtmlUnescape().convert(question['description'] ?? 'asdasda').replaceAll(RegExp(r'<[^>]*>'), ''),
+                HtmlUnescape().convert(question['description'] ?? 'No Description').replaceAll(RegExp(r'<[^>]*>'), ''),
                 style: TextStyles.textStyle16w400(context).copyWith(color: Colors.black,),maxLines: 50,
               ),
               const SizedBox(height: 10),
@@ -372,68 +433,70 @@ class _ExamViewState extends State<ExamView> {
     required List options,
     required bool isTrueFalse,
   }) {
+    // Assign a unique GlobalKey to each question if not already present
+    questionKeys.putIfAbsent(questionId, () => GlobalKey());
+
     final selectedAnswer = studentQuizAnswers.firstWhere(
           (entry) => entry != null && entry['id'] == questionId,
       orElse: () => {"id": questionId, "answer": null},
     );
 
     return Padding(
+     // key: questionKeys[questionId], // ✅ <-- Key added here
       padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(questionText ?? '', style: TextStyles.textStyle16w700(context)),
           const SizedBox(height: 8),
-          GridView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              childAspectRatio: 3.4,
-              crossAxisCount: 1,
-            ),
-            itemCount: options.length,
-            itemBuilder: (context, answerIndex) {
-              final answer = options[answerIndex];
-              final isSelected = selectedAnswer?['answer'] == answer['id'];
+          SizedBox(
+            width: MediaQuery.sizeOf(context).width * 1,
+            child: ListView.builder(
+              itemCount: options.length,
+              shrinkWrap: true,
+              //controller: scrollController,
+              physics: const ScrollPhysics(),
+              itemBuilder: (context, answerIndex) {
+                final answer = options[answerIndex];
+                final isSelected = selectedAnswer?['answer'] == answer['id'];
 
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: InkWell(
-                  onTap: () {
-                    final selectedValue = answer['id'];
-                    updateStudentQuizAnswer(
-                      questionId: questionId,
-                      selectedAnswer: selectedValue,
-                    );
-                    print(studentQuizAnswers);
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: isSelected ? AppColors.primaryColor : Colors.white,
-                      border: Border.all(color: AppColors.primaryColor, width: 2),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 6.0),
+                  child: InkWell(
+                    onTap: () {
+                      final selectedValue = answer['id'];
+                      updateStudentQuizAnswer(
+                        questionId: questionId,
+                        selectedAnswer: selectedValue,
+                      );
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: isSelected ? AppColors.primaryColor : Colors.white,
+                        border: Border.all(color: AppColors.primaryColor, width: 2),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Center(
                         child: Text(
                           answer['answer'].toString(),
                           style: TextStyles.textStyle14w700(context).copyWith(
                             color: isSelected ? Colors.white : AppColors.primaryColor,
                           ),
-                          maxLines: 5,
                         ),
                       ),
                     ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ],
       ),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -457,11 +520,72 @@ class _ExamViewState extends State<ExamView> {
                 ? const Center(child: CircularProgressIndicator())
                 : Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10.0),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Container(
-                      width: 300.w,
+              child: Stack(
+                children: [
+
+                  SingleChildScrollView(
+                    controller: scrollController,
+                    child: Column(
+                    children: [
+                      Container(
+                        height: 150.h,
+                      ),
+                      Text(
+                        'Choose the correct answer from a, b, c or d:',
+                        style: TextStyles.textStyle18w700(context).copyWith(color: AppColors.secondary),
+                      ),
+                      _buildQuestionTypeSection('reading_passage', 'Reading Passage Questions'),
+                      _buildQuestionTypeSection('multiple_choice', 'Multiple Choice Questions'),
+                      _buildQuestionTypeSection('true_false', 'True or False Questions'),
+                      _buildQuestionTypeSection('short_answer', 'Short Answer Questions'),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryColor,
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                          width: double.infinity,
+                          height: 44,
+                          child: MaterialButton(
+                            onPressed: () async{
+                              final firstUnansweredIndex = studentQuizAnswers.indexWhere((answer) => answer?['answer'] == null);
+                              if (firstUnansweredIndex != -1) {
+                                // Scroll to the approximate position of the unanswered question
+                                scrollController.animateTo(
+                                  firstUnansweredIndex * 300,
+                                  duration: const Duration(milliseconds: 500),
+                                  curve: Curves.easeInOut,
+                                );
+
+                                Fluttertoast.showToast(
+                                  msg: "السؤال رقم ${firstUnansweredIndex + 1} لسه من غير اجابة",
+                                  toastLength: Toast.LENGTH_LONG,
+                                  gravity: ToastGravity.BOTTOM,
+                                  backgroundColor: Colors.red,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0,
+                                );
+
+                                 return;
+                              }
+                            await  _submitExam();
+                            },
+                            child: Text(
+                              'التالي',
+                              style: TextStyles.textStyle16w700(context).copyWith(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(color: Colors.white),
+                    child: Container(
+                      width: double.infinity,
                       height: 140.h,
                       decoration: const BoxDecoration(
                         color: Colors.white,
@@ -470,68 +594,67 @@ class _ExamViewState extends State<ExamView> {
                           fit: BoxFit.fill,
                         ),
                       ),
-                      child: Center(
-                        child: DottedBorder(
-                          borderType: BorderType.RRect,
-                          radius: const Radius.circular(40),
-                          dashPattern: [6, 4],
-                          color: AppColors.secondary30,
-                          strokeWidth: 2,
-                          child: Container(
-                            width: 270,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(40),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  MingCuteIcons.mgc_time_duration_line,
-                                  color: AppColors.secondary30,
-                                  size: 40,
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Center(
+                              child: DottedBorder(
+                                borderType: BorderType.RRect,
+                                radius: const Radius.circular(40),
+                                dashPattern: [6, 4],
+                                color: AppColors.secondary30,
+                                strokeWidth: 2,
+                                child: Container(
+                                  width: 240,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(40),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            MingCuteIcons.mgc_time_duration_line,
+                                            color: AppColors.secondary30,
+                                            size: 30,
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            _formatTime(remainingSeconds),
+                                            style: TextStyles.textStyle20w700(context).copyWith(fontSize: 23),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  _formatTime(remainingSeconds),
-                                  style: TextStyles.textStyle20w700(context).copyWith(fontSize: 32),
-                                ),
-                              ],
+                              ),
                             ),
                           ),
-                        ),
+                          Column(
+                            spacing: 10,
+                            children: [Row(
+                            children: [
+                              Text('${quizData['quiz']['full_score']} الدرجة  ',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black),),
+                              Spacer(),
+                              Text('    ${quizData['quiz']['question_count']} عدد الاسئلة  ',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black)),
+                            ],
+                          ),Row(
+                            children: [
+                              Text('المحاولات المتبقية ${quizData['quiz']['remaining_attempts']}',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black)),
+                              Spacer(),
+                              Text('المحاولات الكلية ${quizData['quiz']['attempt_count']}',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black))],
+                          ),],),
+
+                        ],
                       ),
                     ),
-                    Text(
-                      'Choose the correct answer from a, b, c or d:',
-                      style: TextStyles.textStyle18w700(context).copyWith(color: AppColors.secondary),
-                    ),
-                    _buildQuestionTypeSection('reading_passage', 'Reading Passage Questions'),
-                    _buildQuestionTypeSection('multiple_choice', 'Multiple Choice Questions'),
-                    _buildQuestionTypeSection('true_false', 'True or False Questions'),
-                    _buildQuestionTypeSection('short_answer', 'Short Answer Questions'),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryColor,
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        width: double.infinity,
-                        height: 44,
-                        child: MaterialButton(
-                          onPressed: () => _submitExam(),
-                          child: Text(
-                            'Next',
-                            style: TextStyles.textStyle16w700(context).copyWith(color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
+                  ),
+                ]
               ),
             ),
           ),

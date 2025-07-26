@@ -21,7 +21,7 @@ class CourseCard extends StatelessWidget {
   },
   builder: (context, state) {
     return Padding(
-      padding: const EdgeInsets.all(5.0),
+      padding: const EdgeInsets.symmetric(horizontal: 5.0,vertical: 15),
       child: InkWell(
         splashColor: AppColors.primaryColor,
         onTap: ()async{
@@ -68,9 +68,9 @@ class CourseCard extends StatelessWidget {
 
               // Course name
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
                 child: Text(
-                  data['title'],
+                  data['title'] ?? '',
                   style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -137,9 +137,10 @@ class CourseCard extends StatelessWidget {
                         ).copyWith(color: AppColors.secondary),
                       ),
                     ],
-                    CoursesCubit.get(context).isCourseLoading ?
-                        CircularProgressIndicator(color: AppColors.primaryColor,)
-                        :                     Padding(
+                    // CoursesCubit.get(context).isCourseLoading ?
+                    //     CircularProgressIndicator(color: AppColors.primaryColor,)
+                    //     :
+                    Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: CircleAvatar(
                         radius: 12.r,

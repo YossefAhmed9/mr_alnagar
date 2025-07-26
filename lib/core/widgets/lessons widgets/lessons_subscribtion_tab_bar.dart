@@ -16,7 +16,7 @@ class LessonsSubscribtionTabBar extends StatelessWidget {
 
 
     return LessonsCubit.get(context).myCourses.length==0 ?
-        Text('لا توجد حصص مشترك فيها')
+        Center(child: Text('لا توجد حصص مشترك فيها',style: TextStyles.textStyle16w700(context).copyWith(color: AppColors.primaryColor),))
 
       :  ListView.builder(
       itemCount: LessonsCubit.get(context).myCourses.length,

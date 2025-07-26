@@ -26,7 +26,7 @@ class LessonsReservationTabBar extends StatelessWidget {
       itemCount: lessons.length,
       itemBuilder: (context, index) {
         final course = lessons[index];
-        return LessonCard(data: LessonsCubit.get(context).courses[index], index: index); // Assuming LessonItem is a widget to display each lesson
+        return LessonCard(data: course, index: index); // Assuming LessonItem is a widget to display each lesson
       },
     );
   }

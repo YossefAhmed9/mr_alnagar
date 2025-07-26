@@ -34,56 +34,11 @@ class _ReservationStepsListViewState extends State<ReservationStepsListView> {
     });
   }
 
-  void _showSubscriptionDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          backgroundColor: AppColors.lightBlue,
-          contentPadding: const EdgeInsets.all(20),
-          content: ModalProgressHUD(
-            inAsyncCall: CoursesCubit.get(context).isCourseLoading,
-
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  "تم الإشتراك بنجاح",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 10),
-                const Divider(thickness: 1, color: Colors.white),
-                const SizedBox(height: 10),
-                Image.asset('assets/images/Group.png', height: 180, fit: BoxFit.contain),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () async{
-                      CoursesCubit.get(context).changeIsCourseLoading();
-                      await CoursesCubit.get(context).getVideosByCourse(id: CoursesCubit.get(context).courseResult[0]['id'], context: context);
-                      Navigator.push(context, CupertinoPageRoute(builder: (context) => CourseVideoScreen(videoIndex: CoursesCubit.get(context).courseResult[0]['id'])));
-
-
-                      },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryColor,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                    child: CoursesCubit.get(context).isCourseLoading ? Center(child: CircularProgressIndicator(),)
-                  : Text("ابدأ يلا", style: TextStyle(fontSize: 16, color: Colors.white)
-                  ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+  Future<void> _showSubscriptionDialog(BuildContext context) async {
+    CoursesCubit.get(context).changeIsCourseLoading();
+    await CoursesCubit.get(context).getVideosByCourse(id: CoursesCubit.get(context).courseResult[0]['id'], context: context);
+    Navigator.push(context, CupertinoPageRoute(builder: (context) => CourseVideoScreen(videoIndex: CoursesCubit.get(context).courseResult[0]['id'])));
+    CoursesCubit.get(context).changeIsCourseLoading();
   }
 
   List<Widget> buildPaymentCards() {
@@ -156,13 +111,18 @@ class _ReservationStepsListViewState extends State<ReservationStepsListView> {
   }
 
   Widget buildWalletCard() {
+    final courseResult = CoursesCubit.get(context).courseResult;
+    final phoneNumber = (courseResult.isNotEmpty && courseResult[0]['phone'] != null)
+        ? courseResult[0]['phone'].toString()
+        : 'رقم غير متاح حالياً';
+
     return buildCard(
       title: 'فودافون كاش',
       price: widget.data['price'],
       description: 'وبعد التحويل، ابعت صورة الإيصال على واتساب لنفس الرقم.',
       extra: Column(
         children: [
-          Text('حول على الرقم: ${CoursesCubit.get(context).courseResult[0]['phone']}',
+          Text('حول على الرقم: $phoneNumber',
             style: TextStyles.textStyle16w400(context).copyWith(color: AppColors.primaryColor),
           ),
           const Divider(thickness: 1, color: Colors.grey),
@@ -177,14 +137,20 @@ class _ReservationStepsListViewState extends State<ReservationStepsListView> {
   }
 
   void _handleButtonPress(String method) async {
+    final isEnrolled = widget.data['is_enrolled'] == true;
     final String status = widget.data['request_status']?['key'] ??
-        (widget.data['is_enrolled'] == true ? 'approved' : widget.data['status'] ?? '');
+        (isEnrolled ? 'approved' : widget.data['status'] ?? '');
+
+    if (!isEnrolled && status == 'approved') {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('يرجى التواصل مع الدعم لتفعيل اشتراكك')));
+      return;
+    }
 
     if (status == 'approved') {
       _showSubscriptionDialog(context);
     } else if (status == 'pending') {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('طلبك قيد المراجعة حالياً')));
-    } else if (status == 'refused') {
+    } else if (status == 'rejected') {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('طلبك مرفوض، تواصل مع الدعم')));
     } else {
       CoursesCubit.get(context).enrollInCourse(courseID: widget.data['id'], paymentType: method);
@@ -203,29 +169,34 @@ class _ReservationStepsListViewState extends State<ReservationStepsListView> {
     required dynamic price,
     Widget? extra,
   }) {
+    final isEnrolled = widget.data['is_enrolled'] == true;
     final String status = widget.data['request_status']?['key'] ??
-        (widget.data['is_enrolled'] == true ? 'approved' : widget.data['status'] ?? '');
+        (isEnrolled ? 'approved' : widget.data['status'] ?? '');
 
     Color buttonColor;
     Color textColor;
     String buttonLabel;
 
-    if (status == 'pending') {
-      buttonColor = Colors.yellow.shade600;
-      textColor = Colors.black;
-      buttonLabel = 'قيد الانتظار';
-    } else if (status == 'refused') {
-      buttonColor = Colors.red;
-      textColor = Colors.white;
-      buttonLabel = 'مرفوض';
-    } else if (status == 'approved') {
-      buttonColor = AppColors.primaryColor;
-      textColor = Colors.white;
-      buttonLabel = 'ابدا الان';
-    } else {
-      buttonColor = AppColors.primaryColor;
-      textColor = Colors.white;
-      buttonLabel = buttonText;
+    switch (status) {
+      case 'approved':
+        buttonColor = Colors.green;
+        textColor = Colors.white;
+        buttonLabel = 'تمت الموافقة';
+        break;
+      case 'pending':
+        buttonColor = Colors.yellow.shade600;
+        textColor = Colors.black;
+        buttonLabel = 'قيد الانتظار';
+        break;
+      case 'rejected':
+        buttonColor = Colors.red;
+        textColor = Colors.white;
+        buttonLabel = 'مرفوض';
+        break;
+      default:
+        buttonColor = AppColors.primaryColor;
+        textColor = Colors.white;
+        buttonLabel = buttonText;
     }
 
     return Padding(
@@ -241,17 +212,29 @@ class _ReservationStepsListViewState extends State<ReservationStepsListView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(child: Text(title, style: TextStyles.textStyle16w700(context).copyWith(color: AppColors.secondary30))),
+            Center(
+              child: Text(
+                title,
+                style: TextStyles.textStyle16w700(context)
+                    .copyWith(color: AppColors.secondary30),
+              ),
+            ),
             const SizedBox(height: 8),
             Row(
               children: [
                 Text('مش عارف تدفع دلوقتي؟'),
                 const Spacer(),
-                Text('$price جنيه', style: TextStyles.textStyle20w700(context).copyWith(color: Colors.red)),
+                Text(
+                  '$price جنيه',
+                  style: TextStyles.textStyle20w700(context).copyWith(color: Colors.red),
+                ),
               ],
             ),
             const SizedBox(height: 6),
-            Text(description, style: TextStyles.textStyle16w400(context).copyWith(color: Colors.red)),
+            Text(
+              description,
+              style: TextStyles.textStyle16w400(context).copyWith(color: Colors.red),
+            ),
             const SizedBox(height: 8),
             if (extra != null) extra,
             const Spacer(),
@@ -265,8 +248,11 @@ class _ReservationStepsListViewState extends State<ReservationStepsListView> {
                 width: double.infinity,
                 height: 44,
                 child: MaterialButton(
-                  onPressed: (status == 'pending' || status == 'refused') ? null : onPressed,
-                  child: Text(buttonLabel, style: TextStyles.textStyle16w700(context).copyWith(color: textColor)),
+                  onPressed: null, // 🔒 Disabled in all cases
+                  child: Text(
+                    buttonLabel,
+                    style: TextStyles.textStyle16w700(context).copyWith(color: textColor),
+                  ),
                 ),
               ),
             ),

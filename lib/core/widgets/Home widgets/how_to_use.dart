@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:html_unescape/html_unescape.dart';
 import 'package:mr_alnagar/core/cubits/home_cubit/home_cubit.dart';
 import 'package:mr_alnagar/core/utils/app_colors.dart';
 import 'package:mr_alnagar/core/utils/text_styles.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class HowToUse extends StatefulWidget {
-  const HowToUse({Key? key, required this.url}) : super(key: key);
-final String url;
+  const HowToUse({Key? key, required this.data}) : super(key: key);
+final data;
   @override
   State<HowToUse> createState() => _HowToUseState();
 }
@@ -30,7 +31,7 @@ class _HowToUseState extends State<HowToUse> {
   void initializeController() {
 
     controller = YoutubePlayerController(
-      initialVideoId: YoutubePlayer.convertUrlToId(widget.url)!,
+      initialVideoId: YoutubePlayer.convertUrlToId(HomeCubit.get(context).howToUse['video_url'])!,
       flags: YoutubePlayerFlags(
         autoPlay: false,
         hideControls: false,
@@ -75,15 +76,18 @@ class _HowToUseState extends State<HowToUse> {
         padding: EdgeInsetsDirectional.all(16),
         //height: 430.h,
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
           spacing: 8,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'مش عارف تبدا؟ شوف الفيديو ده',
+              HomeCubit.get(context).howToUse['label'],
               style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,color: Colors.white),
             ),
+
+
             Padding(
-              padding: const EdgeInsets.symmetric(vertical:  16.0),
+              padding: const EdgeInsets.symmetric(vertical:  8.0),
               child: Container(
                 decoration: BoxDecoration(
 
@@ -135,9 +139,14 @@ class _HowToUseState extends State<HowToUse> {
                 ),
               ),
             ),
-            //from api
+
+            Align(
+                alignment: Alignment.centerLeft,
+                child: Image.network(HomeCubit.get(context).howToUse['image_url'])),
+
             Text(
-              'شرح سريع وبسيط للمنصة – هتعرف فيه كل حاجة: إزاي تسجل، تذاكر، تحل، وتنجح مع مستر محمد النجار. المنصة سهلة.. وانت قدها',
+                HtmlUnescape().convert('${HomeCubit.get(context).howToUse['description']}')
+                    .replaceAll(RegExp(r'<[^>]*>'), ''),
               style: TextStyle(fontSize: 20,fontWeight: FontWeight.w200,color: Colors.white,height: 2),
             ),
 

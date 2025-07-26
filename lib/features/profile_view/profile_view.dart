@@ -12,6 +12,11 @@ import 'package:mr_alnagar/core/network/local/cashe_keys.dart';
 import 'package:mr_alnagar/core/network/local/shared_prefrence.dart';
 import 'package:mr_alnagar/core/utils/app_colors.dart';
 import 'package:mr_alnagar/core/utils/text_styles.dart';
+import 'package:mr_alnagar/features/courses_view/courses_view.dart';
+import 'package:mr_alnagar/features/home_screen/about_us_view.dart';
+import 'package:mr_alnagar/features/lessons_view/videos_view/videos_view.dart';
+import 'package:mr_alnagar/features/notification_view/notification_view.dart';
+import 'package:mr_alnagar/features/profile_view/user_statistics/user_statistics.dart';
 import '../../core/cubits/home_cubit/home_cubit.dart';
 import '../../core/network/remote/api_endPoints.dart';
 import '../../core/network/remote/dio_helper.dart';
@@ -66,10 +71,30 @@ class ProfileView extends StatelessWidget {
         return Directionality(
           textDirection: TextDirection.rtl,
           child: Scaffold(
-           floatingActionButton: FloatingActionButton(onPressed: ()async{
-             await ProfileCubit.get(context).getHomeWorksResultsForProfile();
-             print(ProfileCubit.get(context).homeWorksResultsForProfile);
-           }),
+           // floatingActionButton: FloatingActionButton(onPressed: ()async{
+           //   // await LessonsCubit.get(context).getVideosByClass(classId:
+           //   // 6,);
+           //  //print(CacheHelper.getData(key: CacheKeys.lastSectionIndex));
+           //
+           //  Navigator.push(context, CupertinoPageRoute(builder: (context)=>CoursesView()));
+           //  Navigator.push(context, CupertinoPageRoute(builder: (context)=>AboutUsView()));
+           //  Navigator.push(context, CupertinoPageRoute(builder: (context)=>UserStatistics()));
+           //  Navigator.push(context, CupertinoPageRoute(builder: (context)=>NotificationView()));
+           //
+           //
+           //   // print('%%%%%%%%%%%%%');
+           //   // // await DioHelper.getData(
+           //   // //   url: 'videos_by_classes/1',
+           //   // //   token: CacheHelper.getData(key: CacheKeys.token),
+           //   // // ).then((value){
+           //   // //   print(value.data);
+           //   // // });
+           //   // await LessonsCubit.get(context).getVideosByClass(classId: 1);
+           //   // print(LessonsCubit.get(context).videos);
+           //   // print('%%%%%%%%%%%%%%%%%%%%');
+           //
+           //   //print(LessonsCubit.get(context).videos);
+           // }),
             key: scaffoldKey,
             body: SingleChildScrollView(
               padding: const EdgeInsets.all(16),

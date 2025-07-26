@@ -8,7 +8,7 @@ plugins {
 }
 
 android {
-    namespace = "com.mr_alnagar.app"
+    namespace = "com.mrAlnagar.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
@@ -22,7 +22,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.mr_alnagar.app"
+        applicationId = "com.mrAlnagar.app"
         minSdk = 21
         targetSdk = 35
         versionCode = flutter.versionCode

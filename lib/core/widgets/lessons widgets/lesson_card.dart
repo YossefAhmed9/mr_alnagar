@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:mr_alnagar/core/cubits/courses_cubit/courses_cubit.dart';
 import 'package:mr_alnagar/core/cubits/courses_cubit/courses_state.dart';
 import 'package:mr_alnagar/core/cubits/lessons_cubit/lessons_cubit.dart';
@@ -22,7 +23,7 @@ class LessonCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<LessonsCubit, LessonsState>(
       listener: (context, state) {
-        // TODO: implement listener
+
       },
       builder: (context, state) {
         return Padding(
@@ -34,98 +35,109 @@ class LessonCard extends StatelessWidget {
               await LessonsCubit.get(context).getCourseByID(id: data['id']);
               Navigator.push(context, CupertinoPageRoute(builder: (context){
                 return LessonReservationScreen(
-                    data:data
+                    data:LessonsCubit.get(context).courseResult[0]
                 );
               }));
               LessonsCubit.get(context).changeIsLessonLoading();
 
             },
-            child: Container(
-              // width: 240.w,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12.r),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 6.r,
-                    offset: const Offset(0, 3),
+            child:Stack(
+              children: [
+                Container(
+                  // width: 240.w,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12.r),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 6.r,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Course image
-                  ClipRRect(
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(12.r)),
-                    child: Image.network(
-                      data['image'], // Replace with your actual course image
-                      height: 130.h,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Image.asset(
-                          'assets/images/error image.png',fit: BoxFit.fill,height: 130,width: double.infinity,
-                        );
-                      },
-                    ),
-                  ),
-
-                  // Course name
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                    child: Text(
-                      data['title'],
-                      style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-
-                  // Course duration
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.w),
-                    child: Row(
-                      spacing: 3,
-                      children: [
-                        Icon(
-                          Icons.access_time_filled_rounded,
-                          size: 16.sp,
-                          color: Colors.grey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Course image
+                      ClipRRect(
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(12.r)),
+                        child: Image.network(
+                          data['image'], // Replace with your actual course image
+                          height: 130.h,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Image.asset(
+                              'assets/images/error image.png',fit: BoxFit.fill,height: 130,width: double.infinity,
+                            );
+                          },
                         ),
+                      ),
 
-                        Text(
-                          '${data['started_at']} ساعة',
-                          style: TextStyles.textStyle14w400(
-                            context,
-                          ).copyWith(color: Colors.grey),
+                      // Course name
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                        child: Text(
+                          data['title'],
+                          style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
 
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Container(height: 3, color: Colors.grey.shade200),
-                  ),
+                      // Course duration
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.w),
+                        child: Row(
+                          spacing: 3,
+                          children: [
+                            Icon(
+                              Icons.access_time_filled_rounded,
+                              size: 16.sp,
+                              color: Colors.grey,
+                            ),
 
-                  // Price and icon
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.w),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        if ((data['discount_percentage'] ?? 0) > 0) ...[
-                          Row(
-                            children: [
-                              Text(
-                                '${data['original_price']} جنيه',
-                                style: TextStyles.textStyle16w400(context).copyWith(
-                                  color: Colors.grey,
-                                  decoration: TextDecoration.lineThrough,
-                                ),
+                            Text(
+                              '${data['started_at']} ساعة',
+                              style: TextStyles.textStyle14w400(
+                                context,
+                              ).copyWith(color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Container(height: 3, color: Colors.grey.shade200),
+                      ),
+
+                      // Price and icon
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.w),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            if ((data['discount_percentage'] ?? 0) > 0) ...[
+                              Row(
+                                children: [
+                                  Text(
+                                    '${data['original_price']} جنيه',
+                                    style: TextStyles.textStyle16w400(context).copyWith(
+                                      color: Colors.grey,
+                                      decoration: TextDecoration.lineThrough,
+                                    ),
+                                  ),
+                                  SizedBox(width: 8.w),
+                                  Text(
+                                    '${data['price']} جنيه',
+                                    style: TextStyles.textStyle18w700(
+                                      context,
+                                    ).copyWith(color: AppColors.secondary),
+                                  ),
+                                ],
                               ),
-                              SizedBox(width: 8.w),
+                            ] else ...[
                               Text(
                                 '${data['price']} جنيه',
                                 style: TextStyles.textStyle18w700(
@@ -133,36 +145,53 @@ class LessonCard extends StatelessWidget {
                                 ).copyWith(color: AppColors.secondary),
                               ),
                             ],
-                          ),
-                        ] else ...[
-                          Text(
-                            '${data['price']} جنيه',
-                            style: TextStyles.textStyle18w700(
-                              context,
-                            ).copyWith(color: AppColors.secondary),
-                          ),
-                        ],
-                        LessonsCubit.get(context).isLessonLoading ?
-                        CircularProgressIndicator(color: AppColors.primaryColor,)
-                            :                     Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: CircleAvatar(
-                            radius: 12.r,
-                            backgroundColor: AppColors.primaryColor,
-                            child: const Icon(
-                              Icons.arrow_forward,
-                              size: 22,
-                              color: Colors.white,
+                            // LessonsCubit.get(context).isLessonLoading ?
+                            // CircularProgressIndicator(color: AppColors.primaryColor,)
+                            //     :
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: CircleAvatar(
+                                radius: 12.r,
+                                backgroundColor: AppColors.primaryColor,
+                                child: const Icon(
+                                  Icons.arrow_forward,
+                                  size: 22,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
-                          ),
+
+
+                          ],
                         ),
-
-
-                      ],
+                      ),
+                    ],
+                  ),
+                ),
+                data['is_enrolled'] == true
+                    ? Padding(
+                  padding: const EdgeInsets.all(0.0),
+                  child: Align(
+                    alignment: AlignmentDirectional.topEnd,
+                    child: Container(
+                      width: 120.w,
+                      height: 40.h,
+                      decoration: BoxDecoration(
+                        color: AppColors.secondary,
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'تم الاشتراك',
+                          style: TextStyles.textStyle16w700(context)
+                              .copyWith(color: Colors.white),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
                     ),
                   ),
-                ],
-              ),
+                ) : Container(),
+              ],
             ),
           ),
         );

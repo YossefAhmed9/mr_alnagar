@@ -1,9 +1,13 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:mr_alnagar/core/cubits/courses_cubit/courses_cubit.dart';
+import 'package:mr_alnagar/core/cubits/lessons_cubit/lessons_cubit.dart';
 import 'package:mr_alnagar/core/cubits/profile_cubit/profile_cubit.dart';
 import 'package:mr_alnagar/core/utils/app_colors.dart';
 import 'package:mr_alnagar/core/utils/text_styles.dart';
+import 'package:mr_alnagar/features/courses_view/homework_view/homework_result.dart';
 
 class HomeWorkResults extends StatelessWidget {
   const HomeWorkResults({Key? key}) : super(key: key);
@@ -92,37 +96,43 @@ class HomeWorkResults extends StatelessWidget {
                                     ),
                                   ),
                                   Expanded(
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 8,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: AppColors.primaryColor,
-                                          width: 2,
+                                    child: InkWell(
+                                  onTap:()async{
+                                    await CoursesCubit.get(context).getHomeWorkResult(attemptID: ProfileCubit.get(context).homeWorksResultsForProfile[index]['attempt_id']);
+                                    Navigator.push(context, CupertinoPageRoute(builder: (context)=>HomeworkResultView(attemptID: ProfileCubit.get(context).homeWorksResultsForProfile[index]['attempt_id'],)), );
+                                  },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 8,
                                         ),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            'عرض الواجب',
-                                            style: TextStyles.textStyle14w700(
-                                              context,
-                                            ).copyWith(
-                                              color: AppColors.primaryColor,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 5),
-                                          Icon(
-                                            Icons
-                                                .keyboard_double_arrow_left_outlined,
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
                                             color: AppColors.primaryColor,
-                                            size: 25,
+                                            width: 2,
                                           ),
-                                        ],
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              'عرض الواجب',
+                                              style: TextStyles.textStyle14w700(
+                                                context,
+                                              ).copyWith(
+                                                color: AppColors.primaryColor,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 5),
+                                            Icon(
+                                              Icons
+                                                  .keyboard_double_arrow_left_outlined,
+                                              color: AppColors.primaryColor,
+                                              size: 25,
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),

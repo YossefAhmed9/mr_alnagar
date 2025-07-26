@@ -100,6 +100,7 @@ class HomeCubit extends Cubit<HomeState> {
           print(error.runtimeType);
         });
   }
+  var home;
   var homeData;
   List homeSliders = [];
   List commonQuestion = [];
@@ -121,6 +122,7 @@ class HomeCubit extends Cubit<HomeState> {
       var data = value.data['data'];
 
       // Save all parts of the response
+      home=value.data['data'];
       homeData = data['ask_us'];
       homeSliders = data['sliders'];
       commonQuestion = data['CommonQuestion']['question_and_answer'];
@@ -172,6 +174,7 @@ class HomeCubit extends Cubit<HomeState> {
           query: {"category_id": categoryID},
         )
         .then((value) {
+          topStudents=[];
           topStudents=value.data['data']['topStudents'];
           print(value.data);
           emit(GETLeaderBoardDone());

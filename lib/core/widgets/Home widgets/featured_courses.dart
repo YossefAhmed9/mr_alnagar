@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../cubits/courses_cubit/courses_cubit.dart';
+import '../../cubits/courses_cubit/courses_state.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mr_alnagar/core/cubits/courses_cubit/courses_cubit.dart';
 import 'package:mr_alnagar/core/cubits/courses_cubit/courses_state.dart';
@@ -9,8 +14,8 @@ import '../../utils/app_colors.dart';
 import '../../utils/text_styles.dart';
 import '../Courses widgets/course_card.dart';
 
-class CoursesSectionInHome extends StatelessWidget {
-  const CoursesSectionInHome({super.key});
+class FeaturedCourses extends StatelessWidget {
+  const FeaturedCourses({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +33,7 @@ class CoursesSectionInHome extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('الكورسات', style: TextStyles.textStyle16w700(context)),
+                  Text('الكورسات المميزة', style: TextStyles.textStyle16w700(context)),
                   InkWell(
                     onTap: () {
                       HomeCubit.get(context).changeBottomNavBarIndex(index: 2);
@@ -62,32 +67,32 @@ class CoursesSectionInHome extends StatelessWidget {
               // ),
               CoursesCubit.get(context).courses.isEmpty
                   ? Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: AppColors.primaryColor,
-                      ),
-                    ),
-                  )
-                  : SizedBox(
-                    height: 260.h,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      physics: BouncingScrollPhysics(),
-                      itemCount: 2,
-                      shrinkWrap: true,
-                      itemBuilder: (context, index) {
-                        return SizedBox(
-                          width: 280,
-                          height: 140.h,
-                          child: CourseCard(
-                            data: CoursesCubit.get(context).courses[0],
-                            index: index,
-                          ),
-                        );
-                      },
-                    ),
+                padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.primaryColor,
                   ),
+                ),
+              )
+                  : SizedBox(
+                height: 260.h,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  physics: BouncingScrollPhysics(),
+                  itemCount: HomeCubit.get(context).home['featured_courses'].length,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    return SizedBox(
+                      width: 280,
+                      height: 140.h,
+                      child: CourseCard(
+                        data: HomeCubit.get(context).home['featured_courses'][index],
+                        index: index,
+                      ),
+                    );
+                  },
+                ),
+              ),
             ],
           ),
         );

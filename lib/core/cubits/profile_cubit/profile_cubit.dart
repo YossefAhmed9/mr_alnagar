@@ -179,15 +179,15 @@ print(response.data['data']);
 
   
   
-  List homeWorksResults = [];
-  Future<void> getHomeworks() async {
-    await DioHelper.getData(url: EndPoints.resultHomework)
-        .then((value) {
-          print(value);
-          homeWorksResults = value.data['data'];
-        })
-        .catchError((error) {});
-  }
+  // List homeWorksResults = [];
+  // Future<void> getHomeworks() async {
+  //   await DioHelper.getData(url: EndPoints.resultHomework)
+  //       .then((value) {
+  //         print(value);
+  //         homeWorksResults = value.data['data'];
+  //       })
+  //       .catchError((error) {});
+  // }
 
   ImagePicker picker = ImagePicker();
   File? image;
@@ -574,31 +574,6 @@ print(response.data['data']);
         });
   }
 
-  List<QuizResultModel> quizResults = [];
-
-  Future<void> fetchQuizResults() async {
-    try {
-      emit(QuizResultsLoading());
-
-      final response = await DioHelper.getData(
-        url: EndPoints.quizzesResults,
-        token: await CacheHelper.getData(key: CacheKeys.token),
-      );
-
-      if (response.data['success'] == true) {
-        quizResults =
-            (response.data['data'] as List)
-                .map((json) => QuizResultModel.fromJson(json))
-                .toList();
-
-        emit(QuizResultsSuccess(quizResults));
-      } else {
-        emit(QuizResultsError(response.data['message'] ?? 'Unknown error'));
-      }
-    } catch (e) {
-      emit(QuizResultsError(e.toString()));
-    }
-  }
 
   List inProgressCourses = [];
   List completedCourses = [];

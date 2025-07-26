@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "mr_alnagar",
+            "name": "منصة محمد النجار",
             "request": "launch",
             "type": "dart"
         },

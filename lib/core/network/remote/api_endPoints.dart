@@ -34,6 +34,7 @@ abstract class EndPoints {
   static String resultQuiz = 'student-quizzes';
   // static String watchVideo = 'watch_video';
   static String videosByCourse = 'videos_by_course';
+  static String videosByClass = 'videos_by_classes';
   static String videos = 'videos';
 
   static String myCourses='my-courses';
@@ -41,7 +42,7 @@ abstract class EndPoints {
   static String submitHomework = 'student-homeworks';
   static String resultHomework = 'student-homeworks';
   static String homeWorksResultsForProfile = 'homework-results';
-  static String videosByClasses = 'videos_by_classes  ';
+  static String videosByClasses = 'videos_by_classes';
   static String certificate = 'certificate';
   static String enrollmentStatus = 'enrollment-status';
 

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:mr_alnagar/core/cubits/books_cubit/books_cubit.dart';
 import 'package:mr_alnagar/core/cubits/books_cubit/books_state.dart';
 import 'package:mr_alnagar/core/cubits/courses_cubit/courses_cubit.dart';
 import 'package:mr_alnagar/core/utils/app_colors.dart';
 import 'package:mr_alnagar/core/utils/text_styles.dart';
+import '../../core/cubits/lessons_cubit/lessons_cubit.dart';
 import '../../core/widgets/Courses widgets/books_tab_bar_view.dart';
 import '../../core/widgets/Courses widgets/courses_tab_bar_view.dart';
 
@@ -23,10 +25,10 @@ class CoursesView extends StatelessWidget {
           textDirection: TextDirection.rtl,
           child: SafeArea(
             child: DefaultTabController(
-                  animationDuration: Duration(milliseconds: 400),
-                  length: 2,
-                  initialIndex: 0,
-                  child: Column(
+              animationDuration: Duration(milliseconds: 400),
+              length: 2,
+              initialIndex: 0,
+              child: Column(
                 children: [
                   Container(
                     height: 70,
@@ -68,7 +70,7 @@ class CoursesView extends StatelessWidget {
                   ),
                 ],
               ),
-                ),
+            ),
           ),
         );
       },

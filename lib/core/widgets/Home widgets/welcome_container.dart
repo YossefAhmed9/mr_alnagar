@@ -39,13 +39,15 @@ class WelcomeContainer extends StatelessWidget {
                     onTap: (){
                       HomeCubit.get(context).changeBottomNavBarIndex(index: 3);
                     },
-                    child: CircleAvatar(
-                      radius: 40,
+                    child:
+                    CircleAvatar(
+                      radius: 50,
                       backgroundColor: Colors.transparent,
                       child: ClipOval(
                         clipBehavior: Clip.antiAliasWithSaveLayer,
                         child: Image.network(
-
+                          height: 150,width: 150,
+                          fit:BoxFit.cover,
                           CacheHelper.getData(key: CacheKeys.image),
                           errorBuilder: (context, error, stackTrace) {
                             return Image.asset(
@@ -59,9 +61,24 @@ class WelcomeContainer extends StatelessWidget {
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('مرحبا',style: TextStyles.textStyle18w700(context),),
-                    Text(CacheHelper.getData(key: CacheKeys.fullName),style: TextStyles.textStyle18w700(context),),
+                 children: [
+                   InkWell(
+                     onTap: (){
+                       HomeCubit.get(context).changeBottomNavBarIndex(index: 3);
+
+                     },
+                     child: Column(
+    crossAxisAlignment:CrossAxisAlignment.start,
+
+                       children: [
+                         Text('مرحبا',style: TextStyles.textStyle18w700(context),),
+                         Text(CacheHelper.getData(key: CacheKeys.fullName),style: TextStyles.textStyle18w700(context),),
+
+
+                       ],
+                     ),
+                   ),
+
                     Padding(
                       padding: const EdgeInsets.only(top:  15.0),
                       child: Container(

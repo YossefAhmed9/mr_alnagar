@@ -79,6 +79,9 @@ class CoursesCubit extends Cubit<CoursesState> {
 
       if (statusCode == 200 && response.data != null && response.data['data'] != null) {
         coursesVideos = response.data['data'];
+        if (response.data['data']['sections_data'].isEmpty) {
+          showSnackBar(context, 'لا توجد فيديوهات متاحة', 4, Colors.red);
+        }  
         emit(GetVideosDone());
       } else {
         final message = response.data['message'] ?? 'فشل تحميل الفيديوهات';
@@ -86,7 +89,7 @@ class CoursesCubit extends Cubit<CoursesState> {
         emit(GetVideosError(message));
       }
 
-    } on DioError catch (dioError) {
+    } on DioException catch (dioError) {
       final response = dioError.response;
       final statusCode = response?.statusCode;
       final errorMessage = response?.data['message'] ??
@@ -189,7 +192,7 @@ class CoursesCubit extends Cubit<CoursesState> {
         });
     return null;
   }
-  void enrollInCourse({required int courseID,required String paymentType})async{
+  Future<void> enrollInCourse({required int courseID,required String paymentType})async{
     emit(EnrollInCourseLoading());
     await DioHelper.postData(url: EndPoints.enrollCourse, data: {
       "course_id": courseID,
@@ -634,8 +637,7 @@ class CoursesCubit extends Cubit<CoursesState> {
   }
 
 
-  void showSnackBar(
-      BuildContext context, String message, int duration, Color? color) {
+  void showSnackBar(BuildContext context, String message, int duration, Color? color) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message,style: TextStyles.textStyle16w700(context),),

@@ -4,9 +4,20 @@ import 'package:mr_alnagar/core/cubits/home_cubit/home_cubit.dart';
 import 'package:mr_alnagar/core/utils/app_colors.dart';
 import 'package:mr_alnagar/core/utils/text_styles.dart';
 
-class LeaderBoard extends StatelessWidget {
-  const LeaderBoard({Key? key}) : super(key: key);
+class LeaderBoard extends StatefulWidget {
+  const LeaderBoard({Key? key,required this.categoryID}) : super(key: key);
+final categoryID;
+  @override
+  State<LeaderBoard> createState() => _LeaderBoardState();
+}
 
+class _LeaderBoardState extends State<LeaderBoard> {
+
+@override
+  void initState() {
+    // TODO: implement initState
+    HomeCubit.get(context).getLeaderBoard(categoryID: widget.categoryID);
+  }
   @override
   Widget build(BuildContext context) {
     final topStudents = HomeCubit.get(context).topStudents;
@@ -26,6 +37,7 @@ class LeaderBoard extends StatelessWidget {
         shrinkWrap: true,
         itemCount: topStudents.length,
         itemBuilder: (context, index) {
+
           final student = topStudents[index];
           return Padding(
             padding: const EdgeInsets.all(12.0),
@@ -42,17 +54,23 @@ class LeaderBoard extends StatelessWidget {
                   spacing: 8,
                   children: [
                     CircleAvatar(
-                      child: Image.network(
-                        student['image'],
-                        errorBuilder: (context, error, stackTrace) {
-                          return Image.asset(
-                            'assets/images/error image.png',
-                          );
-                        },
+                      radius: 30,
+                      backgroundColor: Colors.transparent,
+                      child: ClipOval(
+                        child: AspectRatio(
+                          aspectRatio: 1, // Forces a 1:1 ratio
+                          child: Image.network(
+                            student['image'],
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Image.asset('assets/images/error image.png', fit: BoxFit.cover);
+                            },
+                          ),
+                        ),
                       ),
                     ),
                     Text(
-                      student['name'],
+                      student['name'] ?? '',
                       style: TextStyles.textStyle16w400(context),
                     ),
                     Spacer(),

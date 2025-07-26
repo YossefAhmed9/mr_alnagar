@@ -49,7 +49,7 @@ Future<void> main() async {
 
   runApp(
     DevicePreview(
-      enabled: kDebugMode,
+      enabled: !kDebugMode,
       builder: (context) => ScreenUtilInit(
         designSize: const Size(375, 812),
         minTextAdapt: true,
@@ -102,7 +102,7 @@ class MyApp extends StatelessWidget {
           ),
           colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primaryColor),
         ),
-        home: SplashScreen(),
+        home: HomeLayout(),
       ),
     );
   }
