@@ -34,6 +34,21 @@ class _CourseReservationScreenState extends State<CourseReservationScreen> {
   bool showMoreButton=false;
   int newMaxLinesValue=5;
 
+  bool isLoad=false;
+  void showLoadOnRefresh()async{
+    isLoad=true;
+    await CoursesCubit.get(context).getCourseByID(id: widget.data['id']);
+    Future.delayed(Duration(seconds: 2)).then((value){
+      setState(() async{
+        Navigator.pop(context);
+        Navigator.push(context,CupertinoPageRoute(builder: (context)=>CourseReservationScreen(data: CoursesCubit.get(context).courseResult[0])));
+        isLoad=false;
+      });
+    });
+
+  }
+
+
   @override
   void initState() {
     super.initState();
@@ -119,10 +134,7 @@ class _CourseReservationScreenState extends State<CourseReservationScreen> {
             )
             : RefreshIndicator(
               onRefresh: () async {
-                setState(() {
-
-                });
-                return await CoursesCubit.get(context).getCourses();
+                showLoadOnRefresh();
               },
               child: Directionality(
                 textDirection: TextDirection.rtl,
@@ -243,12 +255,14 @@ class _CourseReservationScreenState extends State<CourseReservationScreen> {
                       icon: Icon(Icons.arrow_back_ios),
                     ),
                     title: Text(
-                      course['title'],
+                      '${course['title']}',
                       style: TextStyles.textStyle16w700(context),
                     ),
                     centerTitle: true,
                   ),
-                  body: SingleChildScrollView(
+                  body: isLoad ? Center(child: CircularProgressIndicator(),) :
+
+                  SingleChildScrollView(
                     child: ModalProgressHUD(
                       inAsyncCall: CoursesCubit.get(context).isCourseLoading,
                       child: Padding(
@@ -376,6 +390,7 @@ class _CourseReservationScreenState extends State<CourseReservationScreen> {
                                     width: 100,height: 30,
                                     decoration: BoxDecoration(color: AppColors.secondary,borderRadius: BorderRadius.circular(20)),
                                     child: Center(child: Text(showMoreButton ? showLess : showMore,style: TextStyle(fontSize: 15,fontWeight: FontWeight.w900,color: Colors.white),))))
+
                               ],
                             ),
 

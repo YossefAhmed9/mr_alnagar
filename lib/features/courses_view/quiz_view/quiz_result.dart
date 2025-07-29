@@ -7,6 +7,7 @@ import 'package:mr_alnagar/core/cubits/courses_cubit/courses_cubit.dart';
 import 'package:mr_alnagar/core/cubits/courses_cubit/courses_state.dart';
 import 'package:mr_alnagar/core/utils/app_colors.dart';
 import 'package:mr_alnagar/core/utils/text_styles.dart';
+import 'package:mr_alnagar/features/courses_view/videos_view/videos_view.dart';
 
 import '../../home_screen/home_layout.dart';
 
@@ -19,20 +20,29 @@ class QuizResultView extends StatelessWidget {
     final List results = quizData['results'] ?? [];
 
     return Scaffold(
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Container(
-          height: 50,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(25),
-                color: AppColors.primaryColor
-            ),
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text('ابدا الكورس',style: TextStyles.textStyle16w700(context).copyWith(color: Colors.white),),
+      bottomNavigationBar: InkWell(
+        onTap: ()async{
+          await CoursesCubit.get(context).getVideosByCourse(id: quizData['course_id'], context: context);
+          await CoursesCubit.get(context).getCourseByID(id: quizData['course_id'],);
+          Navigator.push(context, CupertinoPageRoute(builder: (context){
+            return CourseVideoScreen(videoIndex: quizData['course_id']);
+          }));
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            height: 50,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(25),
+                  color: AppColors.primaryColor
               ),
-            )),
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text('ابدا الكورس',style: TextStyles.textStyle16w700(context).copyWith(color: Colors.white),),
+                ),
+              )),
+        ),
       ),
       appBar: AppBar(
         title: Text(
@@ -44,10 +54,11 @@ class QuizResultView extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10.0),
-        child: SingleChildScrollView(
-          child: Stack(
-            children:[
-              Column(
+        child: Stack(
+          children:[
+
+            SingleChildScrollView(
+              child: Column(
 
 
 
@@ -89,13 +100,10 @@ class QuizResultView extends StatelessWidget {
                                   Text("Correct answer:", style: TextStyles.textStyle14w700(context)),
                                   Text(correctAnswer?.toString() ?? '-', style: TextStyles.textStyle14w400(context).copyWith(color: AppColors.primaryColor)),
                                 ] else
-                                  GridView.builder(
+                                  ListView.builder(
                                     physics: const NeverScrollableScrollPhysics(),
                                     shrinkWrap: true,
-                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 1,
-                                      childAspectRatio: 3.5,
-                                    ),
+
                                     itemCount: answers.length,
                                     itemBuilder: (context, index) {
                                       final answer = answers[index];
@@ -148,72 +156,73 @@ class QuizResultView extends StatelessWidget {
                   ),
                 ],
               ),
-              Directionality(
-                textDirection: TextDirection.rtl,
+            ),
+            Directionality(
+              textDirection: TextDirection.rtl,
+              child: Container(
+                decoration: BoxDecoration(color: Colors.white),
                 child: Container(
-                  decoration: BoxDecoration(color: Colors.white),
-                  child: Container(
-                    width: double.infinity,
-                    height: 140.h,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      image: DecorationImage(
-                        image: AssetImage('assets/images/pattern 2.png'),
-                        fit: BoxFit.fill,
+                  width: double.infinity,
+                  height: 140.h,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/pattern 2.png'),
+                      fit: BoxFit.fill,
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        spacing:5,
+                        children: [
+                          Text('النتيجة :',style: TextStyles.textStyle20w700(context).copyWith(color: AppColors.secondary),),
+
+                          Text('${CoursesCubit.get(context).quizResult['score']}/${CoursesCubit.get(context).quizResult['full_score']}' ?? '',style: TextStyles.textStyle20w700(context).copyWith(color: AppColors.secondary)),
+
+                        ],
                       ),
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          spacing:5,
-                          children: [
-                            Text('النتيجة :',style: TextStyles.textStyle20w700(context).copyWith(color: AppColors.secondary),),
+                      Row(
+                        spacing: 10,
+                        children: [
+                          Container(decoration: BoxDecoration(color: Colors.red,borderRadius: BorderRadius.circular(25)),width: 20,height: 10,),
+                          Flexible(
+                            child: Text(
+                              maxLines: 2,overflow: TextOverflow.ellipsis,
+                              'الاجابات باللون الاحمر تدل علي اجابتك انها خطأ',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.red),),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        spacing: 10,
+                        children: [
+                          Container(decoration: BoxDecoration(color: AppColors.primaryColor,borderRadius: BorderRadius.circular(25)),width: 20,height: 10,),
+                          Flexible(
+                            child: Text(
+                              maxLines: 2,overflow: TextOverflow.ellipsis,
 
-                            Text('${CoursesCubit.get(context).quizSubmission['score_text']}',style: TextStyles.textStyle20w700(context).copyWith(color: AppColors.secondary)),
-
-                          ],
-                        ),
-                        Row(
-                          spacing: 10,
-                          children: [
-                            Container(decoration: BoxDecoration(color: Colors.red,borderRadius: BorderRadius.circular(25)),width: 20,height: 10,),
-                            Flexible(
-                              child: Text(
-                                maxLines: 2,overflow: TextOverflow.ellipsis,
-                                'الاجابات باللون الاحمر تدل علي اجابتك انها خطأ',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.red),),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          spacing: 10,
-                          children: [
-                            Container(decoration: BoxDecoration(color: AppColors.primaryColor,borderRadius: BorderRadius.circular(25)),width: 20,height: 10,),
-                            Flexible(
-                              child: Text(
-                                maxLines: 2,overflow: TextOverflow.ellipsis,
-
-                                'الاجابات باللون الارزق تدل على الاجابة صحيحة',style: TextStyles.textStyle14w700(context).copyWith(color: AppColors.primaryColor),),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          spacing: 10,
-                          children: [
-                            Container(decoration: BoxDecoration(border: Border.all(color: AppColors.primaryColor),borderRadius: BorderRadius.circular(25)),width: 20,height: 10,),
-                            Flexible(
-                              child: Text(
-                                maxLines: 2,overflow: TextOverflow.ellipsis,
-                                'ان لم تجد اجابتك باللون الاحمر يدل علي ان اجابتك صحيحة',style: TextStyles.textStyle14w700(context).copyWith(color: AppColors.primaryColor),),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                              'الاجابات باللون الارزق تدل على الاجابة صحيحة',style: TextStyles.textStyle14w700(context).copyWith(color: AppColors.primaryColor),),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        spacing: 10,
+                        children: [
+                          Container(decoration: BoxDecoration(border: Border.all(color: AppColors.primaryColor),borderRadius: BorderRadius.circular(25)),width: 20,height: 10,),
+                          Flexible(
+                            child: Text(
+                              maxLines: 2,overflow: TextOverflow.ellipsis,
+                              'ان لم تجد اجابتك باللون الاحمر يدل علي ان اجابتك صحيحة',style: TextStyles.textStyle14w700(context).copyWith(color: AppColors.primaryColor),),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ] ,
-          ),
+            ),
+
+          ] ,
         ),
       ),
     );

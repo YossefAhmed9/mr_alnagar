@@ -1,10 +1,12 @@
 abstract class LessonsState {}
 
 final class LessonsInitial extends LessonsState {}
+
 final class ChangeIsCourseDone extends LessonsState {}
 
 // Tab Bar State
 final class ChangeTabBarIndex extends LessonsState {}
+
 final class ChangeIsLessonDone extends LessonsState {}
 
 final class EnrollInLessonLoading extends LessonsState {}
@@ -16,6 +18,23 @@ final class EnrollInLessonError extends LessonsState {
   EnrollInLessonError(this.error);
 }
 
+final class GetUserLessonsLoading extends LessonsState {}
+
+final class GetUserLessonsDone extends LessonsState {}
+
+final class GetUserLessonsError extends LessonsState {
+  final dynamic error;
+  GetUserLessonsError(this.error);
+}
+
+final class GetClassDataByIDLoading extends LessonsState {}
+
+final class GetClassDataByIDDone extends LessonsState {}
+
+final class GetClassDataByIDError extends LessonsState {
+  final dynamic error;
+  GetClassDataByIDError(this.error);
+}
 
 final class HomeWorkSubmissionLoading extends LessonsState {}
 
@@ -25,7 +44,6 @@ final class HomeWorkSubmissionError extends LessonsState {
   final dynamic error;
   HomeWorkSubmissionError(this.error);
 }
-
 
 final class GetVideosByCourseLoading extends LessonsState {}
 
@@ -47,7 +65,6 @@ final class GetVideosError extends LessonsState {
   final dynamic error;
   GetVideosError(this.error);
 }
-
 
 // Classes States
 final class ClassesLoading extends LessonsState {}
@@ -103,10 +120,6 @@ final class SubmitQuizError extends LessonsState {
   SubmitQuizError(this.error);
 }
 
-
-
-
-
 // New Class-Related States
 final class ClassByIdLoading extends LessonsState {}
 
@@ -145,7 +158,6 @@ final class StartQuizError extends LessonsState {
   StartQuizError(this.error);
 }
 
-
 final class GetQuizLoading extends LessonsState {}
 
 final class GetQuizDone extends LessonsState {}
@@ -155,8 +167,8 @@ final class GetQuizError extends LessonsState {
   GetQuizError(this.error);
 }
 
-
 final class StudentAnswerStored extends LessonsState {}
+
 final class GetCourseLoading extends LessonsState {}
 
 final class GetCourseDone extends LessonsState {}
@@ -166,7 +178,6 @@ final class GetCourseError extends LessonsState {
   GetCourseError(this.error);
 }
 
-
 final class GetHomeWorkResultLoading extends LessonsState {}
 
 final class GetHomeWorkResultDone extends LessonsState {}
@@ -175,7 +186,6 @@ final class GetHomeWorkResultError extends LessonsState {
   final dynamic error;
   GetHomeWorkResultError(this.error);
 }
-
 
 final class QuizResultLoading extends LessonsState {}
 

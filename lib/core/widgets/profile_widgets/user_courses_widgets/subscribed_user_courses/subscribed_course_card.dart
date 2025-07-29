@@ -14,17 +14,7 @@ class SubscribedCourseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: ()async{
-        await CoursesCubit.get(context).getVideosByCourse(id: course['id'],context: context);
-
-        Navigator.push(
-            context,
-            CupertinoPageRoute(
-            builder: (context) => CourseVideoScreen(videoIndex: course['id']),
-        ),);
-      },
-      child: Padding(
+    return  Padding(
         padding: const EdgeInsets.all(5.0),
         child: Container(
           decoration: BoxDecoration(
@@ -110,7 +100,6 @@ class SubscribedCourseCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
     );
   }
 }

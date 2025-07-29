@@ -16,6 +16,7 @@ abstract class CacheKeys {
   static const email = 'email';
   static const image = 'image';
   static const lastVideoIndex = 'videoIndex';
+  static const lastLessonVideoIndex = 'lessonVideoIndex';
   static const lastSectionIndex = 'SectionId';
 
   static const fullName = 'fullName';

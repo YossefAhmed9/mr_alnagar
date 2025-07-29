@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mr_alnagar/core/cubits/lessons_cubit/lessons_cubit.dart';
 import 'package:mr_alnagar/core/utils/app_colors.dart';
 import 'package:mr_alnagar/core/utils/text_styles.dart';
@@ -18,7 +19,7 @@ class LessonsReservationTabBar extends StatelessWidget {
   Widget build(BuildContext context) {
     if (lessons.isEmpty) {
       return Center(
-        child: CircularProgressIndicator(),
+        child: Text('لا توجد بيانات',style: TextStyles.textStyle16w700(context).copyWith(color: AppColors.primaryColor),),
       );
     }
 
@@ -26,7 +27,12 @@ class LessonsReservationTabBar extends StatelessWidget {
       itemCount: lessons.length,
       itemBuilder: (context, index) {
         final course = lessons[index];
-        return LessonCard(data: course, index: index); // Assuming LessonItem is a widget to display each lesson
+        return Stack(children:
+        [
+          LessonCard(data: course, index: index),
+
+        ]
+        ); // Assuming LessonItem is a widget to display each lesson
       },
     );
   }

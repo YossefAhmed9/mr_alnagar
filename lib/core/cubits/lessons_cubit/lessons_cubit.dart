@@ -28,110 +28,119 @@ class LessonsCubit extends Cubit<LessonsState> {
   //   updated[questionIndex] = answerIndex;
   //   emit(AnswerUpdated());
   // }
-  bool isLessonLoading=false;
-  void changeIsLessonLoading(){
-    isLessonLoading=!isLessonLoading;
+  bool isLessonLoading = false;
+  void changeIsLessonLoading() {
+    isLessonLoading = !isLessonLoading;
     emit(ChangeIsLessonDone());
   }
+
   void showSnackBar(
-      BuildContext context, String message, int duration, Color? color) {
+    BuildContext context,
+    String message,
+    int duration,
+    Color? color,
+  ) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message,style: TextStyles.textStyle16w700(context),),
+        content: Text(message, style: TextStyles.textStyle16w700(context)),
         duration: Duration(seconds: duration),
         backgroundColor: color,
       ),
     );
   }
 
-  Future<void> enrollInLesson({required int courseID,required String paymentType})async{
+  Future<void> enrollInLesson({
+    required int courseID,
+    required String paymentType,
+  }) async {
     emit(EnrollInLessonLoading());
-    await DioHelper.postData(url: EndPoints.enrollCourse, data: {
-      "course_id": courseID,
-      "payment_type": paymentType
-    },token: CacheHelper.getData(key: CacheKeys.token),
-
-    ).then((value){
-
-      print(value.data);
-      print(value.data["message"]);
-      print(value.data["data"]);
-      emit(EnrollInLessonDone());
-    }).catchError((error){
-      emit(EnrollInLessonError(error));
-    });
+    await DioHelper.postData(
+          url: EndPoints.enrollCourse,
+          data: {"course_id": courseID, "payment_type": paymentType},
+          token: CacheHelper.getData(key: CacheKeys.token),
+        )
+        .then((value) {
+          print(value.data);
+          print(value.data["message"]);
+          print(value.data["data"]);
+          emit(EnrollInLessonDone());
+        })
+        .catchError((error) {
+          emit(EnrollInLessonError(error));
+        });
   }
 
-var quiz;
+  var quiz;
   List quizQuestions = [];
 
   Future<void> startQuiz({required int quizId}) async {
     emit(GetQuizLoading());
 
     await DioHelper.getData(
-      url: "${EndPoints.startQuiz}/$quizId/start",
-      token: CacheHelper.getData(key: CacheKeys.token),
-    ).then((value) {
-      //print(value.data['data']);
-      quiz = value.data['data'];
-      quizQuestions.clear();
+          url: "${EndPoints.startQuiz}/$quizId/start",
+          token: CacheHelper.getData(key: CacheKeys.token),
+        )
+        .then((value) {
+          //print(value.data['data']);
+          quiz = value.data['data'];
+          quizQuestions.clear();
 
-      // Save list of questions
-      quizQuestions.addAll((quiz['quiz']['questions']));
-      print('//////////////////');
-      // Save all answers for each question
-      //quizAnswers.addAll((quiz['quiz']['questions'][0]['questions'][0]['answers']));
-      //print(value.data);
-      // print(quizQuestions.length);
-      // print(quizAnswers);
+          // Save list of questions
+          quizQuestions.addAll((quiz['quiz']['questions']));
+          print('//////////////////');
+          // Save all answers for each question
+          //quizAnswers.addAll((quiz['quiz']['questions'][0]['questions'][0]['answers']));
+          //print(value.data);
+          // print(quizQuestions.length);
+          // print(quizAnswers);
 
-      emit(GetQuizDone());
-    }).catchError((error) {
-      print(error);
-      emit(GetQuizError(error));
-    });
+          emit(GetQuizDone());
+        })
+        .catchError((error) {
+          print(error);
+          emit(GetQuizError(error));
+        });
   }
 
   var quizResult;
   Future<void> getQuizResult({required int attemptID}) async {
     emit(GetCourseLoading());
     await DioHelper.getData(
-      url: "${EndPoints.resultQuiz}/$attemptID/results",
-      token: CacheHelper.getData(key: CacheKeys.token),
-    )
+          url: "${EndPoints.resultQuiz}/$attemptID/results",
+          token: CacheHelper.getData(key: CacheKeys.token),
+        )
         .then((value) {
-      print(value.data);
-      quizResult=value.data['data'];
-      emit(GetCourseDone());
-    })
+          print(value.data);
+          quizResult = value.data['data'];
+          emit(GetCourseDone());
+        })
         .catchError((error) {
-      print(error);
-      emit(GetCourseError(error));
-    });
+          print(error);
+          emit(GetCourseError(error));
+        });
   }
-
 
   var homeWorkResult;
   Future<void> getHomeWorkResult({required int attemptID}) async {
     emit(GetHomeWorkResultLoading());
     await DioHelper.getData(
-      url: "${EndPoints.resultHomework}/$attemptID/results",
-      token: CacheHelper.getData(key: CacheKeys.token),
-    )
+          url: "${EndPoints.resultHomework}/$attemptID/results",
+          token: CacheHelper.getData(key: CacheKeys.token),
+        )
         .then((value) {
-      print(value.data);
-      homeWorkResult=value.data['data'];
-      emit(GetHomeWorkResultDone());
-    })
+          print(value.data);
+          homeWorkResult = value.data['data'];
+          emit(GetHomeWorkResultDone());
+        })
         .catchError((error) {
-      print(error);
-      emit(GetHomeWorkResultError(error));
-    });
+          print(error);
+          emit(GetHomeWorkResultError(error));
+        });
   }
 
-  bool isSubmissionLoading=false;
-  void changeIsSubmissionLoading(){
-    isSubmissionLoading=!isSubmissionLoading;
+  bool isSubmissionLoading = false;
+  void changeIsSubmissionLoading() {
+    isSubmissionLoading = !isSubmissionLoading;
     emit(ChangeIsCourseDone());
   }
 
@@ -151,7 +160,7 @@ var quiz;
       );
 
       print(value.data);
-      homewrokSubmission=value.data['data'];
+      homewrokSubmission = value.data['data'];
       emit(HomeWorkSubmissionDone());
 
       showSnackBar(
@@ -160,7 +169,6 @@ var quiz;
         3,
         Colors.green,
       );
-
     } on DioException catch (dioError) {
       String errorMessage = "Failed to submit homework. Please try again.";
 
@@ -183,16 +191,12 @@ var quiz;
         errorMessage = "Unexpected error occurred. Please try again.";
       }
 
-      print("Submission DioError: $errorMessage ${dioError.response} ${dioError.message}");
+      print(
+        "Submission DioError: $errorMessage ${dioError.response} ${dioError.message}",
+      );
       emit(HomeWorkSubmissionError(errorMessage));
 
-      showSnackBar(
-        context,
-        errorMessage,
-        3,
-        Colors.red,
-      );
-
+      showSnackBar(context, errorMessage, 3, Colors.red);
     } catch (e) {
       print("Submission Error: $e");
       emit(HomeWorkSubmissionError(e.toString()));
@@ -205,8 +209,6 @@ var quiz;
       );
     }
   }
-
-
 
   // Submit quiz
   var quizSubmission;
@@ -224,16 +226,16 @@ var quiz;
       );
 
       print(response.data);
-      quizSubmission=response.data['data'];
+      quizSubmission = response.data['data'];
       emit(SubmitQuizDone());
-
     } on DioException catch (dioError) {
       String errorMessage = "Failed to submit quiz. Please try again.";
 
       if (dioError.type == DioExceptionType.connectionTimeout ||
           dioError.type == DioExceptionType.sendTimeout ||
           dioError.type == DioExceptionType.receiveTimeout) {
-        errorMessage = "Connection timed out. Please check your internet connection.";
+        errorMessage =
+            "Connection timed out. Please check your internet connection.";
       } else if (dioError.type == DioExceptionType.badResponse) {
         final response = dioError.response;
         if (response != null && response.data != null) {
@@ -248,93 +250,126 @@ var quiz;
         errorMessage = "Unexpected error occurred. Please try again.";
       }
 
-      print("Submit Quiz DioError: $errorMessage ${dioError.response} ${dioError.message} ${dioError.error}");
+      print(
+        "Submit Quiz DioError: $errorMessage ${dioError.response} ${dioError.message} ${dioError.error}",
+      );
       emit(SubmitQuizError(errorMessage));
-
     } catch (e) {
       print("Submit Quiz Error: $e");
       emit(SubmitQuizError(e.toString()));
     }
   }
 
-
-  var LessonsVideos;
-  Future<void> getVideosByLesson({required int id, required BuildContext context}) async {
-    emit(GetVideosLoading());
-
-    try {
-      final response = await DioHelper.getData(
-        url: '${EndPoints.videosByCourse}/$id',
-        token: CacheHelper.getData(key: CacheKeys.token),
-      );
-
-      final statusCode = response.statusCode;
-      // print('///////////////////////////////////');
-      // print('Status Code: $statusCode');
-      // print('Response Data: ${response.data}');
-      // print('///////////////////////////////////');
-
-      if (statusCode == 200 && response.data != null && response.data['data'] != null) {
-        LessonsVideos = response.data['data'];
-        if (response.data['data']['sections_data'].isEmpty) {
-          showSnackBar(context, 'لا توجد فيديوهات متاحة', 4, Colors.red);
-        }
-
-        emit(GetVideosDone());
-      } else {
-        final message = response.data['message'] ?? 'فشل تحميل الفيديوهات';
-        showSnackBar(context, message, 3, Colors.orange);
-        emit(GetVideosError(message));
-      }
-
-    } on DioException catch (dioError) {
-      final response = dioError.response;
-
-
-      print('///////////////////////////////////');
-      print('DioError: ${response!.data}');
-      print('DioError: ${response!.statusCode}');
-      print('Status Code: ${response!.statusCode}');
-      print('Error Data: ${response?.data}');
-      print('///////////////////////////////////');
-
-      showSnackBar(context, response.data['message'].toString(), 5, Colors.red);
-      emit(GetVideosError(response!.data['message']));
-
-    } catch (e) {
-      print('///////////////////////////////////');
-      print('Unknown Error: $e');
-      print('///////////////////////////////////');
-
-      showSnackBar(context, 'حدث خطأ غير متوقع. الرجاء المحاولة لاحقًا.', 3, Colors.red);
-      emit(GetVideosError(e.toString()));
-    }
+  List userLessons = [];
+  Future<void> getUserLessons({required int id}) async {
+    emit(GetUserLessonsLoading());
+    await DioHelper.getData(
+          url: '${EndPoints.getClassesByCoursesID}/$id',
+          token: CacheHelper.getData(key: CacheKeys.token),
+        )
+        .then((value) {
+          userLessons = [];
+          userLessons.addAll(value.data['data']);
+          if (kDebugMode) {
+            print("userLessons");
+            print(userLessons);
+          }
+          emit(GetUserLessonsDone());
+        })
+        .catchError((error) {
+      print("userLessons");
+print(error);
+      emit(GetUserLessonsError(error));
+        });
   }
 
+  // var LessonsVideos;
+  // Future<void> getVideosByLesson({
+  //   required int id,
+  //   required BuildContext context,
+  // }) async {
+  //   emit(GetVideosLoading());
+  //
+  //   try {
+  //     final response = await DioHelper.getData(
+  //       url: '${EndPoints.videosByCourse}/$id',
+  //       token: CacheHelper.getData(key: CacheKeys.token),
+  //     );
+  //
+  //     final statusCode = response.statusCode;
+  //     // print('///////////////////////////////////');
+  //     // print('Status Code: $statusCode');
+  //     // print('Response Data: ${response.data}');
+  //     // print('///////////////////////////////////');
+  //
+  //     if (statusCode == 200 &&
+  //         response.data != null &&
+  //         response.data['data'] != null) {
+  //       LessonsVideos = response.data['data'];
+  //       if (response.data['data']['sections_data'].isEmpty) {
+  //         showSnackBar(context, 'لا توجد فيديوهات متاحة', 4, Colors.red);
+  //       }
+  //
+  //       emit(GetVideosDone());
+  //     } else {
+  //       final message = response.data['message'] ?? 'فشل تحميل الفيديوهات';
+  //       showSnackBar(context, message, 3, Colors.orange);
+  //       emit(GetVideosError(message));
+  //     }
+  //   } on DioException catch (dioError) {
+  //     final response = dioError.response;
+  //
+  //     print('///////////////////////////////////');
+  //     print('DioError: ${response!.data}');
+  //     print('DioError: ${response!.statusCode}');
+  //     print('Status Code: ${response!.statusCode}');
+  //     print('Error Data: ${response?.data}');
+  //     print('///////////////////////////////////');
+  //
+  //     showSnackBar(context, response.data['message'].toString(), 5, Colors.red);
+  //     emit(GetVideosError(response!.data['message']));
+  //   } catch (e) {
+  //     print('///////////////////////////////////');
+  //     print('Unknown Error: $e');
+  //     print('///////////////////////////////////');
+  //
+  //     showSnackBar(
+  //       context,
+  //       'حدث خطأ غير متوقع. الرجاء المحاولة لاحقًا.',
+  //       3,
+  //       Colors.red,
+  //     );
+  //     emit(GetVideosError(e.toString()));
+  //   }
+  // }
 
   var videoSeconds;
-  Future<void> postVideoSeconds({required int videoId,required int lastWatchedSecond,required int watchSeconds}) async {
+  Future<void> postVideoSeconds({
+    required int videoId,
+    required int lastWatchedSecond,
+    required int watchSeconds,
+  }) async {
     emit(GetVideosByCourseLoading());
     await DioHelper.postData(
-      url: "${EndPoints.videos}/$videoId/watch",
-      data: {
-        "watch_seconds": watchSeconds,          // Total number of seconds the student has just watched in this session
-        "last_watched_second": lastWatchedSecond     // The exact second in the video where the student stopped watching (seek position)
-      },
-      token: CacheHelper.getData(key: CacheKeys.token),
-    )
+          url: "${EndPoints.videos}/$videoId/watch",
+          data: {
+            "watch_seconds":
+                watchSeconds, // Total number of seconds the student has just watched in this session
+            "last_watched_second":
+                lastWatchedSecond, // The exact second in the video where the student stopped watching (seek position)
+          },
+          token: CacheHelper.getData(key: CacheKeys.token),
+        )
         .then((value) {
-      print(value.data);
-      videoSeconds=value.data['data'];
-      emit(GetVideosByCourseSuccess(value.data));
-    })
+          print(value.data);
+          videoSeconds = value.data['data'];
+          emit(GetVideosByCourseSuccess(value.data));
+        })
         .catchError((error) {
-      print(error);
-      emit(GetVideosByCourseError(error));
-    });
+          print(error);
+          emit(GetVideosByCourseError(error));
+        });
   }
-
-
 
   bool isAnswerSelected = true;
 
@@ -345,14 +380,13 @@ var quiz;
   bool isLoading = false;
 
   List videos = [];
- // List homeworkResults = [];
-List lessonResult=[];
+  // List homeworkResults = [];
+  List lessonResult = [];
   Future<void> getClassesByCourseId({required int courseId}) async {
     isLoading = true;
     emit(ClassesLoading());
 
     try {
-
       final response = await DioHelper.getData(
         url: '${EndPoints.getClassesByCoursesID}/$courseId',
         token: CacheHelper.getData(key: CacheKeys.token),
@@ -364,7 +398,7 @@ List lessonResult=[];
         print(response.statusCode);
         print(response.realUri);
       }
-      lessonResult=[];
+      lessonResult = [];
       lessonResult.addAll(response.data['data']);
       print('lessonResult');
       print(lessonResult);
@@ -383,7 +417,7 @@ List lessonResult=[];
     }
   }
 
-  Future<void> getUserLessons({
+  Future<void> getMyLessons({
     required int categoryID,
     String filter = 'my',
   }) async {
@@ -394,18 +428,60 @@ List lessonResult=[];
       final response = await DioHelper.getData(
         url: EndPoints.courses_by_category,
         query: {"category_id": categoryID, "filter": filter},
+        token: CacheHelper.getData(key: CacheKeys.token),
       );
 
       // Check if the response is successful and contains data
       if (response.statusCode == 200) {
+        myCourses=[];
         myCourses = response.data['data'];
+        print("myCourses");
         print(myCourses);
 
         // Emit different states based on whether data is empty or not
-        if (courses.isEmpty) {
+        if (myCourses.isEmpty) {
           emit(CoursesEmpty());
         } else {
-          emit(CoursesFetched(courses));
+          emit(CoursesFetched(myCourses));
+        }
+      } else {
+        emit(CoursesError('Failed to fetch lessons'));
+      }
+
+      isLoading = false;
+    } catch (error) {
+      isLoading = false;
+      emit(CoursesError(error.toString()));
+    }
+  }
+
+  List otherLessons=[];
+  Future<void> getOtherLessons({
+    required int categoryID,
+    String filter = 'other',
+  }) async {
+    isLoading = true;
+    emit(CoursesLoading());
+
+    try {
+      final response = await DioHelper.getData(
+        url: EndPoints.courses_by_category,
+        query: {"category_id": categoryID, "filter": filter},
+        token: CacheHelper.getData(key: CacheKeys.token),
+      );
+
+      // Check if the response is successful and contains data
+      if (response.statusCode == 200) {
+        otherLessons=[];
+        otherLessons = response.data['data'];
+        print("otherLessons");
+        print(otherLessons);
+
+        // Emit different states based on whether data is empty or not
+        if (otherLessons.isEmpty) {
+          emit(CoursesEmpty());
+        } else {
+          emit(CoursesFetched(otherLessons));
         }
       } else {
         emit(CoursesError('Failed to fetch lessons'));
@@ -427,7 +503,6 @@ List lessonResult=[];
         url: EndPoints.courses_by_category,
         query: {"category_id": categoryID},
         token: CacheHelper.getData(key: CacheKeys.token),
-
       );
 
       // Check if the response is successful and contains data
@@ -457,23 +532,24 @@ List lessonResult=[];
     //isLoading = true;
     emit(VideosLoading());
 
-        await DioHelper.getData(
-        url: 'videos_by_classes/$classId',
-        token: CacheHelper.getData(key: CacheKeys.token),
-      ).then((value){
+    await DioHelper.getData(
+          url: 'videos_by_classes/$classId',
+          token: CacheHelper.getData(key: CacheKeys.token),
+        )
+        .then((value) {
           if (kDebugMode) {
             // print('**************');
-             print(value.data);
+            print(value.data);
             // print(value.statusCode);
             // print(value.realUri);
             // print('**************');
           }
-          videos=[];
+          videos = [];
           videos.add(value.data['data']);
           isLoading = false;
           emit(VideosFetched());
-
-        }).catchError((error){
+        })
+        .catchError((error) {
           isLoading = false;
           if (kDebugMode) {
             print(error);
@@ -482,39 +558,61 @@ List lessonResult=[];
           }
           emit(VideosError(error.toString()));
         });
-
-
   }
 
-  List courseResult=[];
+  var classData;
+  Future<void> getClassDataByID({
+    required BuildContext context,
+    required int classId,
+  }) async {
+    emit(GetClassDataByIDLoading());
+
+    try {
+      final response = await DioHelper.getData(
+        url: "${EndPoints.classById}/$classId",
+        token: CacheHelper.getData(key: CacheKeys.token),
+      );
+
+      classData = response.data['data'];
+      emit(GetClassDataByIDDone());
+
+      print(classData);
+      showSnackBar(context, 'تم تحميل بيانات الفصل بنجاح', 2, Colors.green);
+    } catch (error) {
+      emit(GetClassDataByIDError(error));
+print(error);
+      showSnackBar(context, 'حدث خطأ أثناء تحميل بيانات الفصل', 3, Colors.red);
+    }
+  }
+
+  List courseResult = [];
   Future<Response?> getCourseByID({required int id}) async {
     emit(GetCourseLoading());
-    await DioHelper.getData(url: "${EndPoints.getCourseByID}/$id",
-        token: CacheHelper.getData(key: CacheKeys.token)
-
-    ).then((value) {
-      //books.addAll(value.data['data']);
-      courseResult=[];
-      courseResult.add(value.data['data']);
-      print(value.data['data']['description']);
-      print(courseResult);
-      emit(GetCourseDone());
-      return value.data['data'];
-      //print(value.data);
-    })
+    await DioHelper.getData(
+          url: "${EndPoints.getCourseByID}/$id",
+          token: CacheHelper.getData(key: CacheKeys.token),
+        )
+        .then((value) {
+          //books.addAll(value.data['data']);
+          courseResult = [];
+          courseResult.add(value.data['data']);
+          print(value.data['data']['description']);
+          print(courseResult);
+          emit(GetCourseDone());
+          return value.data['data'];
+          //print(value.data);
+        })
         .catchError((error) {
-      print(error);
-      print(error.toString());
-      print(error.runtimeType);
-      emit(GetCourseError(error));
-    });
+          //print(error);
+          print(error.toString());
+          print(error.runtimeType);
+          emit(GetCourseError(error));
+        });
     return null;
   }
 
-
-
   var homework;
-  List homeworkQuestions=[];
+  List homeworkQuestions = [];
   Future<void> startHomework({
     // required BuildContext context,
     required int homeworkId,
@@ -528,8 +626,8 @@ List lessonResult=[];
       );
 
       print(response.data);
-      homework=response.data['data'];
-      homeworkQuestions=response.data['data']['homework']['questions'];
+      homework = response.data['data'];
+      homeworkQuestions = response.data['data']['homework']['questions'];
       emit(GetCourseDone());
 
       // showSnackBar(

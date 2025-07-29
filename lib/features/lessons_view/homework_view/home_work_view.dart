@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:html_unescape/html_unescape.dart';
 import 'package:ming_cute_icons/ming_cute_icons.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
@@ -30,7 +31,7 @@ class _LessonsHomeworkViewState extends State<LessonsHomeworkView> {
   Timer? _timer;
   int remainingSeconds = 0;
   List<Map<String, dynamic>?> studentHomeWorkAnswers = [];
-
+ScrollController scrollController=ScrollController();
   @override
   void initState() {
     super.initState();
@@ -75,9 +76,11 @@ class _LessonsHomeworkViewState extends State<LessonsHomeworkView> {
       }
     });
   }
-
+bool isSubmitting=false;
   Future<void> _submitHomework({bool auto = false}) async {
     if (auto) {
+      setState(() => isSubmitting = true);
+LessonsCubit.get(context).isLessonLoading=true;
       await LessonsCubit.get(context).submitHomework(
         attemptID: LessonsCubit.get(context).homework['attempt']['attempt_id'],
         answers: studentHomeWorkAnswers,
@@ -89,14 +92,24 @@ class _LessonsHomeworkViewState extends State<LessonsHomeworkView> {
         builder:
             (_) => AlertDialog(
               backgroundColor: Colors.white,
-              title: Text("Time's up!", textAlign: TextAlign.center),
+              title: Text("انتهى الوقت", textAlign: TextAlign.center),
               titleTextStyle: TextStyles.textStyle16w700(
                 context,
               ).copyWith(color: AppColors.secondary),
-              content: Text(
-                "Your homework has been automatically submitted.",
-                textAlign: TextAlign.center,
-                style: TextStyles.textStyle16w700(context),
+              content: Column(
+                children: [
+                  Text(
+                    "تم تسليم الواجب تلقائيا لانتهاء الوقت",
+                    textAlign: TextAlign.center,
+                    style: TextStyles.textStyle16w700(context),
+                  ),
+                  Text(
+                    "درجتك   ${LessonsCubit.get(context).homewrokSubmission['score_text']}",
+                    textAlign: TextAlign.center,
+                    style: TextStyles.textStyle16w700(context).copyWith(color: AppColors.secondary),
+                  ),
+
+                ],
               ),
               actionsAlignment: MainAxisAlignment.center,
               actionsPadding: const EdgeInsets.only(bottom: 12),
@@ -112,14 +125,35 @@ class _LessonsHomeworkViewState extends State<LessonsHomeworkView> {
                       ),
                     ),
                     onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      "ابدا الحصة",
+                      style: TextStyles.textStyle16w700(
+                        context,
+                      ).copyWith(color: Colors.white),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 44,
+                  width: 100,
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: AppColors.primaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                    ),
+                    onPressed: () {
                       Navigator.pushAndRemoveUntil(
                         context,
-                        CupertinoPageRoute(builder: (context) => HomeLayout()),
-                        (context) => false,
+                        CupertinoPageRoute(builder: (context) => LessonsHomeworkResultView(attemptID: LessonsCubit.get(context).homeWorkResult['attempt_id'],)),
+                            (context) => false,
                       );
                     },
                     child: Text(
-                      "OK",
+                      "اجابات الواجب",
                       style: TextStyles.textStyle16w700(
                         context,
                       ).copyWith(color: Colors.white),
@@ -132,16 +166,15 @@ class _LessonsHomeworkViewState extends State<LessonsHomeworkView> {
     } else {
       showDialog(
         context: context,
-        builder:
-            (_) => AlertDialog(
+        builder: (_) => AlertDialog(
               backgroundColor: Colors.white,
-              title: Text("Submit Homework", textAlign: TextAlign.center),
+              title: Text("تسليم الواجب", textAlign: TextAlign.center),
               titleTextStyle: TextStyles.textStyle16w700(
                 context,
               ).copyWith(color: AppColors.secondary),
               content: Text(
-                "Are you sure you want to submit your homework?",
-                textAlign: TextAlign.center,
+                "هل تريد تأكيد اجاباتك ؟"
+                    "مع العلم لديك المزيد من الوقت في التفكير",                textAlign: TextAlign.center,
                 style: TextStyles.textStyle16w700(context),
               ),
               actionsAlignment: MainAxisAlignment.center,
@@ -162,7 +195,7 @@ class _LessonsHomeworkViewState extends State<LessonsHomeworkView> {
                     ),
                     onPressed: () => Navigator.of(context).pop(),
                     child: Text(
-                      "Cancel",
+                      "الغاء",
                       style: TextStyles.textStyle16w700(
                         context,
                       ).copyWith(color: AppColors.secondary),
@@ -192,9 +225,112 @@ class _LessonsHomeworkViewState extends State<LessonsHomeworkView> {
                         answers: studentHomeWorkAnswers,
                         context: context,
                       );
+                      if (!mounted) return;
+                      setState(() => isSubmitting = false);
+                      final result = LessonsCubit.get(context).homewrokSubmission;
+                      _timer?.cancel();
+
+                      showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (_) => AlertDialog(
+                        backgroundColor: Colors.white,
+                        title: Text("نتيجة الامتحان ", textAlign: TextAlign.center),
+                        titleTextStyle: TextStyles.textStyle16w700(context).copyWith(color: AppColors.secondary),
+                        content: Container(
+                          width: 150,
+                          height: 300,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Image.asset('assets/images/submit.png', width: 150, height: 200),
+                                Column(
+                                   spacing: 7,
+                                children: [
+                                  Text(
+                                    "حليت الواجب بنجاح  ",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyles.textStyle16w700(context),
+                                  ),
+
+                                  Text(
+                                    "درجتك  ${result['score_text']}",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyles.textStyle16w700(context).copyWith(color: AppColors.secondary),
+                                  ),
+
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        actionsAlignment: MainAxisAlignment.center,
+                        actionsPadding: const EdgeInsets.only(bottom: 12),
+                        actions: [
+                          Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: SizedBox(
+                              height: 44,
+                              width: double.infinity,
+                              child: TextButton(
+                                style: TextButton.styleFrom(
+                                  backgroundColor: Colors.grey[200],
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25),
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  await LessonsCubit.get(context).getHomeWorkResult(
+                                    attemptID: LessonsCubit.get(context).homework['attempt']['attempt_id'],
+                                  );
+                                  Navigator.pushAndRemoveUntil(
+                                    context,
+                                    CupertinoPageRoute(builder: (context)=>LessonsHomeworkResultView(attemptID: LessonsCubit.get(context).homework['attempt']['attempt_id'],)),
+                                        (context) => false,
+                                  );
+                                },
+                                child: Text(
+                                  " عرض الاجابات ",
+                                  style: TextStyles.textStyle16w700(context).copyWith(color: AppColors.secondary),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: SizedBox(
+                              height: 44,
+                              width: double.infinity,
+                              child: TextButton(
+                                style: TextButton.styleFrom(
+                                  backgroundColor: AppColors.primaryColor,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25),
+                                  ),
+                                ),
+                                onPressed: () {
+                                  LessonsCubit.get(context).isLessonLoading = false;
+                                  // LessonsCubit.get(context).getVideosByCourse(
+                                  //   id: LessonsCubit.get(context).courseResult[0]['id'],
+                                  //   context: context,
+                                  // );
+
+                                  LessonsCubit.get(context).isLessonLoading = false;
+
+                                },
+                                child: Text(
+                                  "ابدا الحصة",
+                                  style: TextStyles.textStyle16w700(context).copyWith(color: Colors.white),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),);
                     },
                     child: Text(
-                      "Submit",
+                      "تسليم",
                       style: TextStyles.textStyle16w700(
                         context,
                       ).copyWith(color: Colors.white),
@@ -392,7 +528,9 @@ class _LessonsHomeworkViewState extends State<LessonsHomeworkView> {
     return BlocConsumer<LessonsCubit, LessonsState>(
       listener: (context, state) {},
       builder: (context, state) {
-        final homework = LessonsCubit.get(context).homework;
+        final homework = LessonsCubit.get(context).homework['homework'];
+        // print('****************');
+        // print(homework);
 
         return ModalProgressHUD(
           inAsyncCall: LessonsCubit.get(context).isSubmissionLoading,
@@ -411,278 +549,239 @@ class _LessonsHomeworkViewState extends State<LessonsHomeworkView> {
                     ? const Center(child: CircularProgressIndicator())
                     : Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: SingleChildScrollView(
-                        child: Column(
+                      child: Scrollbar(
+                        controller: scrollController,
+                        interactive: true,
+                        thickness: 10,
+                        radius: Radius.circular(25),
+
+                        child: Stack(
                           children: [
-                            if (homework?['have_duration'] == true)
-                              Container(
-                                width: 300.w,
+
+                            SingleChildScrollView(
+                              controller: scrollController,
+                              child: Column(
+                                children: [
+                                  if (homework?['have_duration'] == true)
+                                    Container(
+                                      decoration: BoxDecoration(color: Colors.white),
+                                      child: Container(
+                                        width: double.infinity,
+                                        height: 140.h,
+                                        decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          image: DecorationImage(
+                                            image: AssetImage('assets/images/pattern 2.png'),
+                                            fit: BoxFit.fill,
+                                          ),
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.all(8.0),
+                                              child: Center(
+                                                child: DottedBorder(
+                                                  borderType: BorderType.RRect,
+                                                  radius: const Radius.circular(40),
+                                                  dashPattern: [6, 4],
+                                                  color: AppColors.secondary30,
+                                                  strokeWidth: 2,
+                                                  child: Container(
+                                                    width: 240,
+                                                    height: 40,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white,
+                                                      borderRadius: BorderRadius.circular(40),
+                                                    ),
+                                                    child: Column(
+                                                      children: [
+                                                        Row(
+                                                          mainAxisAlignment: MainAxisAlignment.center,
+                                                          children: [
+                                                            Icon(
+                                                              MingCuteIcons.mgc_time_duration_line,
+                                                              color: AppColors.secondary30,
+                                                              size: 30,
+                                                            ),
+                                                            const SizedBox(width: 10),
+                                                            Text(
+                                                              _formatTime(remainingSeconds),
+                                                              style: TextStyles.textStyle20w700(context).copyWith(fontSize: 23),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Column(
+                                              spacing: 10,
+                                              children: [Row(
+                                                children: [
+                                                  Text('${homework['full_score']} الدرجة  ',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black),),
+                                                  Spacer(),
+                                                  Text('${homework['question_count']} عدد الاسئلة  ',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black)),
+                                                ],
+                                              ),Row(
+                                                children: [
+                                                  Text('المحاولات المتبقية ${homework['remaining_attempts']}',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black)),
+                                                  Spacer(),
+                                                  Text('المحاولات الكلية ${homework['attempt_count']}',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black))],
+                                              ),],),
+
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  const SizedBox(height: 10),
+
+
+                                  Text(
+                                    'Choose the correct answer from a, b, c or d:',
+                                    style: TextStyles.textStyle18w700(
+                                      context,
+                                    ).copyWith(color: AppColors.secondary),
+                                  ),
+                                  _buildQuestionTypeSection(
+                                    'reading_passage',
+                                    'Reading Passage Questions',
+                                  ),
+                                  _buildQuestionTypeSection(
+                                    'multiple_choice',
+                                    'Multiple Choice Questions',
+                                  ),
+                                  _buildQuestionTypeSection(
+                                    'true_false',
+                                    'True or False Questions',
+                                  ),
+                                  _buildQuestionTypeSection(
+                                    'short_answer',
+                                    'Short Answer Questions',
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16.0,
+                                    ),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: AppColors.primaryColor,
+                                        borderRadius: BorderRadius.circular(25),
+                                      ),
+                                      width: double.infinity,
+                                      height: 44,
+                                      child: MaterialButton(
+                                        onPressed: () async {
+                                          final firstUnansweredIndex = studentHomeWorkAnswers.indexWhere((answer) => answer?['answer'] == null);
+                                          if (firstUnansweredIndex != -1) {
+                                            // Scroll to the approximate position of the unanswered question
+                                            scrollController.animateTo(
+                                              firstUnansweredIndex * 300,
+                                              duration: const Duration(milliseconds: 500),
+                                              curve: Curves.easeInOut,
+                                            );
+
+                                            Fluttertoast.showToast(
+                                              msg: "السؤال رقم ${firstUnansweredIndex + 1} لسه من غير اجابة",
+                                              toastLength: Toast.LENGTH_LONG,
+                                              gravity: ToastGravity.BOTTOM,
+                                              backgroundColor: Colors.red,
+                                              textColor: Colors.white,
+                                              fontSize: 16.0,
+                                            );
+
+                                            return;
+                                          }
+                                          LessonsCubit.get(context).changeIsSubmissionLoading();
+                                          await _submitHomework();
+                                          LessonsCubit.get(context,).changeIsSubmissionLoading();
+                                        },
+                                        child: Text(
+                                          'تسليم الواجب',
+                                          style: TextStyles.textStyle16w700(
+                                            context,
+                                          ).copyWith(color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              decoration: BoxDecoration(color: Colors.white),
+                              child: Container(
+                                width: double.infinity,
                                 height: 140.h,
                                 decoration: const BoxDecoration(
                                   color: Colors.white,
                                   image: DecorationImage(
-                                    image: AssetImage(
-                                      'assets/images/pattern 2.png',
-                                    ),
+                                    image: AssetImage('assets/images/pattern 2.png'),
                                     fit: BoxFit.fill,
                                   ),
                                 ),
-                                child: Center(
-                                  child: DottedBorder(
-                                    borderType: BorderType.RRect,
-                                    radius: const Radius.circular(40),
-                                    dashPattern: [6, 4],
-                                    color: AppColors.secondary30,
-                                    strokeWidth: 2,
-                                    child: Container(
-                                      width: 270,
-                                      height: 60,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(40),
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Icon(
-                                            MingCuteIcons
-                                                .mgc_time_duration_line,
-                                            color: AppColors.secondary30,
-                                            size: 40,
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            _formatTime(remainingSeconds),
-                                            style: TextStyles.textStyle20w700(
-                                              context,
-                                            ).copyWith(fontSize: 32),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            const SizedBox(height: 10),
-                            Container(
-                              width: 300.w,
-                              height: 140.h,
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                image: DecorationImage(
-                                  image: AssetImage(
-                                    'assets/images/pattern 2.png',
-                                  ),
-                                  fit: BoxFit.fill,
-                                ),
-                              ),
-                              child: Center(
-                                child: DottedBorder(
-                                  borderType: BorderType.RRect,
-                                  radius: const Radius.circular(40),
-                                  dashPattern: [6, 4],
-                                  color: AppColors.secondary30,
-                                  strokeWidth: 2,
-                                  child: Container(
-                                    width: 270,
-                                    height: 60,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(40),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          MingCuteIcons.mgc_time_duration_line,
+                                child: Column(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Center(
+                                        child: DottedBorder(
+                                          borderType: BorderType.RRect,
+                                          radius: const Radius.circular(40),
+                                          dashPattern: [6, 4],
                                           color: AppColors.secondary30,
-                                          size: 40,
-                                        ),
-                                        const SizedBox(width: 10),
-                                        Text(
-                                          _formatTime(remainingSeconds),
-                                          style: TextStyles.textStyle20w700(
-                                            context,
-                                          ).copyWith(fontSize: 32),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                            Text(
-                              'Choose the correct answer from a, b, c or d:',
-                              style: TextStyles.textStyle18w700(
-                                context,
-                              ).copyWith(color: AppColors.secondary),
-                            ),
-                            _buildQuestionTypeSection(
-                              'reading_passage',
-                              'Reading Passage Questions',
-                            ),
-                            _buildQuestionTypeSection(
-                              'multiple_choice',
-                              'Multiple Choice Questions',
-                            ),
-                            _buildQuestionTypeSection(
-                              'true_false',
-                              'True or False Questions',
-                            ),
-                            _buildQuestionTypeSection(
-                              'short_answer',
-                              'Short Answer Questions',
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0,
-                              ),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: AppColors.primaryColor,
-                                  borderRadius: BorderRadius.circular(25),
-                                ),
-                                width: double.infinity,
-                                height: 44,
-                                child: MaterialButton(
-                                  onPressed: () async {
-                                    LessonsCubit.get(
-                                      context,
-                                    ).changeIsSubmissionLoading();
-                                    await _submitHomework().then((value) {
-                                      showDialog(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder:
-                                            (_) => AlertDialog(
-                                              backgroundColor: Colors.white,
-                                              title: Text(
-                                                "Result",
-                                                textAlign: TextAlign.center,
-                                              ),
-                                              titleTextStyle:
-                                                  TextStyles.textStyle16w700(
-                                                    context,
-                                                  ).copyWith(
-                                                    color: AppColors.secondary,
-                                                  ),
-                                              content: Text(
-                                                "Your Score:  ${LessonsCubit.get(context).homewrokSubmission['score_text']}",
-                                                textAlign: TextAlign.center,
-                                                style:
-                                                    TextStyles.textStyle16w700(
-                                                      context,
+                                          strokeWidth: 2,
+                                          child: Container(
+                                            width: 240,
+                                            height: 40,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.circular(40),
+                                            ),
+                                            child: Column(
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(
+                                                      MingCuteIcons.mgc_time_duration_line,
+                                                      color: AppColors.secondary30,
+                                                      size: 30,
                                                     ),
-                                              ),
-                                              actionsAlignment:
-                                                  MainAxisAlignment.center,
-                                              actionsPadding:
-                                                  const EdgeInsets.only(
-                                                    bottom: 12,
-                                                  ),
-                                              actions: [
-                                                SizedBox(
-                                                  height: 44,
-                                                  width: 160,
-                                                  child: TextButton(
-                                                    style: TextButton.styleFrom(
-                                                      backgroundColor:
-                                                          AppColors
-                                                              .primaryColor,
-                                                      shape: RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              25,
-                                                            ),
-                                                      ),
+                                                    const SizedBox(width: 10),
+                                                    Text(
+                                                      _formatTime(remainingSeconds),
+                                                      style: TextStyles.textStyle20w700(context).copyWith(fontSize: 23),
                                                     ),
-                                                    onPressed: () {
-                                                      Navigator.pushAndRemoveUntil(
-                                                        context,
-                                                        CupertinoPageRoute(
-                                                          builder:
-                                                              (
-                                                                context,
-                                                              ) => LessonsHomeworkResultView(
-                                                                attemptID:
-                                                                    LessonsCubit.get(
-                                                                      context,
-                                                                    ).homework['attempt']['attempt_id'],
-                                                              ),
-                                                        ),
-                                                        (context) => false,
-                                                      );
-                                                    },
-                                                    child: Text(
-                                                      "Show Questions",
-                                                      style:
-                                                          TextStyles.textStyle16w700(
-                                                            context,
-                                                          ).copyWith(
-                                                            color: Colors.white,
-                                                          ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                SizedBox(height: 12),
-                                                SizedBox(
-                                                  height: 44,
-                                                  width: 120,
-                                                  child: TextButton(
-                                                    style: TextButton.styleFrom(
-                                                      backgroundColor:
-                                                          AppColors
-                                                              .primaryColor,
-                                                      shape: RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              25,
-                                                            ),
-                                                      ),
-                                                    ),
-                                                    onPressed: () {
-                                                      Navigator.pushAndRemoveUntil(
-                                                        context,
-                                                        CupertinoPageRoute(
-                                                          builder:
-                                                              (context) =>
-                                                                  HomeLayout(),
-                                                        ),
-                                                        (context) => false,
-                                                      );
-                                                    },
-                                                    child: Text(
-                                                      "OK",
-                                                      style:
-                                                          TextStyles.textStyle16w700(
-                                                            context,
-                                                          ).copyWith(
-                                                            color: Colors.white,
-                                                          ),
-                                                    ),
-                                                  ),
+                                                  ],
                                                 ),
                                               ],
                                             ),
-                                      );
-                                    });
-                                    LessonsCubit.get(
-                                      context,
-                                    ).changeIsSubmissionLoading();
-                                  },
-                                  child: Text(
-                                    'Submit Homework',
-                                    style: TextStyles.textStyle16w700(
-                                      context,
-                                    ).copyWith(color: Colors.white),
-                                  ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Column(
+                                      spacing: 10,
+                                      children: [Row(
+                                        children: [
+                                          Text('${homework['full_score']} الدرجة  ',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black),),
+                                          Spacer(),
+                                          Text('${homework['question_count']} عدد الاسئلة  ',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black)),
+                                        ],
+                                      ),Row(
+                                        children: [
+                                          Text('المحاولات المتبقية ${homework['remaining_attempts']}',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black)),
+                                          Spacer(),
+                                          Text('المحاولات الكلية ${homework['attempt_count']}',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black))],
+                                      ),],),
+
+                                  ],
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 20),
                           ],
                         ),
                       ),

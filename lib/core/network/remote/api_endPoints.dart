@@ -27,12 +27,12 @@ abstract class EndPoints {
 
   static String leaderBoard = 'heroes/by-category';
 
-  static String classById = 'class_by_id';
+  static String classById = 'class';
   static String quizById = 'quiz_by_id';
   static String startQuiz = 'quizzes';
   static String submitQuiz = 'student-quizzes';
   static String resultQuiz = 'student-quizzes';
-  // static String watchVideo = 'watch_video';
+  // static String class = 'class';
   static String videosByCourse = 'videos_by_course';
   static String videosByClass = 'videos_by_classes';
   static String videos = 'videos';

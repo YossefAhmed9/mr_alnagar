@@ -274,7 +274,12 @@ class _AskQuestionState extends State<AskQuestion> {
                             email: _emailController.text,
                             message: _messageController.text,
                             id: levelValue,context: context
-                        );
+                        ).then((value){
+                          _nameController.clear();
+                          _phoneController.clear();
+                          _emailController.clear();
+                          _messageController.clear();
+                        });
                         if (kDebugMode) {
                           print(_nameController.text);
                           print(_phoneController.text);

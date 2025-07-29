@@ -20,6 +20,7 @@ import 'package:mr_alnagar/core/widgets/Home%20widgets/courses_section_in_home.d
 import 'package:mr_alnagar/core/widgets/Home%20widgets/f_a_q_section.dart';
 import 'package:mr_alnagar/core/widgets/Home%20widgets/how_to_use.dart';
 import 'package:mr_alnagar/core/widgets/Home%20widgets/leader_board.dart';
+import 'package:mr_alnagar/core/widgets/Home%20widgets/levels_in_home.dart';
 import 'package:mr_alnagar/core/widgets/Home%20widgets/welcome_container.dart';
 import 'package:mr_alnagar/features/home_screen/about_us_view.dart';
 import 'package:mr_alnagar/core/widgets/Home%20widgets/showing_books_in_home.dart';
@@ -109,7 +110,7 @@ class _HomePageState extends State<HomePage> {
                                       HomeCubit.get(context).homeData == null
                                           ? Padding(
                                         padding: const EdgeInsets.all(8.0),
-                                        child: Center(child: CircularProgressIndicator()),
+                                        child: Container(),
                                       )
                                           : AboutUsContainer().animate().fade(duration: 600.ms).slideY(begin: 0.3),
                                       SizedBox(height: 20,),
@@ -118,15 +119,22 @@ class _HomePageState extends State<HomePage> {
                                         height: 1,
                                         decoration: BoxDecoration(color: Colors.grey),
                                       ),
+
+
+                                     HomeCubit.get(context).home==null ?
+                                         Container() :
+                                      const LevelsInHome(),
+
+
                                       HomeCubit.get(context).homeData==null ?
-                                      Center(child: CircularProgressIndicator(),)
+                                      Container()
                                           :  Padding(
                                         padding: const EdgeInsets.only(right:  8.0,left:8,top: 35,bottom:12),
                                         child: const FeaturedCourses().animate().fade(duration: 500.ms).slideY(begin: 0.3),
                                       ),
 
                                       HomeCubit.get(context).homeData == null
-                                          ? Center(child: CircularProgressIndicator(color: AppColors.primaryColor))
+                                          ? Container()
                                           : const AboutUsRecords().animate().fade(duration: 500.ms).slideY(begin: 0.2),
                                     ],
                                   ),
@@ -135,14 +143,14 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                           HomeCubit.get(context).howToUse == null
-                              ? Center(child: CircularProgressIndicator(color: AppColors.secondary30))
+                              ? Container()
                               : HowToUse(data: HomeCubit.get(context).howToUse).animate().fade().scale(),
 
 
 
                           Padding(
                             padding: const EdgeInsets.only(top: 30.0, right: 10),
-                            child: Container(
+                            child: SizedBox(
                               width: MediaQuery.sizeOf(context).width * 1, // increase width to prevent overflow
                               height: 50,
                               child: Row(
@@ -158,7 +166,7 @@ class _HomePageState extends State<HomePage> {
                                   Expanded(
                                     flex: 2,
                                     child: AuthCubit.get(context).levelsForAuthCategories.length <= 2
-                                        ? Center(child: CircularProgressIndicator(color: AppColors.primaryColor))
+                                        ? Container()
                                         : Container(
                                       decoration: BoxDecoration(borderRadius: BorderRadius.circular(25)),
                                           child: DropdownButtonFormField<String>(
@@ -206,7 +214,7 @@ class _HomePageState extends State<HomePage> {
                                           setState(() async{
                                             categoryID=int.parse(value!);
                                             HomeCubit.get(context).topStudents ==[];
-                                            await HomeCubit.get(context).getLeaderBoard(categoryID: int.parse(value!));
+                                            await HomeCubit.get(context).getLeaderBoard(categoryID: int.parse(value));
                                           
                                           });
                                                                                 },
@@ -222,6 +230,7 @@ class _HomePageState extends State<HomePage> {
                             padding: const EdgeInsets.all(8.0),
                             child: LeaderBoard(categoryID: categoryID,).animate().fade(duration: 500.ms).slideY(begin: 0.3),
                           ),
+
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 10),
                             child: Text(
@@ -229,28 +238,27 @@ class _HomePageState extends State<HomePage> {
                               style: TextStyles.textStyle16w700(context),
                             ).animate().fade().slideX(begin: 0.2),
                           ),
+
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: const AskQuestion().animate().fade().scale(),
                           ),
 
-
-
-
-
-
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: const CoursesSectionInHome().animate().fade(duration: 500.ms).slideY(begin: 0.3),
                           ),
+
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: const ShowingBooksInHome().animate().fade().slideY(begin: 0.4),
                           ),
+
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: const FAQSection().animate().fade(duration: 400.ms).slideX(begin: -0.2),
                           ),
+
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: const ContactUs().animate().fade(duration: 500.ms).slideY(begin: 0.3),

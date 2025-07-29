@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
@@ -52,9 +53,13 @@ class HomeCubit extends Cubit<HomeState> {
         .then((value){
           aboutUs=value.data['data'];
           emit(GetAboutUsDataDone());
-      print(value.data);
+      if (kDebugMode) {
+        print(value.data);
+      }
     }).catchError((error){
-      print(error);
+      if (kDebugMode) {
+        print(error);
+      }
       emit(GetAboutUsDataError(error));
     });
 
@@ -71,35 +76,50 @@ class HomeCubit extends Cubit<HomeState> {
     required BuildContext context,
   }) async {
     emit(POSTAskUsLoading());
-    await DioHelper.postData(
-          url: EndPoints.AskUs,
-          data: {
-            "name": name,
-            "phone": phone,
-            "email": email,
-            "message": message,
-            "category_id": id,
-          },
-        )
-        .then((value) {
-          emit(POSTAskUsDone());
-          showSnackBar(
-            context,
-            value.data['message'],
-            5,
-            AppColors.primaryColor,
-          );
-          print(value.data);
-          print(value.realUri);
-        })
-        .catchError((error) {
-          emit(POSTAskUsError(error));
 
-          print(error);
-          print(error.toString());
-          print(error.runtimeType);
-        });
+    try {
+      final response = await DioHelper.postData(
+        url: EndPoints.AskUs,
+        data: {
+          "name": name,
+          "phone": phone,
+          "email": email,
+          "message": message,
+          "category_id": id,
+        },
+      );
+
+      emit(POSTAskUsDone());
+
+      showSnackBar(
+        context,
+        response.data['message'] ?? 'تم الإرسال بنجاح',
+        5,
+        AppColors.primaryColor,
+      );
+
+      if (kDebugMode) {
+        print(response.data);
+        print(response.realUri);
+      }
+    } catch (error) {
+      emit(POSTAskUsError(error));
+
+      if (kDebugMode) {
+        print(error);
+        print(error.toString());
+        print(error.runtimeType);
+      }
+
+      showSnackBar(
+        context,
+        'فشل في إرسال الرسالة: ${error.toString()}',
+        4,
+        Colors.red,
+      );
+    }
   }
+
   var home;
   var homeData;
   List homeSliders = [];
@@ -151,20 +171,41 @@ class HomeCubit extends Cubit<HomeState> {
   List categories = [];
   List heroesByCategory = [];
 
-  Future<void> GETaskUS() async {
+  Future<void> GETaskUS(BuildContext context) async {
     emit(GETAskUsLoading());
-    await DioHelper.getData(url: EndPoints.AskUs)
-        .then((value) {
-          emit(GETAskUsDone());
-          print(value.data);
-        })
-        .catchError((error) {
-          emit(GETAskUsError(error));
-          print(error);
-          print(error.toString());
-          print(error.runtimeType);
-        });
+
+    try {
+      final response = await DioHelper.getData(url: EndPoints.AskUs);
+      emit(GETAskUsDone());
+
+      if (kDebugMode) {
+        print(response.data);
+      }
+
+      showSnackBar(
+        context,
+        'تم تحميل البيانات بنجاح',
+        3,
+        AppColors.primaryColor,
+      );
+    } catch (error) {
+      emit(GETAskUsError(error));
+
+      if (kDebugMode) {
+        print(error);
+        print(error.toString());
+        print(error.runtimeType);
+      }
+
+      showSnackBar(
+        context,
+        'حدث خطأ أثناء تحميل البيانات: ${error.toString()}',
+        4,
+        Colors.red,
+      );
+    }
   }
+
 
   List topStudents = [];
   Future<void> getLeaderBoard({required int categoryID}) async {

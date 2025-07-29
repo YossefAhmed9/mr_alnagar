@@ -71,30 +71,12 @@ class ProfileView extends StatelessWidget {
         return Directionality(
           textDirection: TextDirection.rtl,
           child: Scaffold(
-           // floatingActionButton: FloatingActionButton(onPressed: ()async{
-           //   // await LessonsCubit.get(context).getVideosByClass(classId:
-           //   // 6,);
-           //  //print(CacheHelper.getData(key: CacheKeys.lastSectionIndex));
-           //
-           //  Navigator.push(context, CupertinoPageRoute(builder: (context)=>CoursesView()));
-           //  Navigator.push(context, CupertinoPageRoute(builder: (context)=>AboutUsView()));
-           //  Navigator.push(context, CupertinoPageRoute(builder: (context)=>UserStatistics()));
-           //  Navigator.push(context, CupertinoPageRoute(builder: (context)=>NotificationView()));
-           //
-           //
-           //   // print('%%%%%%%%%%%%%');
-           //   // // await DioHelper.getData(
-           //   // //   url: 'videos_by_classes/1',
-           //   // //   token: CacheHelper.getData(key: CacheKeys.token),
-           //   // // ).then((value){
-           //   // //   print(value.data);
-           //   // // });
-           //   // await LessonsCubit.get(context).getVideosByClass(classId: 1);
-           //   // print(LessonsCubit.get(context).videos);
-           //   // print('%%%%%%%%%%%%%%%%%%%%');
-           //
-           //   //print(LessonsCubit.get(context).videos);
-           // }),
+            floatingActionButton: FloatingActionButton(onPressed: (){
+             // LessonsCubit.get(context).getMyLessons(categoryID: CacheHelper.getData(key: CacheKeys.categoryId));
+              LessonsCubit.get(context).getUserLessons(id: LessonsCubit.get(context).myCourses[0]['id']);
+
+            }),
+
             key: scaffoldKey,
             body: SingleChildScrollView(
               padding: const EdgeInsets.all(16),

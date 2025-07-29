@@ -140,15 +140,22 @@ class _HowToUseState extends State<HowToUse> {
               ),
             ),
 
-            Align(
-                alignment: Alignment.centerLeft,
-                child: Image.network(HomeCubit.get(context).howToUse['image_url'])),
+           Row(
+             children: [
+               Flexible(
+                 child: Text(maxLines: 20,
+                   HtmlUnescape().convert('${HomeCubit.get(context).howToUse['description']}')
+                       .replaceAll(RegExp(r'<[^>]*>'), ''),
+                   style: TextStyle(fontSize: 20,fontWeight: FontWeight.w200,color: Colors.white,height: 2),
+                 ),
+               ),
+               Align(
+                   alignment: Alignment.centerLeft,
+                   child: Image.network(HomeCubit.get(context).howToUse['image_url'],height: 250,width:150)),
 
-            Text(
-                HtmlUnescape().convert('${HomeCubit.get(context).howToUse['description']}')
-                    .replaceAll(RegExp(r'<[^>]*>'), ''),
-              style: TextStyle(fontSize: 20,fontWeight: FontWeight.w200,color: Colors.white,height: 2),
-            ),
+
+             ],
+           ),
 
           ],
         ),

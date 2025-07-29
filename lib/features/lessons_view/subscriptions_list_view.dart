@@ -2,8 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mr_alnagar/features/courses_view/quiz_view/exam_view.dart';
+import 'package:html_unescape/html_unescape.dart';
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:mr_alnagar/features/lessons_view/quiz_view/exam_view.dart';
+import 'package:mr_alnagar/features/lessons_view/videos_view/videos_view.dart';
 
+import '../../core/cubits/lessons_cubit/lessons_cubit.dart';
 import '../../core/utils/app_colors.dart';
 import '../../core/utils/text_styles.dart';
 
@@ -12,6 +16,7 @@ class SubscriptionsListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    LessonsCubit.get(context).isLessonLoading=false;
     ScrollController controller = ScrollController();
     return Scaffold(
       appBar: AppBar(
@@ -24,133 +29,306 @@ class SubscriptionsListView extends StatelessWidget {
           icon: Icon(Icons.arrow_back_ios),
         ),
         title: Text(
-          'اشتراك شهر يناير',
+          LessonsCubit.get(context).courseResult[0]['title'],
           style: TextStyles.textStyle16w700(context),
         ),
         centerTitle: true,
       ),
       body: Directionality(
         textDirection: TextDirection.rtl,
-
-        child: Scrollbar(
-          controller: controller,
-          thumbVisibility: true,
-          radius: Radius.circular(40),
-          interactive: true,
-          thickness: 10,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-            child: ListView.builder(
-              physics: BouncingScrollPhysics(),
-              itemCount: 10,
-              controller: controller,
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade200,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Column(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: AppColors.lightBlue,
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(10),
-                              topRight: Radius.circular(10),
-                            ),
-                            image: DecorationImage(
-                              image: AssetImage('assets/images/pattern 1.png'),
-                              fit: BoxFit.fill,
-                            ),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 20.0),
-                            child: Row(
-                              children: [
-                                Image.asset('assets/images/elnagar.png'),
-                                Text(
-                                  'Vocabulary & Reading',
-                                  style: TextStyles.textStyle18w700(context),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            left: 16,
-                            right: 16,
-                            bottom: 20,
-                          ),
-                          child: Container(
+        child: ModalProgressHUD(
+          inAsyncCall: LessonsCubit.get(context).isLessonLoading,
+          child: Scrollbar(
+            controller: controller,
+            thumbVisibility: true,
+            radius: Radius.circular(40),
+            interactive: true,
+            thickness: 10,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+              child: ListView.builder(
+                physics: BouncingScrollPhysics(),
+                itemCount: LessonsCubit.get(context).userLessons.length,
+                controller: controller,
+                shrinkWrap: true,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Column(
+                        children: [
+                          Container(
+                            clipBehavior: Clip.antiAliasWithSaveLayer,
                             decoration: BoxDecoration(
-                              color: Colors.grey.shade200,
+                              borderRadius: BorderRadius.only(
+                                 topLeft: Radius.circular(20),
+                                 topRight: Radius.circular(20),
+                              ),
+
+                              // image: DecorationImage(
+                              //   image: AssetImage('assets/images/pattern 1.png'),
+                              //   fit: BoxFit.fill,
+                              // ),
                             ),
-                            child: Column(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 10.0,
+                            child: Image.network(
+
+                              LessonsCubit.get(context).userLessons[index]['image'],fit: BoxFit.fill,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Image.asset('assets/images/error image.png', fit: BoxFit.cover,width: 100,height: 150,);
+                              },
+                            ),
+                          ),
+
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              left: 16,
+                              right: 16,
+                              bottom: 20,
+                            ),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade200,
+                              ),
+                              child: Column(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 10.0,
+                                    ),
+                                    child: Row(
+                                      spacing: 5,
+                                      children: [
+                                        Icon(
+                                          FeatherIcons.calendar,
+                                          size: 20,
+                                          color: Colors.black,
+                                        ),
+                                        Text(
+                                          LessonsCubit.get(context).userLessons[index]['started_at'],
+                                          style: TextStyles.textStyle14w400(
+                                            context,
+                                          ).copyWith(color: Colors.grey.shade700),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  child: Row(
-                                    spacing: 5,
+                                  Row(
                                     children: [
-                                      Icon(
-                                        FeatherIcons.calendar,
-                                        size: 20,
-                                        color: Colors.black,
-                                      ),
                                       Text(
-                                        '20 ابريل 2025',
-                                        style: TextStyles.textStyle14w400(
+                                        LessonsCubit.get(context).userLessons[index]['title'],
+                                        style: TextStyles.textStyle16w700(
                                           context,
-                                        ).copyWith(color: Colors.grey.shade700),
+                                        ).copyWith(color: Colors.black),
                                       ),
+
+
                                     ],
                                   ),
-                                ),
-                                Row(
-                                  children: [
-                                    Text(
-                                      'الحصة الاولى',
-                                      style: TextStyles.textStyle16w400(
-                                        context,
-                                      ).copyWith(color: Colors.grey),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 15.0,
                                     ),
-                                    Spacer(),
-                                    Text(
-                                      'Vocabulary & Reading',
-                                      style: TextStyles.textStyle18w700(
-                                        context,
+                                    child: Container(
+                                      color: Colors.grey.shade400,
+                                      width: double.infinity,
+                                      height: 2,
+                                    ),
+                                  ),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryColor,
+                                      borderRadius: BorderRadius.circular(25),
+                                    ),
+                                    height: 45.h,
+                                    width: double.infinity,
+                                    child: MaterialButton(
+                                      onPressed: () async{
+
+                                        LessonsCubit.get(context).isLessonLoading=true;
+                                        print(LessonsCubit.get(context).isLessonLoading);
+                                        await LessonsCubit.get(context).getClassDataByID(classId: LessonsCubit.get(context).userLessons[index]['id'], context: context);
+                                       //print(LessonsCubit.get(context).classData['has_quizzes']);
+                                          if (LessonsCubit.get(context).classData['has_quizzes']==true) {
+                                            showDialog(
+                                              context: context,
+                                              barrierDismissible: true,
+                                              builder: (context) => WillPopScope(
+                                                onWillPop: () async => false,
+                                                child: Directionality(
+                                                  textDirection: TextDirection.rtl,
+                                                  child: AlertDialog(
+                                                    backgroundColor: Colors.white,
+                                                    title: Text('تنبيهات مهمة', textAlign: TextAlign.center),
+                                                    titleTextStyle: TextStyles.textStyle16w700(context).copyWith(color: AppColors.secondary),
+                                                    content: SingleChildScrollView(
+                                                      child: Column(
+                                                        children: [
+                                                          Image.asset('assets/images/pic2.png'),
+                                                          Text('يجب حل الامتحان اولا',style: TextStyles.textStyle16w700(context).copyWith(color: AppColors.secondary),),
+                                                        ],
+                                                      ),
+                                                    ),
+
+                                                    actions: [
+                                                      InkWell(
+                                                        onTap:() async {
+                                                          await LessonsCubit.get(context).startQuiz(quizId: LessonsCubit.get(context).classData['quiz_id']);
+                                                          showDialog(
+                                                            context: context,
+                                                            barrierDismissible: true,
+                                                            builder: (context) => WillPopScope(
+                                                              onWillPop: () async => false,
+                                                              child: Directionality(
+                                                                textDirection: TextDirection.rtl,
+                                                                child: AlertDialog(
+                                                                  backgroundColor: Colors.white,
+                                                                  title: Text('تنبيهات مهمة', textAlign: TextAlign.center),
+                                                                  titleTextStyle: TextStyles.textStyle16w700(context).copyWith(color: AppColors.secondary),
+                                                                  content: SingleChildScrollView(
+                                                                    child: Column(
+                                                                      children: [
+                                                                        Image.asset('assets/images/pic2.png'),
+                                                                        Container(
+                                                                          decoration: BoxDecoration(
+                                                                            color: const Color(0xFFFDF3D0),
+                                                                            borderRadius: BorderRadius.circular(15),
+                                                                          ),
+                                                                          child: Column(
+                                                                            children: [
+                                                                              LessonsCubit.get(context).quiz == null
+                                                                                  ? const Center(child: CircularProgressIndicator())
+                                                                                  : Padding(
+                                                                                padding: const EdgeInsets.all(8.0),
+                                                                                child: Text(
+                                                                                  HtmlUnescape().convert(
+                                                                                    LessonsCubit.get(context)
+                                                                                        .quiz['quiz']['description']
+                                                                                        .replaceAll(RegExp(r'<style[^>]*>[\s\S]*?</style>', caseSensitive: false), '')
+                                                                                        .replaceAll(RegExp(r'<[^>]+>'), '')
+                                                                                        .replaceAll(RegExp(r'\s+'), ' ')
+                                                                                        .trim(),
+                                                                                  ),
+                                                                                  style: TextStyles.textStyle16w700(context).copyWith(color: AppColors.secondary),
+                                                                                  textDirection: TextDirection.rtl,
+                                                                                  textAlign: TextAlign.right,
+                                                                                ),
+                                                                              ),
+                                                                              Padding(
+                                                                                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16),
+                                                                                child: Container(
+                                                                                  decoration: BoxDecoration(
+                                                                                    color: AppColors.primaryColor,
+                                                                                    borderRadius: BorderRadius.circular(25),
+                                                                                  ),
+                                                                                  width: double.infinity,
+                                                                                  height: 44,
+                                                                                  child: MaterialButton(
+                                                                                    onPressed: () async {
+                                                                                      await LessonsCubit.get(context).startQuiz(
+                                                                                        quizId: LessonsCubit.get(context).classData['quiz_id'],
+                                                                                      );
+                                                                                      Navigator.pop(context);
+                                                                                      print(LessonsCubit.get(context).classData['quiz_id']);
+                                                                                      Navigator.pushAndRemoveUntil(
+                                                                                          context,
+                                                                                          CupertinoPageRoute(
+                                                                                            builder: (context) => LessonsExamView(
+                                                                                              quizID: LessonsCubit.get(context).classData['quiz_id'],
+                                                                                            ),
+                                                                                          ),
+                                                                                              (route)=>false
+                                                                                      );
+                                                                                    },
+                                                                                    child: Text(
+                                                                                      'ابدا الامتحان',
+                                                                                      style: TextStyles.textStyle16w700(context).copyWith(color: Colors.white),
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                              ),
+                                                                            ],
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          );
+                                                        },
+                                                        child: Container(width: double.infinity,
+                                                          height: 40,
+                                                          decoration: BoxDecoration(
+                                                            color: AppColors.primaryColor,
+                                                            borderRadius: BorderRadius.circular(25),
+
+                                                          ),
+                                                          child: Center(child: Text('دخول الامتحان',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.white),)),
+                                                        ),
+                                                      ),
+                                                      SizedBox(height: 15,),
+                                                      InkWell(
+                                                        onTap: (){
+                                                          Navigator.pop(context);
+                                                        },
+                                                        child: Container(
+                                                          width: double.infinity,
+                                                          height: 40,
+                                                          decoration: BoxDecoration(
+                                                            color: AppColors.primaryColor,
+                                                            borderRadius: BorderRadius.circular(25),
+
+                                                          ),
+                                                          child: Center(child: Text('الغاء',style: TextStyles.textStyle14w700(context),)),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          }
+
+
+                                        else{
+                                          Navigator.push(context, CupertinoPageRoute(builder: (context)=>LessonVideoScreen(videoIndex: LessonsCubit.get(context).classData['id'])));
+
+                                        }
+
+                                        },
+                                      child: Text(
+                                        'الدخول للحصة',
+                                        style: TextStyles.textStyle16w700(
+                                          context,
+                                        ).copyWith(color: Colors.white),
                                       ),
                                     ),
-                                  ],
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 15.0,
                                   ),
-                                  child: Container(
-                                    color: Colors.grey.shade400,
-                                    width: double.infinity,
-                                    height: 2,
-                                  ),
-                                ),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primaryColor,
-                                    borderRadius: BorderRadius.circular(25),
-                                  ),
-                                  height: 45.h,
-                                  width: double.infinity,
-                                  child: MaterialButton(
-                                    onPressed: () {
-                                      showDialog(
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/*
+* showDialog(
                                         context: context,
                                         builder:
                                             (context) => AlertDialog(
@@ -242,32 +420,7 @@ class SubscriptionsListView extends StatelessWidget {
                                                 ],
                                               ),
                                             ),
-                                      );
-                                    },
-                                    child: Text(
-                                      'الدخول للحصة',
-                                      style: TextStyles.textStyle16w700(
-                                        context,
-                                      ).copyWith(color: Colors.white),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+                                      );*/
 
 /*
 *                             Padding(

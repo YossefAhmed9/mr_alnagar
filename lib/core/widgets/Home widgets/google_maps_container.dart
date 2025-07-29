@@ -68,10 +68,6 @@ class _GoogleMapContainerState extends State<GoogleMapContainer> {
         width: double.infinity,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          image: DecorationImage(
-            image: AssetImage('assets/images/map_placeholder.jpg'), // add your own image
-            fit: BoxFit.cover,
-          ),
         ),
         child: Center(
           child: Icon(Icons.map, size: 48, color: Colors.white),

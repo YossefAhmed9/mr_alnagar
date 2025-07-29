@@ -74,7 +74,10 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => HomeCubit()
           ..getLeaderBoard(categoryID: CacheHelper.getData(key: CacheKeys.categoryId))..getAboutUsData()
           ..getHomeData(context: context), lazy: true),
-        BlocProvider(create: (context) => LessonsCubit()..getCoursesByCategory(categoryID: CacheHelper.getData(key: CacheKeys.categoryId)), lazy: true),
+        BlocProvider(create: (context) => LessonsCubit()
+          ..getCoursesByCategory(categoryID: CacheHelper.getData(key: CacheKeys.categoryId))
+          ..getMyLessons(categoryID: CacheHelper.getData(key: CacheKeys.categoryId))
+            , lazy: true),
         BlocProvider(create: (context) => QuizCubit(), lazy: true),
         BlocProvider(create: (context) => CoursesCubit()
           ..getCoursesByCategory(

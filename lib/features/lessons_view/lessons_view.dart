@@ -80,7 +80,7 @@ class LessonsView extends StatelessWidget {
                       Expanded(
                         child: TabBarView(
                           children: [
-                            LessonsReservationTabBar(lessons: LessonsCubit.get(context).courses,),
+                            LessonsReservationTabBar(lessons: LessonsCubit.get(context).otherLessons,),
                             LessonsSubscribtionTabBar(),
                             LessonsReservationTabBar(lessons: LessonsCubit.get(context).courses),
                           ],

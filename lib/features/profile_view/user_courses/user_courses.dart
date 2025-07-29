@@ -68,10 +68,8 @@ class _UserCoursesState extends State<UserCourses> {
                      child: TabBarView(
                        children: [
                          SubscribedUserCoursesTabView(inProgressCourses:
-                         ProfileCubit.get(context).inProgressCourses
-                           ,)
-
-                         ,
+                         ProfileCubit.get(context).inProgressCourses,),
+                         
                          DoneUserCoursesTabView(completedCourses:
                          ProfileCubit.get(context).completedCourses
                            ,),

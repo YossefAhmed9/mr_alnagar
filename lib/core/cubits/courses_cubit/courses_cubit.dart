@@ -24,6 +24,8 @@ class CoursesCubit extends Cubit<CoursesState> {
   }
 
 
+
+
   bool isSubmissionLoading=false;
   void changeIsSubmissionLoading(){
     isSubmissionLoading=!isSubmissionLoading;
@@ -44,6 +46,7 @@ class CoursesCubit extends Cubit<CoursesState> {
     await DioHelper.getData(
           url: EndPoints.courses_by_category,
           query: {'category_id': categoryID, 'filer': filter},
+      token: CacheHelper.getData(key: CacheKeys.token),
         )
         .then((value) {
           coursesCategory.addAll(value.data['data']);
@@ -59,7 +62,11 @@ class CoursesCubit extends Cubit<CoursesState> {
         });
   }
 
-
+void showLoadOnRefresh({required int id ,required BuildContext context}){
+    emit(GetVideosLoading());
+    getVideosByCourse(id: id, context: context);
+    emit(GetVideosDone());
+}
 
   var coursesVideos;
   Future<void> getVideosByCourse({required int id, required BuildContext context}) async {
@@ -72,10 +79,10 @@ class CoursesCubit extends Cubit<CoursesState> {
       );
 
       final statusCode = response.statusCode;
-      print('///////////////////////////////////');
-      print('Status Code: $statusCode');
-      print('Response Data: ${response.data}');
-      print('///////////////////////////////////');
+      // print('///////////////////////////////////');
+      // print('Status Code: $statusCode');
+      // print('Response Data: ${response.data}');
+      // print('///////////////////////////////////');
 
       if (statusCode == 200 && response.data != null && response.data['data'] != null) {
         coursesVideos = response.data['data'];

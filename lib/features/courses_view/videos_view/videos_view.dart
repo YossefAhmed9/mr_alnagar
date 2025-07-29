@@ -59,6 +59,8 @@ bool hd=true;
     _loadVideos();
   }
 
+
+
   Color getStatusColor(String status) {
     switch (status) {
       case 'not_started':
@@ -263,6 +265,23 @@ bool hd=true;
     }
     return '';
   }
+  bool test=false;
+
+bool isLoad=false;
+  void showLoadOnRefresh()async{
+    isLoad=true;
+    await CoursesCubit.get(context).getVideosByCourse(id:
+    CoursesCubit.get(context).courseResult[0]['id'], context: context,).then((value){
+    });
+    Future.delayed(Duration(seconds: 2)).then((value){
+      setState(() async{
+Navigator.pop(context);
+Navigator.push(context,CupertinoPageRoute(builder: (context)=>CourseVideoScreen(videoIndex: CoursesCubit.get(context).courseResult[0]['id'])));
+        isLoad=false;
+      });
+    });
+
+  }
 
 
   Widget _buildActionButton(BuildContext context, IconData icon, String label, VoidCallback onPressed) {
@@ -300,7 +319,8 @@ bool hd=true;
     //print(    CoursesCubit.get(context).coursesVideos['sections_data'][3]['id']);
     return BlocBuilder<CoursesCubit, CoursesState>(
   builder: (context, state) {
-    return Scaffold(
+    return isLoad ? Scaffold(body: Center(child:CircularProgressIndicator()),) :
+    Scaffold(
       appBar: isFullScreen ? null : AppBar(
         leading: IconButton(onPressed: (){
           Navigator.pop(context);
@@ -492,24 +512,23 @@ bool hd=true;
                                         child: RefreshIndicator(
                                           triggerMode: RefreshIndicatorTriggerMode.anywhere,
                                           onRefresh: ()async{
-                                            CoursesCubit.get(context).coursesVideos=null;
+                                            //CoursesCubit.get(context).coursesVideos=null;
                                             //controller.reload();
                                             // SystemChrome.setPreferredOrientations([
                                             //   DeviceOrientation.portraitUp,
                                             //   DeviceOrientation.portraitDown,
                                             // ]);
-                                            await CoursesCubit.get(context).getVideosByCourse(id:
-                                            CoursesCubit.get(context).courseResult[0]['id'], context: context,).then((value){
-                                            });
+                                            // await CoursesCubit.get(context).getVideosByCourse(id:
+                                            // CoursesCubit.get(context).courseResult[0]['id'], context: context,).then((value){
+                                            // });
                                             //_loadVideos();
-                                            return  CoursesCubit.get(context).getVideosByCourse(id:
-                                            CoursesCubit.get(context).courseResult[0]['id'], context: context,).then((value){
-                                            });
+                                            return  showLoadOnRefresh();
 
 
 
                                           },
-                                          child: Scrollbar(
+                                          child: Scrollbar(radius: Radius.circular(25),
+                                            thickness: 10,interactive: true,
                                             controller: scrollController,
                                             child: ListView.builder(
                                               controller: scrollController,
@@ -544,7 +563,8 @@ bool hd=true;
                                                           style: TextStyles.textStyle16w700(context).copyWith(color: AppColors.primaryColor),
                                                         ),
                                                         const SizedBox(height: 8),
-                                                        Wrap(
+                                                        Row(
+                                                          mainAxisSize: MainAxisSize.min,
                                                           spacing: 5,
                                                           children: [
                                                             section['attachment'] != null

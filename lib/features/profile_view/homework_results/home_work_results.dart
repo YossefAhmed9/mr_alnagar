@@ -99,6 +99,8 @@ class HomeWorkResults extends StatelessWidget {
                                     child: InkWell(
                                   onTap:()async{
                                     await CoursesCubit.get(context).getHomeWorkResult(attemptID: ProfileCubit.get(context).homeWorksResultsForProfile[index]['attempt_id']);
+                                    //print(ProfileCubit.get(context).homeWorksResultsForProfile[index]['attempt_id']);
+                                    print(CoursesCubit.get(context).homeWorkResult);
                                     Navigator.push(context, CupertinoPageRoute(builder: (context)=>HomeworkResultView(attemptID: ProfileCubit.get(context).homeWorksResultsForProfile[index]['attempt_id'],)), );
                                   },
                                       child: Container(
@@ -125,9 +127,7 @@ class HomeWorkResults extends StatelessWidget {
                                               ),
                                             ),
                                             const SizedBox(width: 5),
-                                            Icon(
-                                              Icons
-                                                  .keyboard_double_arrow_left_outlined,
+                                            Icon(Icons.keyboard_double_arrow_left_outlined,
                                               color: AppColors.primaryColor,
                                               size: 25,
                                             ),

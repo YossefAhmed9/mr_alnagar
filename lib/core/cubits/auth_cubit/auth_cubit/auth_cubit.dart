@@ -36,7 +36,9 @@ class AuthCubit extends Cubit<AuthState> {
         url: EndPoints.levelsForAuthCategories,
       );
       levelsForAuthCategories = response.data['data'];
-      print(levelsForAuthCategories);
+      if (kDebugMode) {
+        print(levelsForAuthCategories);
+      }
       emit(LevelsForAuthCategoriesDone());
     } catch (error) {
       if (kDebugMode) {
@@ -54,12 +56,17 @@ class AuthCubit extends Cubit<AuthState> {
     try {
       final response = await DioHelper.getData(url: EndPoints.governments);
       governments = response.data['data'];
-      print(governments);
+      if (kDebugMode) {
+        print(governments);
+      }
       emit(GovernmentsDone());
     } catch (error) {
-      print(error.toString());
-      print(error.runtimeType);
-      print(error);
+      if (kDebugMode) {
+        print(error.toString());
+        print(error.runtimeType);
+        print(error);
+      }
+
       emit(GovernmentsError(error));
     }
   }
@@ -157,12 +164,16 @@ class AuthCubit extends Cubit<AuthState> {
         emit(RegisterError(dioError.toString()));
       }
 
-      print(dioError);
+      if (kDebugMode) {
+        print(dioError);
+      }
       return null;
     } catch (error) {
       showSnackBar(context, 'حدث خطأ غير متوقع', 4, Colors.red);
       emit(RegisterError(error.toString()));
-      print(error);
+      if (kDebugMode) {
+        print(error);
+      }
       return null;
     }
   }
@@ -211,8 +222,11 @@ var loginResponse;
         CacheHelper.setData(key: key, value: value);
       });
 
-      print(state);
-      print(loginResponse.data);
+      if (kDebugMode) {
+        print(state);
+        print(loginResponse.data);
+
+      }
 
       emit(LoginDone());
       loading = false;
@@ -237,17 +251,23 @@ var loginResponse;
       .first[0];
 
   showSnackBar(context, firstErrorMessage, 4, Colors.red);
-  print(dioError.response?.statusCode);
+  if (kDebugMode) {
+    print(dioError.response?.statusCode);
+  }
   } else {
   showSnackBar(context, 'حدث خطأ ما. حاول مرة أخرى.', 4, Colors.red);
   }
 
-  print('Dio error: ${dioError.response}');
+  if (kDebugMode) {
+    print('Dio error: ${dioError.response}');
+  }
   emit(LoginError(dioError.toString()));
   return null;
   } catch (error) {
   loading = false;
-  print('Unexpected error: $error');
+  if (kDebugMode) {
+    print('Unexpected error: $error');
+  }
   showSnackBar(context, 'حدث خطأ غير متوقع', 3, Colors.red);
   emit(LoginError(error.toString()));
   return null;
@@ -441,7 +461,9 @@ if (kDebugMode) {
 
         emit(LogoutDone());
       }).catchError((error){
-        print(error);
+        if (kDebugMode) {
+          print(error);
+        }
         emit(LogoutError(error));
       });
 

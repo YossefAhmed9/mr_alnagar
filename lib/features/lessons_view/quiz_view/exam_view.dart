@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:html_unescape/html_unescape.dart';
 import 'package:ming_cute_icons/ming_cute_icons.dart';
 import 'package:mr_alnagar/core/cubits/lessons_cubit/lessons_cubit.dart';
@@ -11,8 +12,10 @@ import 'package:mr_alnagar/core/utils/app_colors.dart';
 import 'package:mr_alnagar/core/utils/text_styles.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
-import 'package:mr_alnagar/features/courses_view/quiz_view/quiz_result.dart';
 import 'package:mr_alnagar/features/home_screen/home_layout.dart';
+import 'package:mr_alnagar/features/lessons_view/lesson_reservation_screen.dart';
+import 'package:mr_alnagar/features/lessons_view/quiz_view/quiz_result.dart';
+import 'package:mr_alnagar/features/lessons_view/videos_view/videos_view.dart';
 
 class LessonsExamView extends StatefulWidget {
   const LessonsExamView({Key? key, required this.quizID}) : super(key: key);
@@ -27,9 +30,11 @@ class _LessonsExamViewState extends State<LessonsExamView> {
   int remainingSeconds = 0;
   List<Map<String, dynamic>?> studentQuizAnswers = [];
   bool isSubmitting = false;
+  ScrollController scrollController=ScrollController();
 
   @override
   void initState() {
+    LessonsCubit.get(context).isLessonLoading=false;
     super.initState();
     final quizData = LessonsCubit.get(context).quiz;
     final durationMinutes = quizData?['quiz']?['duration_minutes'] ?? 0;
@@ -70,46 +75,125 @@ class _LessonsExamViewState extends State<LessonsExamView> {
 
   void _submitExam({bool auto = false}) async {
     if (auto) {
+      setState(() => isSubmitting = true);
+
+      await LessonsCubit.get(context).submitQuiz(
+        attemptID: LessonsCubit.get(context).quiz['attempt']['attempt_id'],
+        answers: studentQuizAnswers,
+      );
+
+      if (!mounted) return;
+      setState(() => isSubmitting = false);
+      final result = LessonsCubit.get(context).quizSubmission;
+
       showDialog(
         context: context,
         barrierDismissible: false,
         builder:
             (_) => AlertDialog(
               backgroundColor: Colors.white,
-              title: Text("Time's up!", textAlign: TextAlign.center),
+              title: Text("نتيجة الامتحان ", textAlign: TextAlign.center),
               titleTextStyle: TextStyles.textStyle16w700(
                 context,
               ).copyWith(color: AppColors.secondary),
-              content: Text(
-                "Your exam has been automatically submitted.",
-                textAlign: TextAlign.center,
-                style: TextStyles.textStyle16w700(context),
+              content: Container(
+                width: 150,
+                height: 280,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset(
+                      'assets/images/submit.png',
+                      width: 150,
+                      height: 200,
+                    ),
+                    Column(
+                      children: [
+                        Text(
+                          "حليت الامتحان بنجاح  ",
+                          textAlign: TextAlign.center,
+                          style: TextStyles.textStyle16w700(context),
+                        ),
+                        Text(
+                          "درجتك   ${result['score_text']}",
+                          textAlign: TextAlign.center,
+                          style: TextStyles.textStyle16w700(
+                            context,
+                          ).copyWith(color: AppColors.secondary),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
               actionsAlignment: MainAxisAlignment.center,
               actionsPadding: const EdgeInsets.only(bottom: 12),
               actions: [
-                SizedBox(
-                  height: 44,
-                  width: 120,
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      backgroundColor: AppColors.primaryColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: SizedBox(
+                    height: 44,
+                    width: double.infinity,
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.grey[200],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                      ),
+                      onPressed: () async {
+                        await LessonsCubit.get(context).getQuizResult(
+                          attemptID:
+                              LessonsCubit.get(
+                                context,
+                              ).quiz['attempt']['attempt_id'],
+                        );
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          CupertinoPageRoute(
+                            builder: (context) => LessonsQuizResultView(),
+                          ),
+                          (context) => false,
+                        );
+                      },
+                      child: Text(
+                        " عرض الاجابات ",
+                        style: TextStyles.textStyle16w700(
+                          context,
+                        ).copyWith(color: AppColors.secondary),
                       ),
                     ),
-                    onPressed: () {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => HomeLayout()),
-                        (context) => false,
-                      );
-                    },
-                    child: Text(
-                      "OK",
-                      style: TextStyles.textStyle16w700(
-                        context,
-                      ).copyWith(color: Colors.white),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: SizedBox(
+                    height: 44,
+                    width: double.infinity,
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: AppColors.primaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                      ),
+                      onPressed: () async{
+                        LessonsCubit.get(context).isLessonLoading=false;
+                        LessonsCubit.get(context).getClassDataByID(context: context, classId: LessonsCubit.get(context).classData['id']);
+                       LessonsCubit.get(context).isLessonLoading=false;
+
+                        Navigator.push(context, CupertinoPageRoute(builder: (context) => HomeLayout()));
+                        Navigator.push(context, CupertinoPageRoute(builder: (context) => LessonReservationScreen(data: LessonsCubit.get(context).classData['id'])));
+                        Navigator.push(context, CupertinoPageRoute(builder: (context) => LessonVideoScreen(videoIndex: LessonsCubit.get(context).classData['id'])));
+
+                      },
+                      child: Text(
+                        "ابدا الحصة",
+                        style: TextStyles.textStyle16w700(
+                          context,
+                        ).copyWith(color: Colors.white),
+                      ),
                     ),
                   ),
                 ),
@@ -125,12 +209,13 @@ class _LessonsExamViewState extends State<LessonsExamView> {
       builder:
           (_) => AlertDialog(
             backgroundColor: Colors.white,
-            title: Text("Submit Exam", textAlign: TextAlign.center),
+            title: Text("تسليم الامتحان", textAlign: TextAlign.center),
             titleTextStyle: TextStyles.textStyle16w700(
               context,
             ).copyWith(color: AppColors.secondary),
             content: Text(
-              "Are you sure you want to submit your exam?",
+              "هل تريد تأكيد اجاباتك ؟"
+              "مع العلم لديك المزيد من الوقت في التفكير",
               textAlign: TextAlign.center,
               style: TextStyles.textStyle16w700(context),
             ),
@@ -150,9 +235,12 @@ class _LessonsExamViewState extends State<LessonsExamView> {
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                   ),
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+
+                  },
                   child: Text(
-                    "Cancel",
+                    "الغاء",
                     style: TextStyles.textStyle16w700(
                       context,
                     ).copyWith(color: AppColors.secondary),
@@ -174,7 +262,7 @@ class _LessonsExamViewState extends State<LessonsExamView> {
                     Navigator.of(context).pop();
                     setState(() => isSubmitting = true);
 
-                    final value = await LessonsCubit.get(context).submitQuiz(
+                    await LessonsCubit.get(context).submitQuiz(
                       attemptID:
                           LessonsCubit.get(
                             context,
@@ -182,9 +270,8 @@ class _LessonsExamViewState extends State<LessonsExamView> {
                       answers: studentQuizAnswers,
                     );
 
-                    LessonsCubit.get(context).quizSubmission;
+                    if (!mounted) return;
                     setState(() => isSubmitting = false);
-
                     final result = LessonsCubit.get(context).quizSubmission;
 
                     showDialog(
@@ -193,14 +280,42 @@ class _LessonsExamViewState extends State<LessonsExamView> {
                       builder:
                           (_) => AlertDialog(
                             backgroundColor: Colors.white,
-                            title: Text("Result", textAlign: TextAlign.center),
-                            titleTextStyle: TextStyles.textStyle16w700(
-                              context,
-                            ).copyWith(color: AppColors.secondary),
-                            content: Text(
-                              "Your Score: ${result['score_text']}",
+                            title: Text(
+                              "نتيجة الامتحان ",
                               textAlign: TextAlign.center,
-                              style: TextStyles.textStyle16w700(context),
+                            ),
+                            titleTextStyle: TextStyles.textStyle16w700(context,).copyWith(color: AppColors.secondary),
+                            content: Container(
+                              width: 150,
+                              height: 280,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Image.asset(
+                                    'assets/images/submit.png',
+                                    width: 150,
+                                    height: 200,
+                                  ),
+                                  Column(
+                                    children: [
+                                      Text(
+                                        "حليت الامتحان بنجاح  ",
+                                        textAlign: TextAlign.center,
+                                        style: TextStyles.textStyle16w700(
+                                          context,
+                                        ),
+                                      ),
+                                      Text(
+                                        "درجتك   ${result['score_text']}",
+                                        textAlign: TextAlign.center,
+                                        style: TextStyles.textStyle16w700(
+                                          context,
+                                        ).copyWith(color: AppColors.secondary),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                             actionsAlignment: MainAxisAlignment.center,
                             actionsPadding: const EdgeInsets.only(bottom: 12),
@@ -209,7 +324,7 @@ class _LessonsExamViewState extends State<LessonsExamView> {
                                 padding: const EdgeInsets.all(12.0),
                                 child: SizedBox(
                                   height: 44,
-                                  width: 150,
+                                  width: double.infinity,
                                   child: TextButton(
                                     style: TextButton.styleFrom(
                                       backgroundColor: Colors.grey[200],
@@ -230,14 +345,13 @@ class _LessonsExamViewState extends State<LessonsExamView> {
                                         context,
                                         CupertinoPageRoute(
                                           builder:
-                                              (context) => QuizResultView(),
+                                              (context) => LessonsQuizResultView(),
                                         ),
                                         (context) => false,
                                       );
                                     },
                                     child: Text(
-                                      maxLines: 2,
-                                      "عرض الاجابات ",
+                                      " عرض الاجابات ",
                                       style: TextStyles.textStyle16w700(
                                         context,
                                       ).copyWith(color: AppColors.secondary),
@@ -245,11 +359,12 @@ class _LessonsExamViewState extends State<LessonsExamView> {
                                   ),
                                 ),
                               ),
+                              const SizedBox(width: 12),
                               Padding(
                                 padding: const EdgeInsets.all(12.0),
                                 child: SizedBox(
                                   height: 44,
-                                  width: 100,
+                                  width: double.infinity,
                                   child: TextButton(
                                     style: TextButton.styleFrom(
                                       backgroundColor: AppColors.primaryColor,
@@ -258,16 +373,18 @@ class _LessonsExamViewState extends State<LessonsExamView> {
                                       ),
                                     ),
                                     onPressed: () {
-                                      Navigator.pushAndRemoveUntil(
-                                        context,
-                                        CupertinoPageRoute(
-                                          builder: (context) => HomeLayout(),
-                                        ),
-                                        (context) => false,
-                                      );
+                                      LessonsCubit.get(context).isLessonLoading=false;
+                                      LessonsCubit.get(context).getClassDataByID(context: context, classId: LessonsCubit.get(context).classData['id']);
+                                      LessonsCubit.get(context).isLessonLoading=false;
+
+                                      Navigator.push(context, CupertinoPageRoute(builder: (context) => HomeLayout()));
+                                      Navigator.push(context, CupertinoPageRoute(builder: (context) => LessonReservationScreen(data: LessonsCubit.get(context).classData)));
+                                      Navigator.push(context, CupertinoPageRoute(builder: (context) => LessonVideoScreen(videoIndex: LessonsCubit.get(context).quizSubmission['class_id'])));
+
+
                                     },
                                     child: Text(
-                                      "OK",
+                                      "ابدا الحصة",
                                       style: TextStyles.textStyle16w700(
                                         context,
                                       ).copyWith(color: Colors.white),
@@ -280,7 +397,7 @@ class _LessonsExamViewState extends State<LessonsExamView> {
                     );
                   },
                   child: Text(
-                    "Submit",
+                    "تأكيد",
                     style: TextStyles.textStyle16w700(
                       context,
                     ).copyWith(color: Colors.white),
@@ -485,108 +602,167 @@ class _LessonsExamViewState extends State<LessonsExamView> {
                     ? const Center(child: CircularProgressIndicator())
                     : Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: SingleChildScrollView(
-                        child: Column(
+                      child: Scrollbar(
+                        controller: scrollController,
+                        radius: Radius.circular(25),
+                        thickness: 10,
+                        interactive: true,
+                        child: Stack(
                           children: [
+                        SingleChildScrollView(
+                          controller: scrollController,
+                        child: Column(
+                        children: [
+                          Container(
+                            height: 170,
+                          ),
+                                          Text(
+                                            'Choose the correct answer from a, b, c or d:',
+                                            style: TextStyles.textStyle18w700(context,
+                                            ).copyWith(color: AppColors.secondary),
+                                          ),
+                                          _buildQuestionTypeSection(
+                                            'reading_passage',
+                                            'Reading Passage Questions',
+                                          ),
+                                          _buildQuestionTypeSection(
+                                            'multiple_choice',
+                                            'Multiple Choice Questions',
+                                          ),
+                                          _buildQuestionTypeSection(
+                                            'true_false',
+                                            'True or False Questions',
+                                          ),
+                                          _buildQuestionTypeSection(
+                                            'short_answer',
+                                            'Short Answer Questions',
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                                            ),
+                                            child: Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryColor,
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        width: double.infinity,
+                        height: 44,
+                        child: MaterialButton(
+                          onPressed: () async{
+                            final firstUnansweredIndex = studentQuizAnswers.indexWhere((answer) => answer?['answer'] == null);
+                            if (firstUnansweredIndex != -1) {
+                              // Scroll to the approximate position of the unanswered question
+                              scrollController.animateTo(
+                                firstUnansweredIndex * 300,
+                                duration: const Duration(milliseconds: 500),
+                                curve: Curves.easeInOut,
+                              );
+
+                              Fluttertoast.showToast(
+                                msg: "السؤال رقم ${firstUnansweredIndex + 1} لسه من غير اجابة",
+                                toastLength: Toast.LENGTH_LONG,
+                                gravity: ToastGravity.BOTTOM,
+                                backgroundColor: Colors.red,
+                                textColor: Colors.white,
+                                fontSize: 16.0,
+                              );
+
+                              return;
+                            }
+                              _submitExam();
+                          },
+                          child: Text(
+                            'التالي',
+                            style: TextStyles.textStyle16w700(
+                              context,
+                            ).copyWith(color: Colors.white),
+                          ),
+                        ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 20),
+                                          ],
+                                        ),),
                             Container(
-                              width: 300.w,
-                              height: 140.h,
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                image: DecorationImage(
-                                  image: AssetImage(
-                                    'assets/images/pattern 2.png',
-                                  ),
-                                  fit: BoxFit.fill,
-                                ),
-                              ),
-                              child: Center(
-                                child: DottedBorder(
-                                  borderType: BorderType.RRect,
-                                  radius: const Radius.circular(40),
-                                  dashPattern: [6, 4],
-                                  color: AppColors.secondary30,
-                                  strokeWidth: 2,
-                                  child: Container(
-                                    width: 270,
-                                    height: 60,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(40),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          MingCuteIcons.mgc_time_duration_line,
-                                          color: AppColors.secondary30,
-                                          size: 40,
-                                        ),
-                                        const SizedBox(width: 10),
-                                        Text(
-                                          _formatTime(remainingSeconds),
-                                          style: TextStyles.textStyle20w700(
-                                            context,
-                                          ).copyWith(fontSize: 32),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Text(
-                              'Choose the correct answer from a, b, c or d:',
-                              style: TextStyles.textStyle18w700(
-                                context,
-                              ).copyWith(color: AppColors.secondary),
-                            ),
-                            _buildQuestionTypeSection(
-                              'reading_passage',
-                              'Reading Passage Questions',
-                            ),
-                            _buildQuestionTypeSection(
-                              'multiple_choice',
-                              'Multiple Choice Questions',
-                            ),
-                            _buildQuestionTypeSection(
-                              'true_false',
-                              'True or False Questions',
-                            ),
-                            _buildQuestionTypeSection(
-                              'short_answer',
-                              'Short Answer Questions',
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0,
-                              ),
+                              decoration: BoxDecoration(color: Colors.white),
                               child: Container(
-                                decoration: BoxDecoration(
-                                  color: AppColors.primaryColor,
-                                  borderRadius: BorderRadius.circular(25),
-                                ),
                                 width: double.infinity,
-                                height: 44,
-                                child: MaterialButton(
-                                  onPressed: () => _submitExam(),
-                                  child: Text(
-                                    'Next',
-                                    style: TextStyles.textStyle16w700(
-                                      context,
-                                    ).copyWith(color: Colors.white),
+                                height: 140.h,
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  image: DecorationImage(
+                                    image: AssetImage('assets/images/pattern 2.png'),
+                                    fit: BoxFit.fill,
                                   ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Center(
+                                        child: DottedBorder(
+                                          borderType: BorderType.RRect,
+                                          radius: const Radius.circular(40),
+                                          dashPattern: [6, 4],
+                                          color: AppColors.secondary30,
+                                          strokeWidth: 2,
+                                          child: Container(
+                                            width: 240,
+                                            height: 40,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.circular(40),
+                                            ),
+                                            child: Column(
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(
+                                                      MingCuteIcons.mgc_time_duration_line,
+                                                      color: AppColors.secondary30,
+                                                      size: 30,
+                                                    ),
+                                                    const SizedBox(width: 10),
+                                                    Text(
+                                                      _formatTime(remainingSeconds),
+                                                      style: TextStyles.textStyle20w700(context).copyWith(fontSize: 23),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Column(
+                                      spacing: 10,
+                                      children: [Row(
+                                        children: [
+                                          Text('${quizData['quiz']['full_score']} الدرجة  ',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black),),
+                                          Spacer(),
+                                          Text('    ${quizData['quiz']['question_count']} عدد الاسئلة  ',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black)),
+                                        ],
+                                      ),Row(
+                                        children: [
+                                          Text('المحاولات المتبقية ${quizData['quiz']['remaining_attempts']}',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black)),
+                                          Spacer(),
+                                          Text('المحاولات الكلية ${quizData['quiz']['attempt_count']}',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black))],
+                                      ),],),
+
+                                  ],
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 20),
+
                           ],
                         ),
+                      )
                       ),
                     ),
-          ),
-        );
+          );
       },
     );
   }
