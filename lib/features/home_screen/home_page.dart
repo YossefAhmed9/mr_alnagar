@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mr_alnagar/core/cubits/auth_cubit/auth_cubit/auth_cubit.dart';
+import 'package:mr_alnagar/core/cubits/books_cubit/books_cubit.dart';
+import 'package:mr_alnagar/core/cubits/courses_cubit/courses_cubit.dart';
 import 'package:mr_alnagar/core/cubits/home_cubit/home_cubit.dart';
 import 'package:mr_alnagar/core/cubits/lessons_cubit/lessons_cubit.dart';
 import 'package:mr_alnagar/core/cubits/profile_cubit/profile_cubit.dart';
@@ -27,6 +29,7 @@ import 'package:mr_alnagar/core/widgets/Home%20widgets/showing_books_in_home.dar
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../core/widgets/Home widgets/featured_courses.dart';
+import '../../main.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -36,7 +39,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
 
   @override
   void initState() {
@@ -51,223 +55,405 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _refreshData() async {
     await ProfileCubit.get(context).getProfileInfo();
+    await CoursesCubit.get(context).getCourses();
+    await BooksCubit.get(context).getAllBooks();
     return HomeCubit.get(context).getHomeData(context: context);
   }
 
   @override
   Widget build(BuildContext context) {
-    int categoryID=CacheHelper.getData(key: CacheKeys.categoryId);
+    int categoryID = CacheHelper.getData(key: CacheKeys.categoryId);
     return BlocConsumer<HomeCubit, HomeState>(
       listener: (context, state) {},
       builder: (context, state) {
-        return Scaffold(
-          body: RefreshIndicator(
-            key: _refreshIndicatorKey,
-            triggerMode: RefreshIndicatorTriggerMode.anywhere,
-            onRefresh: _refreshData,
-            child: SafeArea(
-              child: CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: Directionality(
-                      textDirection: TextDirection.rtl,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const WelcomeContainer().animate().fade(duration: 500.ms).slideY(begin: 0.3),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 30.0),
-                                  child: Column(
-                                    children: [
-                                      HomeCubit.get(context).aboutUs == null
-                                          ? Container()
-                                          : Row(
-                                        children: [
-                                          Text(
-                                            'نبذة عن المستر',
-                                            style: TextStyles.textStyle20w700(context).copyWith(fontSize: 20),
-                                          ).animate().fade().moveX(begin: 40),
-                                          Spacer(),
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.push(
-                                                context,
-                                                CupertinoPageRoute(builder: (context) => AboutUsView()),
-                                              );
-                                            },
-                                            child: Text(
-                                              'عرض المزيد',
-                                              style: TextStyles.textStyle16w400(context).copyWith(color: AppColors.secondary),
-                                            ),
-                                          ).animate().fade(duration: 400.ms),
-                                        ],
-                                      ),
-                                      HomeCubit.get(context).homeData == null
-                                          ? Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Container(),
-                                      )
-                                          : AboutUsContainer().animate().fade(duration: 600.ms).slideY(begin: 0.3),
-                                      SizedBox(height: 20,),
-                                      Container(
-                                        width: double.infinity,
-                                        height: 1,
-                                        decoration: BoxDecoration(color: Colors.grey),
-                                      ),
+        return ConnectivityWrapper(
+          child: Scaffold(
+            body: RefreshIndicator(
+              key: _refreshIndicatorKey,
+              triggerMode: RefreshIndicatorTriggerMode.anywhere,
+              onRefresh: _refreshData,
+              child: SafeArea(
+                child: CustomScrollView(
 
-
-                                     HomeCubit.get(context).home==null ?
-                                         Container() :
-                                      const LevelsInHome(),
-
-
-                                      HomeCubit.get(context).homeData==null ?
-                                      Container()
-                                          :  Padding(
-                                        padding: const EdgeInsets.only(right:  8.0,left:8,top: 35,bottom:12),
-                                        child: const FeaturedCourses().animate().fade(duration: 500.ms).slideY(begin: 0.3),
-                                      ),
-
-                                      HomeCubit.get(context).homeData == null
-                                          ? Container()
-                                          : const AboutUsRecords().animate().fade(duration: 500.ms).slideY(begin: 0.2),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          HomeCubit.get(context).howToUse == null
-                              ? Container()
-                              : HowToUse(data: HomeCubit.get(context).howToUse).animate().fade().scale(),
-
-
-
-                          Padding(
-                            padding: const EdgeInsets.only(top: 30.0, right: 10),
-                            child: SizedBox(
-                              width: MediaQuery.sizeOf(context).width * 1, // increase width to prevent overflow
-                              height: 50,
-                              child: Row(
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: Directionality(
+                        textDirection: TextDirection.rtl,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Expanded(
-                                    flex: 2,
-                                    child: Text(
-                                      'ابطالنا الاوائل',
-                                      style: TextStyles.textStyle16w700(context).copyWith(fontSize: 20),
-                                    ).animate().fade(duration: 400.ms).slideX(begin: -0.2),
-                                  ),
-                                  const SizedBox(width: 40),
-                                  Expanded(
-                                    flex: 2,
-                                    child: AuthCubit.get(context).levelsForAuthCategories.length <= 2
-                                        ? Container()
-                                        : Container(
-                                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(25)),
-                                          child: DropdownButtonFormField<String>(
-                                            style: TextStyles.textStyle12w400(context).copyWith(
-                                              overflow: TextOverflow.ellipsis,
-                                              color: Colors.white,
+                                  const WelcomeContainer()
+                                      .animate()
+                                      .fade(duration: 500.ms)
+                                      .slideY(begin: 0.3),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 30.0,
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        HomeCubit.get(context).aboutUs == null
+                                            ? Container()
+                                            :  Row(
+                                              children: [
+                                                Text(
+                                                  'نبذة عن المستر',
+                                                  style:
+                                                      TextStyles.textStyle20w700(
+                                                        context,
+                                                      ).copyWith(fontSize: 20),
+                                                ).animate().fade().moveX(
+                                                  begin: 40,
+                                                ),
+                                                Spacer(),
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.push(
+                                                      context,
+                                                      CupertinoPageRoute(
+                                                        builder:
+                                                            (context) =>
+                                                                AboutUsView(),
+                                                      ),
+                                                    );
+                                                  },
+                                                  child: Text(
+                                                    'عرض المزيد',
+                                                    style:
+                                                        TextStyles.textStyle16w400(
+                                                          context,
+                                                        ).copyWith(
+                                                          color:
+                                                              AppColors
+                                                                  .secondary,
+                                                        ),
+                                                  ),
+                                                ).animate().fade(
+                                                  duration: 100.ms,
+                                                ),
+                                              ],
                                             ),
-                                            dropdownColor: AppColors.primaryColor,iconSize: 30,iconDisabledColor:
-                                          Colors.white,
-                                            iconEnabledColor: Colors.white,
-                                            validator: (value) {
-                                          if (value == null) {
-                                            return 'يجب ادخال الصف الدراسي ';
-                                          }
-                                          return null;
-                                          },
-                                            hint: Text('الصف الدراسي',style:TextStyle(color: Colors.white,fontSize: 11) ,),
-                                            decoration: InputDecoration(
-                                          hintText: 'الصف الدراسي',
-                                          hintStyle: TextStyle(color: Colors.white,fontSize: 25),
-                                              labelStyle:TextStyle(color: Colors.white,fontSize: 25) ,
-
-
-                                          alignLabelWithHint: true,
-
-                                          
-                                          enabledBorder: OutlineInputBorder(
-                                          
-                                            borderSide: BorderSide(color: Colors.transparent),
-                                            borderRadius: BorderRadius.circular(25),
+                                        HomeCubit.get(context).homeData == null
+                                            ? Padding(
+                                              padding: const EdgeInsets.all(
+                                                8.0,
+                                              ),
+                                              child: Container(),
+                                            )
+                                            : const AboutUsContainer()
+                                                .animate()
+                                                .fade(duration: 600.ms)
+                                                .slideY(begin: 0.3),
+                                        SizedBox(height: 20),
+                                       Container(
+                                          width: double.infinity,
+                                          height: 1,
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey,
                                           ),
-                                          filled: true,
-                                          fillColor:  AppColors.primaryColor,
-                                            ),
-                                            items: AuthCubit.get(context).levelsForAuthCategories
-                                            .map<DropdownMenuItem<String>>((level) {
-                                          return DropdownMenuItem<String>(
-                                            value: level['id'].toString(),
-                                            child: Text(level['name'].toString(),style: TextStyles.textStyle14w700(context).copyWith(fontSize:12),),
-                                          );
-                                                                                }).toList(),
-                                                                                onChanged: (value) {
-                                          print('************************$value');
-                                          print(HomeCubit.get(context).topStudents);
-                                          setState(() async{
-                                            categoryID=int.parse(value!);
-                                            HomeCubit.get(context).topStudents ==[];
-                                            await HomeCubit.get(context).getLeaderBoard(categoryID: int.parse(value));
-                                          
-                                          });
-                                                                                },
-                                                                              ),
                                         ),
+
+                                        HomeCubit.get(context).home == null
+                                            ? Container()
+                                            : const LevelsInHome(),
+
+                                        HomeCubit.get(context).homeData == null
+                                            ? Container()
+                                            : Padding(
+                                              padding: const EdgeInsets.only(
+                                                right: 8.0,
+                                                left: 8,
+                                                top: 35,
+                                                bottom: 12,
+                                              ),
+                                              child: const FeaturedCourses()
+                                                  .animate()
+                                                  .fade(duration: 500.ms)
+                                                  .slideY(begin: 0.3),
+                                            ),
+
+                                        HomeCubit.get(context).homeData == null
+                                            ? Container()
+                                            : const AboutUsRecords()
+                                                .animate()
+                                                .fade(duration: 500.ms)
+                                                .slideY(begin: 0.2),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
-                          ),
+                            HomeCubit.get(context).howToUse == null
+                                ? Container()
+                                : HowToUse(
+                                  data: HomeCubit.get(context).howToUse,
+                                ).animate().fade().scale(),
 
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: LeaderBoard(categoryID: categoryID,).animate().fade(duration: 500.ms).slideY(begin: 0.3),
-                          ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                top: 30.0,
+                                right: 10,
+                              ),
+                              child: SizedBox(
+                                width:
+                                    MediaQuery.sizeOf(context).width *
+                                    1, // increase width to prevent overflow
+                                height: 50,
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 1,
+                                      child: Text(
+                                            'ابطالنا الاوائل',
+                                            style: TextStyles.textStyle16w700(
+                                              context,
+                                            ).copyWith(fontSize: 20),
+                                          )
+                                          .animate()
+                                          .fade(duration: 100.ms)
+                                          .slideX(begin: -0.2),
+                                    ),
+                                    SizedBox(width: 20.w),
+                                    Expanded(
+                                      child: Padding(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 0,
+                                        ),
+                                        child:
+                                            AuthCubit.get(context)
+                                                    .levelsForAuthCategories
+                                                    .isEmpty
+                                                ? Container()
+                                                : Container(
+                                                  clipBehavior:
+                                                      Clip.antiAliasWithSaveLayer,
 
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 10),
-                            child: Text(
-                              'اسأل مستر محمد',
-                              style: TextStyles.textStyle16w700(context),
-                            ).animate().fade().slideX(begin: 0.2),
-                          ),
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          25,
+                                                        ),
+                                                  ),
+                                                  child: DropdownButtonFormField<
+                                                    String
+                                                  >(
+                                                    style:
+                                                        TextStyles.textStyle12w400(
+                                                          context,
+                                                        ).copyWith(
+                                                          overflow:
+                                                              TextOverflow
+                                                                  .ellipsis,
+                                                          color: Colors.white,
+                                                        ),
+                                                    dropdownColor:
+                                                        AppColors.primaryColor,
+                                                    iconSize: 30,
+                                                    iconDisabledColor:
+                                                        Colors.white,
+                                                    iconEnabledColor:
+                                                        Colors.white,
+                                                    validator: (value) {
+                                                      if (value == null) {
+                                                        return 'يجب ادخال الصف الدراسي ';
+                                                      }
+                                                      return null;
+                                                    },
+                                                    hint: Text(
+                                                      'الصف الدراسي',
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 11,
+                                                      ),
+                                                    ),
+                                                    decoration: InputDecoration(
+                                                      hintText: 'الصف الدراسي',
+                                                      hintStyle: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 25,
+                                                      ),
+                                                      labelStyle: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 25,
+                                                      ),
 
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: const AskQuestion().animate().fade().scale(),
-                          ),
+                                                      alignLabelWithHint: true,
 
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: const CoursesSectionInHome().animate().fade(duration: 500.ms).slideY(begin: 0.3),
-                          ),
+                                                      enabledBorder: OutlineInputBorder(
+                                                        borderSide: BorderSide(
+                                                          color:
+                                                              Colors
+                                                                  .transparent,
+                                                        ),
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              25,
+                                                            ),
+                                                      ),
+                                                      filled: true,
+                                                      fillColor:
+                                                          AppColors
+                                                              .primaryColor,
+                                                    ),
 
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: const ShowingBooksInHome().animate().fade().slideY(begin: 0.4),
-                          ),
+                                                    items:
+                                                        AuthCubit.get(
+                                                          context,
+                                                        ).levelsForAuthCategories.map<
+                                                          DropdownMenuItem<
+                                                            String
+                                                          >
+                                                        >((level) {
+                                                          return DropdownMenuItem<
+                                                            String
+                                                          >(
+                                                            value:
+                                                                level['id']
+                                                                    .toString(),
+                                                            child: Container(
+                                                              clipBehavior:
+                                                                  Clip.antiAliasWithSaveLayer,
+                                                              decoration: BoxDecoration(
+                                                                color:
+                                                                    AppColors
+                                                                        .primaryColor,
+                                                                borderRadius:
+                                                                    BorderRadius.circular(
+                                                                      25,
+                                                                    ),
+                                                              ),
+                                                              padding:
+                                                                  const EdgeInsets.symmetric(
+                                                                    horizontal:
+                                                                        0,
+                                                                    vertical: 0,
+                                                                  ),
+                                                              child: Text(
+                                                                level['name']
+                                                                    .toString(),
+                                                                style: TextStyles.textStyle14w700(
+                                                                  context,
+                                                                ).copyWith(
+                                                                  fontSize: 12,
+                                                                  color:
+                                                                      Colors
+                                                                          .white,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          );
+                                                        }).toList(),
 
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: const FAQSection().animate().fade(duration: 400.ms).slideX(begin: -0.2),
-                          ),
+                                                    onChanged: (value) {
+                                                      print(
+                                                        '************************$value',
+                                                      );
+                                                      print(
+                                                        HomeCubit.get(
+                                                          context,
+                                                        ).topStudents,
+                                                      );
+                                                      setState(() async {
+                                                        categoryID = int.parse(
+                                                          value!,
+                                                        );
+                                                        HomeCubit.get(
+                                                              context,
+                                                            ).topStudents ==
+                                                            [];
+                                                        await HomeCubit.get(
+                                                          context,
+                                                        ).getLeaderBoard(
+                                                          categoryID: int.parse(
+                                                            value,
+                                                          ),
+                                                        );
+                                                      });
+                                                    },
+                                                  ),
+                                                ),
+                                      ),
+                                    ),
 
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: const ContactUs().animate().fade(duration: 500.ms).slideY(begin: 0.3),
-                          ),
-                        ],
+                                    SizedBox(width: 20),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: LeaderBoard(categoryID: categoryID)
+                                  .animate()
+                                  .fade(duration: 500.ms)
+                                  .slideY(begin: 0.3),
+                            ),
+
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 16.0,
+                                horizontal: 10,
+                              ),
+                              child: Text(
+                                'اسأل مستر محمد',
+                                style: TextStyles.textStyle16w700(context),
+                              ).animate().fade().slideX(begin: 0.2),
+                            ),
+
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child:
+                                  const AskQuestion().animate().fade().scale(),
+                            ),
+
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: const CoursesSectionInHome()
+                                  .animate()
+                                  .fade(duration: 500.ms)
+                                  .slideY(begin: 0.3),
+                            ),
+
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: const ShowingBooksInHome()
+                                  .animate()
+                                  .fade()
+                                  .slideY(begin: 0.4),
+                            ),
+
+                            HomeCubit.get(context).faqQuestion == null &&
+                                    HomeCubit.get(
+                                      context,
+                                    ).commonQuestion.isEmpty
+                                ? Container()
+                                : Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: const FAQSection()
+                                      .animate()
+                                      .fade(duration: 100.ms)
+                                      .slideX(begin: -0.2),
+                                ),
+
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: const ContactUs()
+                                  .animate()
+                                  .fade(duration: 500.ms)
+                                  .slideY(begin: 0.3),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  )
-                ],
+                  ],
+                ),
               ),
             ),
           ),

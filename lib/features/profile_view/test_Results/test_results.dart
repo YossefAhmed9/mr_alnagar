@@ -28,7 +28,11 @@ class _TestResultsState extends State<TestResults> {
         // TODO: implement listener
       },
       builder: (context, state) {
-        return Directionality(
+        return
+          QuizResultsCubit.get(context).quizResults.isEmpty ?
+              Center(child: Text('لا توجد امتحانات',
+                style: TextStyles.textStyle16w700(context).copyWith(color: AppColors.primaryColor),),) :
+          Directionality(
           textDirection: TextDirection.rtl,
           child: Scaffold(
             body: ModalProgressHUD(
@@ -147,6 +151,7 @@ class _TestResultsState extends State<TestResults> {
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: Row(
+                                        spacing: 10,
                                         mainAxisAlignment:
                                         MainAxisAlignment.center,
                                         children: [
@@ -163,15 +168,46 @@ class _TestResultsState extends State<TestResults> {
                                               ),
                                             ),
                                           ),
-                                          Expanded(
-                                            child: Text(
-                                              '${QuizResultsCubit.get(context).quizResults[index]['score'].toString()}',
-                                              style:
-                                              TextStyles.textStyle16w700(
-                                                context,
-                                              ).copyWith(
-                                                color: Colors.black,
+                                          Text(
+                                            '${QuizResultsCubit.get(context).quizResults[index]['score'].toString()}',
+                                            style:
+                                            TextStyles.textStyle16w700(
+                                              context,
+                                            ).copyWith(
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 8,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                color: AppColors.primaryColor,
+                                                width: 2,
                                               ),
+                                              borderRadius: BorderRadius.circular(10),
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                              spacing: 5,
+                                              children: [
+                                                SizedBox(width: 2,),
+                                                Text(
+                                                  'عرض الامتحان',
+                                                  style: TextStyles.textStyle14w700(
+                                                    context,
+                                                  ).copyWith(
+                                                    color: AppColors.primaryColor,fontSize: 14,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 5),
+                                                Icon(Icons.keyboard_double_arrow_left_outlined,
+                                                  color: AppColors.primaryColor,
+                                                  size: 25,
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ],

@@ -636,7 +636,7 @@ class _ExamViewState extends State<ExamView> {
                               await  _submitExam();
                               },
                               child: Text(
-                                'التالي',
+                                'تسليم',
                                 style: TextStyles.textStyle16w700(context).copyWith(color: Colors.white),
                               ),
                             ),

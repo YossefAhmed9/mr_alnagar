@@ -16,15 +16,23 @@ class OnBoardingModel {
   });
 }
 
-Widget onBoardBuildingItem(OnBoardingModel model,BuildContext context) => Column(
+Widget onBoardBuildingItem(OnBoardingModel model, BuildContext context) =>
+    Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-
-        Center(child: Image.asset('assets/images/logo light.png',height:100 ,width:180 ,fit: BoxFit.fitWidth,),),
+        SizedBox(height: 50),
+        Center(
+          child: Image.asset(
+            'assets/images/logo_light.png',
+            height: 100,
+            width: 180,
+            fit: BoxFit.fitWidth,
+          ),
+        ),
         Expanded(
           child: Image(
-            image: AssetImage('${model.image}',),
+            image: AssetImage('${model.image}'),
             width: 343,
             height: 304,
           ),
@@ -32,7 +40,7 @@ Widget onBoardBuildingItem(OnBoardingModel model,BuildContext context) => Column
 
         //title
         Padding(
-          padding: const EdgeInsets.symmetric(vertical :15.0),
+          padding: const EdgeInsets.symmetric(vertical: 15.0),
           child: Text(
             textAlign: TextAlign.center,
 
@@ -40,12 +48,8 @@ Widget onBoardBuildingItem(OnBoardingModel model,BuildContext context) => Column
             style: TextStyles.textStyle20w700(context),
           ),
         ),
+
         //body
-
-
         SizedBox(child: model.body),
-
       ],
     );
-
-

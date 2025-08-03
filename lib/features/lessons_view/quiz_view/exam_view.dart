@@ -673,7 +673,7 @@ class _LessonsExamViewState extends State<LessonsExamView> {
                               _submitExam();
                           },
                           child: Text(
-                            'التالي',
+                            'تسليم',
                             style: TextStyles.textStyle16w700(
                               context,
                             ).copyWith(color: Colors.white),

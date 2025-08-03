@@ -34,17 +34,6 @@ class ContactUs extends StatelessWidget {
               // Map preview
               SizedBox(height: 16.h),
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(
-                    'شارع التليفونات',
-                    style: TextStyles.textStyle16w700(context),
-                  ),
-                  SizedBox(width: 6.w),
-                  Icon(Icons.location_on, color: Colors.blue),
-                ],
-              ),
 
               ClipRRect(
                 borderRadius: BorderRadius.circular(12.r),
@@ -62,6 +51,30 @@ class ContactUs extends StatelessWidget {
                               ).contactUsData["google_map_url"],
                         ),
               ),
+              SizedBox(height: 20,),
+
+              HomeCubit.get(context).contactUsData == null
+                  ? Center(
+                child: Container(
+                  color: AppColors.primaryColor,
+                ),
+              )
+                  :  Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Icon(Icons.location_on, color: Colors.blue),
+                  SizedBox(width: 6),
+
+                  Flexible(
+                    child: Text(
+                      maxLines: 3,
+                      HomeCubit.get(context).contactUsData["address"],
+                      style: TextStyles.textStyle16w700(context).copyWith(color: Colors.black),
+                    ),
+                  ),
+                ],
+              ),
+
               SizedBox(height: 24.h),
 
               // Address with location icon

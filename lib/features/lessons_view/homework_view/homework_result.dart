@@ -29,26 +29,44 @@ class LessonsHomeworkResultView extends StatelessWidget {
         if (result == null) {
           // Ensure result is loaded
           cubit.getHomeWorkResult(attemptID: attemptID);
-          return  Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
+          return Scaffold(body: Center(child: CircularProgressIndicator()));
         }
 
         final List results = result['results'] ?? [];
 
         return Scaffold(
-          bottomNavigationBar:   InkWell(
-            onTap: (){
-              Navigator.push(context, CupertinoPageRoute(builder: (context)=>HomeLayout()));
-              Navigator.push(context, CupertinoPageRoute(builder: (context)=>LessonReservationScreen(data: LessonsCubit.get(context).courseResult[0])));
+          bottomNavigationBar: InkWell(
+            onTap: () {
+              LessonsCubit.get(context).isLessonLoading = true;
+              Navigator.push(
+                context,
+                CupertinoPageRoute(builder: (context) => HomeLayout()),
+              );
               Navigator.push(
                 context,
                 CupertinoPageRoute(
-                    builder: (context) => SubscriptionsListView()
+                  builder:
+                      (context) => LessonReservationScreen(
+                        data: LessonsCubit.get(context).courseResult[0],
+                      ),
                 ),
-
               );
-              Navigator.push(context, CupertinoPageRoute(builder: (context)=>LessonVideoScreen(videoIndex: LessonsCubit.get(context).classData['id'])));
+              Navigator.push(
+                context,
+                CupertinoPageRoute(
+                  builder: (context) => SubscriptionsListView(),
+                ),
+              );
+              Navigator.push(
+                context,
+                CupertinoPageRoute(
+                  builder:
+                      (context) => LessonVideoScreen(
+                        videoIndex: LessonsCubit.get(context).classData['id'],
+                      ),
+                ),
+              );
+              LessonsCubit.get(context).isLessonLoading = true;
             },
             child: Padding(
               padding: const EdgeInsets.all(10.0),
@@ -60,8 +78,15 @@ class LessonsHomeworkResultView extends StatelessWidget {
                   borderRadius: BorderRadius.circular(25),
                 ),
                 child: Center(
-                  child: Text('ابدا الحصة',
-                    style: TextStyles.textStyle16w700(context).copyWith(color: Colors.white,fontSize: 20),),
+                  child:
+                      LessonsCubit.get(context).isLessonLoading
+                          ? Center(child: CircularProgressIndicator())
+                          : Text(
+                            'ابدا الحصة',
+                            style: TextStyles.textStyle16w700(
+                              context,
+                            ).copyWith(color: Colors.white, fontSize: 20),
+                          ),
                 ),
               ),
             ),
@@ -74,114 +99,178 @@ class LessonsHomeworkResultView extends StatelessWidget {
             ),
             centerTitle: true,
             backgroundColor: Colors.white,
+            actions: [
+              IconButton(onPressed: (){
+
+                Navigator.pushAndRemoveUntil(context,
+                    CupertinoPageRoute(builder: (context){
+                      return HomeLayout();
+                    }), (context){
+                      return false;
+                    });
+
+              }, icon: Icon(Icons.home_outlined,color: AppColors.secondary,size: 30,)),
+
+            ],
           ),
           body: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5.0),
             child: Stack(
-              children:[
-
+              children: [
                 SingleChildScrollView(
                   child: Column(
                     children: [
-                      SizedBox(height: 170,),
+                      SizedBox(height: 170),
                       Column(
-                        children: results.map<Widget>((question) {
-                          final String type = question['question_type'];
-                          if (type == 'reading_passage') return Container();
+                        children:
+                            results.map<Widget>((question) {
+                              final String type = question['question_type'];
+                              if (type == 'reading_passage') return Container();
 
-                          final String questionText = HtmlUnescape().convert(
-                            (question['question'] ?? '').replaceAll(RegExp(r'<[^>]*>'), ''),
-                          );
+                              final String questionText = HtmlUnescape()
+                                  .convert(
+                                    (question['question'] ?? '').replaceAll(
+                                      RegExp(r'<[^>]*>'),
+                                      '',
+                                    ),
+                                  );
 
-                          final List answers = question['question_answers'] ?? [];
-                          final dynamic studentAnswer = question['student_answer'];
-                          final dynamic correctAnswer = question['correct_answers'];
-                          final bool isCorrect = question['is_correct'] ?? false;
+                              final List answers =
+                                  question['question_answers'] ?? [];
+                              final dynamic studentAnswer =
+                                  question['student_answer'];
+                              final dynamic correctAnswer =
+                                  question['correct_answers'];
+                              final bool isCorrect =
+                                  question['is_correct'] ?? false;
 
-                          // Extract correct IDs for MCQ and TF
-                          final List<int> correctIds = (correctAnswer is List)
-                              ? correctAnswer.map<int>((e) => e['id'] as int).toList()
-                              : [];
+                              // Extract correct IDs for MCQ and TF
+                              final List<int> correctIds =
+                                  (correctAnswer is List)
+                                      ? correctAnswer
+                                          .map<int>((e) => e['id'] as int)
+                                          .toList()
+                                      : [];
 
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 10.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  questionText,
-                                  style: TextStyles.textStyle16w700(context),
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 10.0,
                                 ),
-                                const SizedBox(height: 8),
-                                if (type == 'short_answer') ...[
-                                  Text("Your answer:", style: TextStyles.textStyle14w700(context)),
-                                  Text(
-                                    studentAnswer?['answer']?.toString() ?? '-',
-                                    style: TextStyles.textStyle14w400(context),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text("Correct answer:", style: TextStyles.textStyle14w700(context)),
-                                  Text(
-                                    correctAnswer?['answer']?.toString() ?? '-',
-                                    style: TextStyles.textStyle14w400(context).copyWith(color: Colors.red),
-                                  ),
-                                ] else
-                                  ListView.builder(
-                                    physics: const NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      questionText,
+                                      style: TextStyles.textStyle16w700(
+                                        context,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    if (type == 'short_answer') ...[
+                                      Text(
+                                        "Your answer:",
+                                        style: TextStyles.textStyle14w700(
+                                          context,
+                                        ),
+                                      ),
+                                      Text(
+                                        studentAnswer?['answer']?.toString() ??
+                                            '-',
+                                        style: TextStyles.textStyle14w400(
+                                          context,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        "Correct answer:",
+                                        style: TextStyles.textStyle14w700(
+                                          context,
+                                        ),
+                                      ),
+                                      Text(
+                                        correctAnswer?['answer']?.toString() ??
+                                            '-',
+                                        style: TextStyles.textStyle14w400(
+                                          context,
+                                        ).copyWith(color: Colors.red),
+                                      ),
+                                    ] else
+                                      ListView.builder(
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        shrinkWrap: true,
 
-                                    itemCount: answers.length,
-                                    itemBuilder: (context, index) {
-                                      final answer = answers[index];
-                                      final bool selected = answer['is_selected'] == true;
-                                      final bool correct = answer['is_correct'] == true;
-                                      final bool shouldHighlightRed = correct && !selected;
+                                        itemCount: answers.length,
+                                        itemBuilder: (context, index) {
+                                          final answer = answers[index];
+                                          final bool selected =
+                                              answer['is_selected'] == true;
+                                          final bool correct =
+                                              answer['is_correct'] == true;
+                                          final bool shouldHighlightRed =
+                                              correct && !selected;
 
-                                      Color bgColor = Colors.white;
-                                      Color textColor = AppColors.primaryColor;
+                                          Color bgColor = Colors.white;
+                                          Color textColor =
+                                              AppColors.primaryColor;
 
-                                      if (selected && correct) {
-                                        bgColor = AppColors.primaryColor;
-                                        textColor = Colors.white;
-                                      } else if (selected && !correct) {
-                                        bgColor = Colors.red;
-                                        textColor = Colors.white;
-                                      } else if (shouldHighlightRed) {
-                                        bgColor = AppColors.primaryColor;
-                                        textColor = Colors.white;
-                                      }
+                                          if (selected && correct) {
+                                            bgColor = AppColors.primaryColor;
+                                            textColor = Colors.white;
+                                          } else if (selected && !correct) {
+                                            bgColor = Colors.red;
+                                            textColor = Colors.white;
+                                          } else if (shouldHighlightRed) {
+                                            bgColor = AppColors.primaryColor;
+                                            textColor = Colors.white;
+                                          }
 
-                                      return Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            color: bgColor,
-                                            border: Border.all(color: bgColor == Colors.white ? AppColors.primaryColor : bgColor, width: 2),
-                                            borderRadius: BorderRadius.circular(20),
-                                          ),
-                                          child: Center(
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(8.0),
-                                              child: Text(
-                                                HtmlUnescape().convert(answer['answer']?.toString() ?? ''),
-                                                style: TextStyles.textStyle14w700(context).copyWith(color: textColor),
-                                                maxLines: 5,
+                                          return Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: bgColor,
+                                                border: Border.all(
+                                                  color:
+                                                      bgColor == Colors.white
+                                                          ? AppColors
+                                                              .primaryColor
+                                                          : bgColor,
+                                                  width: 2,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                              ),
+                                              child: Center(
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(
+                                                    8.0,
+                                                  ),
+                                                  child: Text(
+                                                    HtmlUnescape().convert(
+                                                      answer['answer']
+                                                              ?.toString() ??
+                                                          '',
+                                                    ),
+                                                    style:
+                                                        TextStyles.textStyle14w700(
+                                                          context,
+                                                        ).copyWith(
+                                                          color: textColor,
+                                                        ),
+                                                    maxLines: 5,
+                                                  ),
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-
-
-                              ],
-                            ),
-                          );
-                        }).toList(),
+                                          );
+                                        },
+                                      ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
                       ),
-
-
                     ],
                   ),
                 ),
@@ -203,45 +292,92 @@ class LessonsHomeworkResultView extends StatelessWidget {
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            spacing:5,
+                            spacing: 5,
                             children: [
-                              Text('النتيجة :',style: TextStyles.textStyle20w700(context).copyWith(color: AppColors.secondary),),
+                              Text(
+                                'النتيجة :',
+                                style: TextStyles.textStyle20w700(
+                                  context,
+                                ).copyWith(color: AppColors.secondary),
+                              ),
 
-                              Text('${LessonsCubit.get(context).homewrokSubmission['score_text']}',style: TextStyles.textStyle20w700(context).copyWith(color: AppColors.secondary)),
-
-                            ],
-                          ),
-                          Row(
-                            spacing: 10,
-                            children: [
-                              Container(decoration: BoxDecoration(color: Colors.red,borderRadius: BorderRadius.circular(25)),width: 20,height: 10,),
-                              Flexible(
-                                child: Text(
-                                  maxLines: 2,overflow: TextOverflow.ellipsis,
-                                  'الاجابات باللون الاحمر تدل علي اجابتك انها خطأ',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.red),),
+                              Text(
+                                '${LessonsCubit.get(context).homewrokSubmission['score_text']}',
+                                style: TextStyles.textStyle20w700(
+                                  context,
+                                ).copyWith(color: AppColors.secondary),
                               ),
                             ],
                           ),
                           Row(
                             spacing: 10,
                             children: [
-                              Container(decoration: BoxDecoration(color: AppColors.primaryColor,borderRadius: BorderRadius.circular(25)),width: 20,height: 10,),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                                width: 20,
+                                height: 10,
+                              ),
                               Flexible(
                                 child: Text(
-                                  maxLines: 2,overflow: TextOverflow.ellipsis,
-
-                                  'الاجابات باللون الارزق تدل على الاجابة صحيحة',style: TextStyles.textStyle14w700(context).copyWith(color: AppColors.primaryColor),),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  'الاجابات باللون الاحمر تدل علي اجابتك انها خطأ',
+                                  style: TextStyles.textStyle14w700(
+                                    context,
+                                  ).copyWith(color: Colors.red),
+                                ),
                               ),
                             ],
                           ),
                           Row(
                             spacing: 10,
                             children: [
-                              Container(decoration: BoxDecoration(border: Border.all(color: AppColors.primaryColor),borderRadius: BorderRadius.circular(25)),width: 20,height: 10,),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryColor,
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                                width: 20,
+                                height: 10,
+                              ),
                               Flexible(
                                 child: Text(
-                                  maxLines: 2,overflow: TextOverflow.ellipsis,
-                                  'ان لم تجد اجابتك باللون الاحمر يدل علي ان اجابتك صحيحة',style: TextStyles.textStyle14w700(context).copyWith(color: AppColors.primaryColor),),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+
+                                  'الاجابات باللون الارزق تدل على الاجابة صحيحة',
+                                  style: TextStyles.textStyle14w700(
+                                    context,
+                                  ).copyWith(color: AppColors.primaryColor),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            spacing: 10,
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: AppColors.primaryColor,
+                                  ),
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                                width: 20,
+                                height: 10,
+                              ),
+                              Flexible(
+                                child: Text(
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  'ان لم تجد اجابتك باللون الاحمر يدل علي ان اجابتك صحيحة',
+                                  style: TextStyles.textStyle14w700(
+                                    context,
+                                  ).copyWith(color: AppColors.primaryColor),
+                                ),
                               ),
                             ],
                           ),
@@ -250,8 +386,7 @@ class LessonsHomeworkResultView extends StatelessWidget {
                     ),
                   ),
                 ),
-
-              ]
+              ],
             ),
           ),
         );

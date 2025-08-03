@@ -49,6 +49,19 @@ class QuizResultView extends StatelessWidget {
           quizData['quiz_title'] ?? 'Quiz Result',
           style: TextStyles.textStyle16w700(context),
         ),
+        actions: [
+          IconButton(onPressed: (){
+
+            Navigator.pushAndRemoveUntil(context,
+                CupertinoPageRoute(builder: (context){
+                  return HomeLayout();
+                }), (context){
+                  return false;
+                });
+
+          }, icon: Icon(Icons.home_outlined,color: AppColors.secondary,size: 30,)),
+
+        ],
         centerTitle: true,
         backgroundColor: Colors.white,
       ),

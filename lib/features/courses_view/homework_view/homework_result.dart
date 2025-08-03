@@ -41,6 +41,19 @@ class HomeworkResultView extends StatelessWidget {
             ),
             centerTitle: true,
             backgroundColor: Colors.white,
+            actions: [
+              IconButton(onPressed: (){
+
+                Navigator.pushAndRemoveUntil(context,
+                    CupertinoPageRoute(builder: (context){
+                      return HomeLayout();
+                    }), (context){
+                      return false;
+                    });
+
+              }, icon: Icon(Icons.home_outlined,color: AppColors.secondary,size: 30,)),
+
+            ],
           ),
           body: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10.0),

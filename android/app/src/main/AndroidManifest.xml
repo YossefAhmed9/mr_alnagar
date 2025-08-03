@@ -6,6 +6,7 @@
     <application
         android:label="منصة محمد النجار"
         android:name="${applicationName}"
+        android:hardwareAccelerated="true"
         android:icon="@mipmap/launcher_icon">
         <activity
             android:name=".MainActivity"

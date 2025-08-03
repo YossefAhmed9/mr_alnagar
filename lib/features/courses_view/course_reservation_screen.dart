@@ -194,17 +194,17 @@ class _CourseReservationScreenState extends State<CourseReservationScreen> {
                                                 });
 
                                               } else {
-                                                await CoursesCubit.get(context).enrollInCourse(
-                                                  courseID: course['id'],
-                                                  paymentType:
-                                                      course['payment_type']!,
-                                                );
-                                                // After enrollment, fetch the latest course data
-                                                await CoursesCubit.get(
-                                                  context,
-                                                ).getCourseByID(
-                                                  id: course['id'],
-                                                );
+                                                // await CoursesCubit.get(context).enrollInCourse(
+                                                //   courseID: course['id'],
+                                                //   paymentType:
+                                                //       course['payment_type']!,
+                                                // );
+                                                // // After enrollment, fetch the latest course data
+                                                // await CoursesCubit.get(
+                                                //   context,
+                                                // ).getCourseByID(
+                                                //   id: course['id'],
+                                                // );
                                                 setState(() {});
                                               }
                                             },
@@ -394,222 +394,8 @@ class _CourseReservationScreenState extends State<CourseReservationScreen> {
                               ],
                             ),
 
-                            // ListView.builder(
-                            //     itemCount: points.length,
-                            //     shrinkWrap: true,
-                            //     physics: NeverScrollableScrollPhysics(),
-                            //
-                            //     itemBuilder: (context,index){
-                            //       return  Padding(
-                            //         padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            //         child: Row(
-                            //           spacing: 10,
-                            //           children:  [
-                            //             Icon(Icons.check_circle, color: Colors.teal),
-                            //             Flexible(child: ),
-                            //           ],
-                            //         ),
-                            //       );
-                            //     }),
                             ReservationStepsListView(data: course),
 
-                            // Column(
-                            //   crossAxisAlignment: CrossAxisAlignment.start,
-                            //   children: [
-                            //     Container(
-                            //       decoration: BoxDecoration(color: Colors.grey.shade100,borderRadius: BorderRadius.circular(15),),
-                            //       child: Column(
-                            //         children: [
-                            //           Padding(
-                            //             padding: const EdgeInsets.all(8.0),
-                            //             child: Row(
-                            //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            //               children: [
-                            //                 Text('التقييمات', style: TextStyle(fontWeight: FontWeight.bold)),
-                            //                 TextButton(
-                            //                   child: Text('أكتب تقييمك', style: TextStyles.textStyle14w700(context).copyWith(color: AppColors.primaryColor)),
-                            //                   onPressed: (){
-                            //                     showDialog(
-                            //                       context: context,
-                            //
-                            //                       builder: (context) => Dialog(
-                            //                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            //
-                            //                         child: Container(
-                            //                           decoration: BoxDecoration(
-                            //                             color: Color(0xffE6FAFA),
-                            //                           ),
-                            //                           child: Padding(
-                            //                             padding: const EdgeInsets.all(16.0),
-                            //                             child: Column(
-                            //                               mainAxisSize: MainAxisSize.min,
-                            //                               mainAxisAlignment: MainAxisAlignment.end,
-                            //                               crossAxisAlignment: CrossAxisAlignment.end,
-                            //                               children: [
-                            //                                 Row(
-                            //                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            //                                   children: [
-                            //                                     Icon(Icons.close, color: Colors.red),
-                            //                                     Text('أكتب تقييمك', style: TextStyle(fontWeight: FontWeight.bold)),
-                            //                                   ],
-                            //                                 ),
-                            //                                 Padding(
-                            //                                   padding: const EdgeInsets.symmetric(vertical:  15.0),
-                            //                                   child: Container(
-                            //                                     decoration: BoxDecoration(color: Colors.white,
-                            //                                       borderRadius: BorderRadius.circular(10),
-                            //                                     ),
-                            //                                     width: double.infinity,
-                            //                                     height: 2,
-                            //                                   ),
-                            //                                 ),
-                            //                                 TextFormField(
-                            //                                   controller: rateController,
-                            //                                   decoration: InputDecoration(border: OutlineInputBorder()),
-                            //                                   maxLines: 3,
-                            //                                 ),
-                            //                                 SizedBox(height: 12),
-                            //                                 Text('سجل بصوتك',textAlign: TextAlign.end,),
-                            //                                 Container(
-                            //                                   decoration: BoxDecoration(color: Colors.white,borderRadius: BorderRadius.circular(20)),
-                            //                                   child: Row(
-                            //                                     children: [
-                            //                                       IconButton(onPressed: () {}, icon: Icon(Icons.delete, color: Colors.red)),
-                            //                                       IconButton(onPressed: () {}, icon: Icon(Icons.check_circle, color: Colors.green)),
-                            //                                       Expanded(
-                            //                                         child: Container(
-                            //                                           height: 40,
-                            //                                           color: Colors.white,
-                            //                                           // child: Center(child: Text('🎙️ Waveform Here')),
-                            //                                         ),
-                            //                                       ),
-                            //                                       IconButton(onPressed: () {}, icon: Icon(Icons.play_arrow, color: Colors.blue)),
-                            //                                     ],
-                            //                                   ),
-                            //                                 ),
-                            //                                 SizedBox(height: 12),
-                            //                                 ElevatedButton(
-                            //                                   style: ElevatedButton.styleFrom(backgroundColor: Color(0xff4C67FF)),
-                            //                                   onPressed: () {},
-                            //                                   child: Center(child: Text('إرسال', style: TextStyle(color: Colors.white))),
-                            //                                 ),
-                            //                               ],
-                            //                             ),
-                            //                           ),
-                            //                         ),
-                            //                       ),
-                            //                     );
-                            //                   },
-                            //                 ),
-                            //               ],
-                            //             ),
-                            //           ),
-                            //           SizedBox(height: 8),
-                            //           Padding(
-                            //             padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                            //             child: Row(
-                            //               spacing: 12,
-                            //               children: [
-                            //                 Expanded(
-                            //                   child: Column(
-                            //                     children: List.generate(5, (index) {
-                            //                       return Row(
-                            //                         children: [
-                            //                           Expanded(
-                            //                             child: LinearProgressIndicator(minHeight: 10,borderRadius: BorderRadius.circular(10),
-                            //                               value: [0.8, 0.6, 0.4, 0.2, 0.1][index],
-                            //                               color: Colors.orange,
-                            //                               backgroundColor: Colors.grey.shade300,
-                            //                             ),
-                            //                           ),
-                            //                           SizedBox(width: 8),
-                            //                           Text('${5 - index}'),
-                            //                         ],
-                            //                       );
-                            //                     }),
-                            //                   ),
-                            //                 ),
-                            //                 Column(
-                            //                   spacing: 10,
-                            //                   children: [
-                            //                     Text('4.5', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                            //                     Text('20 تقييم'),
-                            //                     Text('88 %'),
-                            //                     Text('توصية'),
-                            //
-                            //                   ],
-                            //                 ),
-                            //
-                            //
-                            //
-                            //               ],
-                            //             ),
-                            //           ),
-                            //           SizedBox(height: 12),
-                            //
-                            //         ],
-                            //       ),
-                            //     ),
-                            //
-                            //     Padding(
-                            //       padding: const EdgeInsets.only(bottom:  8.0,top: 10),
-                            //       child: Container(
-                            //         decoration: BoxDecoration(color: Colors.grey.shade100,borderRadius: BorderRadius.circular(15),),
-                            //         child: Column(
-                            //           spacing: 10,
-                            //           crossAxisAlignment: CrossAxisAlignment.start,
-                            //           children: [
-                            //             Padding(
-                            //               padding: const EdgeInsets.all(8.0),
-                            //               child: Text('تقييمات الطلاب', style: TextStyle(fontWeight: FontWeight.bold)),
-                            //             ),
-                            //
-                            //             Padding(
-                            //               padding: const EdgeInsets.only(bottom: 15.0),
-                            //               child: Container(
-                            //                 width: double.infinity,
-                            //                 height: 2,
-                            //                 decoration: BoxDecoration(color: Colors.grey),
-                            //               ),
-                            //             ),
-                            //             // Example single review
-                            //             Padding(
-                            //               padding: const EdgeInsets.all(12.0),
-                            //               child: Column(
-                            //                 crossAxisAlignment: CrossAxisAlignment.start,
-                            //                 children: [
-                            //                   Row(
-                            //                     children: [
-                            //                       CircleAvatar(radius: 16, ),
-                            //                       SizedBox(width: 8),
-                            //                       Text('عمر ماهر', style: TextStyle(fontWeight: FontWeight.bold)),
-                            //                       SizedBox(width: 8),
-                            //                       Row(children: List.generate(5, (i) => Icon(Icons.star, color: Colors.orange, size: 16))),
-                            //                     ],
-                            //                   ),
-                            //                   SizedBox(height: 8),
-                            //                   Text(
-                            //                     'الحمد لله قفلت في الامتحان الزيادة وحده بفضل ربنا ثم حضرتك...',
-                            //                     softWrap: true,
-                            //                   ),
-                            //                   SizedBox(height: 8),
-                            //                   Row(
-                            //                     children: [
-                            //                       Icon(Icons.play_circle_fill, color: Colors.blue),
-                            //                       Text('0:05')
-                            //                     ],
-                            //                   ),
-                            //                 ],
-                            //               ),
-                            //             ),
-                            //           ],
-                            //         ),
-                            //       ),
-                            //     ),
-                            //
-                            //
-                            //   ],
-                            // )
                           ],
                         ),
                       ),
@@ -622,3 +408,220 @@ class _CourseReservationScreenState extends State<CourseReservationScreen> {
     );
   }
 }
+
+// ListView.builder(
+//     itemCount: points.length,
+//     shrinkWrap: true,
+//     physics: NeverScrollableScrollPhysics(),
+//
+//     itemBuilder: (context,index){
+//       return  Padding(
+//         padding: const EdgeInsets.symmetric(vertical: 8.0),
+//         child: Row(
+//           spacing: 10,
+//           children:  [
+//             Icon(Icons.check_circle, color: Colors.teal),
+//             Flexible(child: ),
+//           ],
+//         ),
+//       );
+//     }),
+
+
+// Column(
+//   crossAxisAlignment: CrossAxisAlignment.start,
+//   children: [
+//     Container(
+//       decoration: BoxDecoration(color: Colors.grey.shade100,borderRadius: BorderRadius.circular(15),),
+//       child: Column(
+//         children: [
+//           Padding(
+//             padding: const EdgeInsets.all(8.0),
+//             child: Row(
+//               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//               children: [
+//                 Text('التقييمات', style: TextStyle(fontWeight: FontWeight.bold)),
+//                 TextButton(
+//                   child: Text('أكتب تقييمك', style: TextStyles.textStyle14w700(context).copyWith(color: AppColors.primaryColor)),
+//                   onPressed: (){
+//                     showDialog(
+//                       context: context,
+//
+//                       builder: (context) => Dialog(
+//                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+//
+//                         child: Container(
+//                           decoration: BoxDecoration(
+//                             color: Color(0xffE6FAFA),
+//                           ),
+//                           child: Padding(
+//                             padding: const EdgeInsets.all(16.0),
+//                             child: Column(
+//                               mainAxisSize: MainAxisSize.min,
+//                               mainAxisAlignment: MainAxisAlignment.end,
+//                               crossAxisAlignment: CrossAxisAlignment.end,
+//                               children: [
+//                                 Row(
+//                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                                   children: [
+//                                     Icon(Icons.close, color: Colors.red),
+//                                     Text('أكتب تقييمك', style: TextStyle(fontWeight: FontWeight.bold)),
+//                                   ],
+//                                 ),
+//                                 Padding(
+//                                   padding: const EdgeInsets.symmetric(vertical:  15.0),
+//                                   child: Container(
+//                                     decoration: BoxDecoration(color: Colors.white,
+//                                       borderRadius: BorderRadius.circular(10),
+//                                     ),
+//                                     width: double.infinity,
+//                                     height: 2,
+//                                   ),
+//                                 ),
+//                                 TextFormField(
+//                                   controller: rateController,
+//                                   decoration: InputDecoration(border: OutlineInputBorder()),
+//                                   maxLines: 3,
+//                                 ),
+//                                 SizedBox(height: 12),
+//                                 Text('سجل بصوتك',textAlign: TextAlign.end,),
+//                                 Container(
+//                                   decoration: BoxDecoration(color: Colors.white,borderRadius: BorderRadius.circular(20)),
+//                                   child: Row(
+//                                     children: [
+//                                       IconButton(onPressed: () {}, icon: Icon(Icons.delete, color: Colors.red)),
+//                                       IconButton(onPressed: () {}, icon: Icon(Icons.check_circle, color: Colors.green)),
+//                                       Expanded(
+//                                         child: Container(
+//                                           height: 40,
+//                                           color: Colors.white,
+//                                           // child: Center(child: Text('🎙️ Waveform Here')),
+//                                         ),
+//                                       ),
+//                                       IconButton(onPressed: () {}, icon: Icon(Icons.play_arrow, color: Colors.blue)),
+//                                     ],
+//                                   ),
+//                                 ),
+//                                 SizedBox(height: 12),
+//                                 ElevatedButton(
+//                                   style: ElevatedButton.styleFrom(backgroundColor: Color(0xff4C67FF)),
+//                                   onPressed: () {},
+//                                   child: Center(child: Text('إرسال', style: TextStyle(color: Colors.white))),
+//                                 ),
+//                               ],
+//                             ),
+//                           ),
+//                         ),
+//                       ),
+//                     );
+//                   },
+//                 ),
+//               ],
+//             ),
+//           ),
+//           SizedBox(height: 8),
+//           Padding(
+//             padding: const EdgeInsets.symmetric(horizontal: 10.0),
+//             child: Row(
+//               spacing: 12,
+//               children: [
+//                 Expanded(
+//                   child: Column(
+//                     children: List.generate(5, (index) {
+//                       return Row(
+//                         children: [
+//                           Expanded(
+//                             child: LinearProgressIndicator(minHeight: 10,borderRadius: BorderRadius.circular(10),
+//                               value: [0.8, 0.6, 0.4, 0.2, 0.1][index],
+//                               color: Colors.orange,
+//                               backgroundColor: Colors.grey.shade300,
+//                             ),
+//                           ),
+//                           SizedBox(width: 8),
+//                           Text('${5 - index}'),
+//                         ],
+//                       );
+//                     }),
+//                   ),
+//                 ),
+//                 Column(
+//                   spacing: 10,
+//                   children: [
+//                     Text('4.5', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+//                     Text('20 تقييم'),
+//                     Text('88 %'),
+//                     Text('توصية'),
+//
+//                   ],
+//                 ),
+//
+//
+//
+//               ],
+//             ),
+//           ),
+//           SizedBox(height: 12),
+//
+//         ],
+//       ),
+//     ),
+//
+//     Padding(
+//       padding: const EdgeInsets.only(bottom:  8.0,top: 10),
+//       child: Container(
+//         decoration: BoxDecoration(color: Colors.grey.shade100,borderRadius: BorderRadius.circular(15),),
+//         child: Column(
+//           spacing: 10,
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             Padding(
+//               padding: const EdgeInsets.all(8.0),
+//               child: Text('تقييمات الطلاب', style: TextStyle(fontWeight: FontWeight.bold)),
+//             ),
+//
+//             Padding(
+//               padding: const EdgeInsets.only(bottom: 15.0),
+//               child: Container(
+//                 width: double.infinity,
+//                 height: 2,
+//                 decoration: BoxDecoration(color: Colors.grey),
+//               ),
+//             ),
+//             // Example single review
+//             Padding(
+//               padding: const EdgeInsets.all(12.0),
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   Row(
+//                     children: [
+//                       CircleAvatar(radius: 16, ),
+//                       SizedBox(width: 8),
+//                       Text('عمر ماهر', style: TextStyle(fontWeight: FontWeight.bold)),
+//                       SizedBox(width: 8),
+//                       Row(children: List.generate(5, (i) => Icon(Icons.star, color: Colors.orange, size: 16))),
+//                     ],
+//                   ),
+//                   SizedBox(height: 8),
+//                   Text(
+//                     'الحمد لله قفلت في الامتحان الزيادة وحده بفضل ربنا ثم حضرتك...',
+//                     softWrap: true,
+//                   ),
+//                   SizedBox(height: 8),
+//                   Row(
+//                     children: [
+//                       Icon(Icons.play_circle_fill, color: Colors.blue),
+//                       Text('0:05')
+//                     ],
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     ),
+//
+//
+//   ],
+// )

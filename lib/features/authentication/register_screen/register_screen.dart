@@ -450,7 +450,9 @@ class RegisterScreen extends StatelessWidget {
                                         confirmPass: confirmPassController.text,
                                       )
                                       .then((value) {
-                                        // firstName.clear();
+                                    AuthCubit.get(context).listenAuthLoading();
+
+                                    // firstName.clear();
                                         // middleName.clear();
                                         // lastName.clear();
                                         // phone.clear();

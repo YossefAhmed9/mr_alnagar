@@ -115,6 +115,7 @@ class AuthCubit extends Cubit<AuthState> {
         CacheHelper.setData(key: CacheKeys.levelID, value: categoryID);
 
         showSnackBar(context, 'تم انشاء الحساب', 4, AppColors.primaryColor);
+        Navigator.pop(context);
         emit(RegisterDone());
       } else if ((statusCode ~/ 100) == 4) {
         // Client error (400–499)
@@ -404,7 +405,7 @@ if (kDebugMode) {
             // ✅ Success
             if (kDebugMode) print('Password updated: $message');
 
-            showSnackBar(context, message, 3, Colors.green);
+            showSnackBar(context, 'تم تغيير كلمة المرور', 3, Colors.green);
 
             Navigator.pushAndRemoveUntil(context,
                 CupertinoPageRoute(builder: (context){

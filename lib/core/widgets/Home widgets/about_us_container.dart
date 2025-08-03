@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:html_unescape/html_unescape.dart';
 
@@ -21,7 +22,15 @@ class AboutUsContainer extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
               ),
               clipBehavior: Clip.antiAliasWithSaveLayer,
-              child: Image.network(HomeCubit.get(context).homeData['image_url'])
+              child: CachedNetworkImage(
+                imageUrl: HomeCubit.get(context).homeData['image_url'],
+                placeholder: (context, url) =>  Container(),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+                fit: BoxFit.cover,
+                height: 200,
+                width: double.infinity,
+              )
+
           ),
         ),
         Text(

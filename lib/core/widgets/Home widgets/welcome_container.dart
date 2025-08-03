@@ -68,7 +68,7 @@ class WelcomeContainer extends StatelessWidget {
 
                      },
                      child: Column(
-    crossAxisAlignment:CrossAxisAlignment.start,
+                      crossAxisAlignment:CrossAxisAlignment.start,
 
                        children: [
                          Text('مرحبا',style: TextStyles.textStyle18w700(context),),

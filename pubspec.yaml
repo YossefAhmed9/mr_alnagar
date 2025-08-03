@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.2.2+5
+version: 1.2.7+10
 
 environment:
   sdk: ^3.7.2
@@ -72,9 +72,13 @@ dependencies:
   modal_progress_hud_nsn:
   flutter_animate:
   url_launcher:
+  internet_connection_checker_plus:
+  connectivity_plus: ^5.0.2
+  http:
   fluttertoast: ^8.2.4
-
-
+  in_app_update: ^4.2.3
+  flutter_svg: ^2.0.7
+  cached_network_image: ^3.3.1
 
 
 dev_dependencies:
@@ -92,26 +96,26 @@ flutter_native_splash:
   ios: true
   web: true
   color: "#FFFFFF"
-  image: "assets/images/logo light.png"
+  image: "assets/images/logo_light.png"
 
 
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/images/logo light.png"
+  image_path: "assets/images/logo_light.png"
   min_sdk_android: 21 # android min sdk min:16, default 21
   web:
     generate: true
-    image_path: "assets/images/logo light.png"
+    image_path: "assets/images/logo_light.png"
     background_color: "#hexcode"
     theme_color: "#hexcode"
   windows:
     generate: true
-    image_path: "assets/images/logo light.png"
+    image_path: "assets/images/logo_light.png"
     icon_size: 48 # min:48, max:256, default: 48
   macos:
     generate: true
-    image_path: "assets/images/logo light.png"
+    image_path: "assets/images/logo_light.png"
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

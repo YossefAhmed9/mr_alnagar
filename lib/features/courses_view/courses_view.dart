@@ -11,9 +11,14 @@ import '../../core/cubits/lessons_cubit/lessons_cubit.dart';
 import '../../core/widgets/Courses widgets/books_tab_bar_view.dart';
 import '../../core/widgets/Courses widgets/courses_tab_bar_view.dart';
 
-class CoursesView extends StatelessWidget {
+class CoursesView extends StatefulWidget {
   const CoursesView({Key? key}) : super(key: key);
 
+  @override
+  State<CoursesView> createState() => _CoursesViewState();
+}
+
+class _CoursesViewState extends State<CoursesView> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<BooksCubit, BooksState>(

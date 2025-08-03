@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +15,11 @@ class SubmitOtpScreen extends StatefulWidget {
   final String email;
   final int remainingSeconds;
 
-  const SubmitOtpScreen({Key? key, required this.email, required this.remainingSeconds}) : super(key: key);
+  const SubmitOtpScreen({
+    Key? key,
+    required this.email,
+    required this.remainingSeconds,
+  }) : super(key: key);
 
   @override
   State<SubmitOtpScreen> createState() => _SubmitOtpScreenState();
@@ -58,16 +61,19 @@ class _SubmitOtpScreenState extends State<SubmitOtpScreen> {
   void _verifyOTP() {
     final otp = pinController.text;
     if (otp.length == 4) {
-      AuthCubit.get(context).verifyOTP(email: widget.email, otp: otp, context: context);
+      AuthCubit.get(
+        context,
+      ).verifyOTP(email: widget.email, otp: otp, context: context);
     }
   }
 
   void _resendOTP() async {
-    await AuthCubit.get(context).resendOTP(email: widget.email, context: context);
+    await AuthCubit.get(
+      context,
+    ).resendOTP(email: widget.email, context: context);
     final newSeconds = AuthCubit.get(context).remainingSeconds ?? 60;
     startTimer(newSeconds);
   }
-
 
   String formatTime(int seconds) {
     final minutes = (seconds ~/ 60).toString().padLeft(2, '0');
@@ -91,7 +97,10 @@ class _SubmitOtpScreenState extends State<SubmitOtpScreen> {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            title: Text('اعادة تعيين كلمة المرور', style: TextStyles.textStyle16w700(context)),
+            title: Text(
+              'اعادة تعيين كلمة المرور',
+              style: TextStyles.textStyle16w700(context),
+            ),
             centerTitle: true,
             leading: IconButton(
               onPressed: () => Navigator.pop(context),
@@ -103,18 +112,28 @@ class _SubmitOtpScreenState extends State<SubmitOtpScreen> {
               builder: (context, constraints) {
                 return SingleChildScrollView(
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
                     child: IntrinsicHeight(
                       child: Directionality(
                         textDirection: TextDirection.rtl,
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 5),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 20.0,
+                            horizontal: 5,
+                          ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 5),
-                                child: Center(child: Image.asset('assets/images/Frame.png')),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 20.0,
+                                  horizontal: 5,
+                                ),
+                                child: Center(
+                                  child: Image.asset('assets/images/Frame.png'),
+                                ),
                               ),
                               Text(
                                 'برجاء إدخال الكود المرسل إليكم عبر رقم الهاتف أو البريد الإلكتروني',
@@ -122,7 +141,10 @@ class _SubmitOtpScreenState extends State<SubmitOtpScreen> {
                                 style: TextStyles.textStyle16w400(context),
                               ),
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 30),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8.0,
+                                  vertical: 30,
+                                ),
                                 child: Directionality(
                                   textDirection: TextDirection.ltr,
                                   child: Pinput(
@@ -131,20 +153,33 @@ class _SubmitOtpScreenState extends State<SubmitOtpScreen> {
                                     onCompleted: (pin) {
                                       pinController.text = pin;
                                       _verifyOTP();
-                                    } ,
-                                    onChanged: (pin) => pinController.text = pin,
-                                    pinAnimationType: PinAnimationType.fade,
+                                    },
+                                    onChanged:
+                                        (pin) => pinController.text = pin,
+                                    pinAnimationType: PinAnimationType.rotation,
                                     defaultPinTheme: PinTheme(
                                       width: 56,
                                       height: 56,
-                                      textStyle: TextStyles.textStyle16w400(context).copyWith(color: AppColors.primaryColor),
+                                      textStyle: TextStyles.textStyle16w400(
+                                        context,
+                                      ).copyWith(color: AppColors.primaryColor),
                                       decoration: const BoxDecoration(
-                                        border: Border(bottom: BorderSide(color: Colors.grey, width: 2)),
+                                        border: Border(
+                                          bottom: BorderSide(
+                                            color: Colors.grey,
+                                            width: 2,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                     focusedPinTheme: PinTheme(
                                       decoration: BoxDecoration(
-                                        border: Border(bottom: BorderSide(color: AppColors.primaryColor, width: 2)),
+                                        border: Border(
+                                          bottom: BorderSide(
+                                            color: AppColors.primaryColor,
+                                            width: 2,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -152,22 +187,35 @@ class _SubmitOtpScreenState extends State<SubmitOtpScreen> {
                               ),
                               _showResendButton
                                   ? TextButton(
-                                onPressed: _resendOTP,
-                                child: Text('إعادة الإرسال', style: TextStyles.textStyle16w400(context).copyWith(color: AppColors.primaryColor)),
-                              )
-                                  : Text('اعادة الارسال خلال ${formatTime(_secondsRemaining)}', style: TextStyles.textStyle16w400(context)),
+                                    onPressed: _resendOTP,
+                                    child: Text(
+                                      'إعادة الإرسال',
+                                      style: TextStyles.textStyle16w400(
+                                        context,
+                                      ).copyWith(color: AppColors.primaryColor),
+                                    ),
+                                  )
+                                  : Text(
+                                    'اعادة الارسال خلال ${formatTime(_secondsRemaining)}',
+                                    style: TextStyles.textStyle16w400(context),
+                                  ),
 
                               Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 18.0),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 18.0,
+                                ),
                                 child: RegisterPasswordFormField(
                                   controller: passController,
                                   hint: 'كلمة السر',
                                   validator: (value) {
-                                    if (value == null || value.isEmpty) return 'يجب إدخال كلمة المرور';
-                                    if (value.length < 8) return 'يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل';
+                                    if (value == null || value.isEmpty)
+                                      return 'يجب إدخال كلمة المرور';
+                                    if (value.length < 8)
+                                      return 'يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل';
                                     final hasLetter = RegExp(r'[A-Za-z]');
                                     final hasNumber = RegExp(r'\d');
-                                    if (!hasLetter.hasMatch(value) || !hasNumber.hasMatch(value)) {
+                                    if (!hasLetter.hasMatch(value) ||
+                                        !hasNumber.hasMatch(value)) {
                                       return 'يجب أن تحتوي كلمة المرور على حروف وأرقام';
                                     }
                                     return null;
@@ -180,7 +228,9 @@ class _SubmitOtpScreenState extends State<SubmitOtpScreen> {
                                 controller: confirmPassController,
                                 hint: 'تأكيد كلمة السر',
                                 validator: (value) {
-                                  if (value.isEmpty || passController.text != confirmPassController.text) {
+                                  if (value.isEmpty ||
+                                      passController.text !=
+                                          confirmPassController.text) {
                                     return ' كلمة السر غير متطابقة';
                                   }
                                   return null;
@@ -190,7 +240,10 @@ class _SubmitOtpScreenState extends State<SubmitOtpScreen> {
                               ),
                               const Spacer(),
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0,
+                                  vertical: 20,
+                                ),
                                 child: Container(
                                   decoration: BoxDecoration(
                                     color: AppColors.primaryColor,
@@ -199,19 +252,29 @@ class _SubmitOtpScreenState extends State<SubmitOtpScreen> {
                                   width: double.infinity,
                                   height: 55.h,
                                   child: MaterialButton(
-                                    onPressed: () async{
-                                      if (passController.text == confirmPassController.text) {
+                                    onPressed: () async {
+                                      if (passController.text ==
+                                          confirmPassController.text) {
                                         AuthCubit.get(context).forgotPassword(
-                                            email: widget.email,
-                                            newPassword: passController.text,
-                                            confirmPassword: confirmPassController.text,
-                                            context: context
+                                          email: widget.email,
+                                          newPassword: passController.text,
+                                          confirmPassword:
+                                              confirmPassController.text,
+                                          context: context,
                                         );
                                       }
                                     },
-                                    child: state is UpdatePasswordLoading
-                                        ? const CircularProgressIndicator(color: Colors.white)
-                                        : Text('تأكيد', style: TextStyles.textStyle16w700(context).copyWith(color: Colors.white)),
+                                    child:
+                                        state is UpdatePasswordLoading
+                                            ? const CircularProgressIndicator(
+                                              color: Colors.white,
+                                            )
+                                            : Text(
+                                              'تأكيد',
+                                              style: TextStyles.textStyle16w700(
+                                                context,
+                                              ).copyWith(color: Colors.white),
+                                            ),
                                   ),
                                 ),
                               ),

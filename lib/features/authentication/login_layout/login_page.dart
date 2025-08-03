@@ -24,33 +24,7 @@ class LoginPage extends StatelessWidget {
     var codeFormKey = GlobalKey<FormState>();
 
     return Scaffold(
-//       floatingActionButton: FloatingActionButton(onPressed: (){
-//         print('''
-// onBoarding: ${CacheHelper.getData(key: CacheKeys.onBoardingDone)}
-// login: ${CacheHelper.getData(key: CacheKeys.loginDone)}
-// userName: ${CacheHelper.getData(key: CacheKeys.userName)}
-// token: ${CacheHelper.getData(key: CacheKeys.token)}
-// id: ${CacheHelper.getData(key: CacheKeys.id)}
-// levelId: ${CacheHelper.getData(key: CacheKeys.levelID)}
-// level: ${CacheHelper.getData(key: CacheKeys.level)}
-// govID: ${CacheHelper.getData(key: CacheKeys.govID)}
-// gov: ${CacheHelper.getData(key: CacheKeys.gov)}
-// firstName: ${CacheHelper.getData(key: CacheKeys.firstName)}
-// middleName: ${CacheHelper.getData(key: CacheKeys.middleName)}
-// lastName: ${CacheHelper.getData(key: CacheKeys.lastName)}
-// phone: ${CacheHelper.getData(key: CacheKeys.phone)}
-// email: ${CacheHelper.getData(key: CacheKeys.email)}
-// image: ${CacheHelper.getData(key: CacheKeys.image)}
-// fullName: ${CacheHelper.getData(key: CacheKeys.fullName)}
-// parentPhone: ${CacheHelper.getData(key: CacheKeys.parentPhone)}
-// parentJob: ${CacheHelper.getData(key: CacheKeys.parentJob)}
-// gender: ${CacheHelper.getData(key: CacheKeys.gender)}
-// governmentId: ${CacheHelper.getData(key: CacheKeys.governmentId)}
-// governmentName: ${CacheHelper.getData(key: CacheKeys.governmentName)}
-// categoryId: ${CacheHelper.getData(key: CacheKeys.categoryId)}
-// categoryName: ${CacheHelper.getData(key: CacheKeys.categoryName)}
-// ''');
-//       }),
+
       body: Directionality(
         textDirection: TextDirection.rtl,
 

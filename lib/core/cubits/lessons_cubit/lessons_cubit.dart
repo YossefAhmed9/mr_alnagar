@@ -374,7 +374,6 @@ print(error);
   bool isAnswerSelected = true;
 
   // New properties for classes and courses
-  List classes = [];
   List courses = [];
   List myCourses = [];
   bool isLoading = false;
@@ -560,6 +559,7 @@ print(error);
         });
   }
 
+var nextClass;
   var classData;
   Future<void> getClassDataByID({
     required BuildContext context,
@@ -574,14 +574,51 @@ print(error);
       );
 
       classData = response.data['data'];
+      nextClass = response.data['data']['next_class_id'];
       emit(GetClassDataByIDDone());
 
       print(classData);
       showSnackBar(context, 'تم تحميل بيانات الفصل بنجاح', 2, Colors.green);
-    } catch (error) {
-      emit(GetClassDataByIDError(error));
-print(error);
-      showSnackBar(context, 'حدث خطأ أثناء تحميل بيانات الفصل', 3, Colors.red);
+    } on DioException catch (dioError) {
+      String errorMessage = 'حدث خطأ أثناء تحميل بيانات الفصل';
+
+      if (dioError.type == DioExceptionType.connectionTimeout) {
+        errorMessage = 'انتهت مهلة الاتصال بالخادم';
+      } else if (dioError.type == DioExceptionType.sendTimeout) {
+        errorMessage = 'انتهت مهلة إرسال البيانات';
+      } else if (dioError.type == DioExceptionType.receiveTimeout) {
+        errorMessage = 'انتهت مهلة استلام البيانات';
+      } else if (dioError.type == DioExceptionType.badResponse) {
+        final statusCode = dioError.response?.statusCode;
+        final serverMessage = dioError.response?.data['message'] ?? dioError.response?.data['error'];
+
+        if (statusCode == 400) {
+          errorMessage = serverMessage ?? 'طلب غير صالح (400)';
+        } else if (statusCode == 401) {
+          errorMessage = serverMessage ?? 'غير مصرح (401)';
+        } else if (statusCode == 403) {
+          errorMessage = serverMessage ?? 'تم رفض الوصول (403)';
+        } else if (statusCode == 404) {
+          errorMessage = serverMessage ?? 'الفصل غير موجود (404)';
+        } else if (statusCode == 500) {
+          errorMessage = serverMessage ?? 'خطأ في الخادم (500)';
+        } else {
+          errorMessage = serverMessage ?? 'خطأ غير متوقع (${statusCode ?? "?"})';
+        }
+      } else if (dioError.type == DioExceptionType.cancel) {
+        errorMessage = 'تم إلغاء الطلب';
+      } else if (dioError.type == DioExceptionType.unknown) {
+        errorMessage = 'تحقق من الاتصال بالإنترنت';
+      }
+      emit(GetClassDataByIDError(dioError));
+      print("*******");
+
+      print(dioError.response);
+      //showSnackBar(context, errorMessage, 3, Colors.red);
+    } catch (e) {
+      emit(GetClassDataByIDError(e));
+      print(e);
+      showSnackBar(context, 'حدث خطأ غير متوقع أثناء تحميل بيانات الفصل', 3, Colors.red);
     }
   }
 

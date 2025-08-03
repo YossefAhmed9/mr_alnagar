@@ -52,7 +52,10 @@ class _UserCoursesState extends State<UserCourses> {
                          Tab(text: 'المنجزة'),
                        ],
                        labelStyle: TextStyles.textStyle16w700(context),
-                       labelColor: Colors.white,
+                       labelColor: Colors.white,onTap: (value){
+                        ProfileCubit.get(context).getMyInProgressCourses();
+
+                     },
                        unselectedLabelColor: Colors.black87,
                        indicator: BoxDecoration(
                          color: AppColors.primaryColor, // Deep blue
@@ -69,7 +72,7 @@ class _UserCoursesState extends State<UserCourses> {
                        children: [
                          SubscribedUserCoursesTabView(inProgressCourses:
                          ProfileCubit.get(context).inProgressCourses,),
-                         
+
                          DoneUserCoursesTabView(completedCourses:
                          ProfileCubit.get(context).completedCourses
                            ,),

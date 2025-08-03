@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:meta/meta.dart';
+import 'package:mr_alnagar/core/cubits/home_cubit/home_cubit.dart';
 import 'package:mr_alnagar/core/network/local/cashe_keys.dart';
 import 'package:mr_alnagar/core/network/local/shared_prefrence.dart';
 import 'package:mr_alnagar/core/network/remote/api_endPoints.dart';
@@ -58,20 +59,19 @@ class ProfileCubit extends Cubit<ProfileState> {
     emit(ProfileViewChanged());
   }
 
-
   var privacyPolicy;
-Future<void> getPrivacyPolicy()async{
+  Future<void> getPrivacyPolicy() async {
     emit(ProfilePrivacyPolicyLoading());
-    await DioHelper.getData(url: EndPoints.privacyPolicy).then((value){
-
-      print(value.data);
-      privacyPolicy=value.data['data'];
-    emit(ProfilePrivacyPolicyDone());
-    }).catchError((error){
-      emit(ProfilePrivacyPolicyError(error));
-    });
-}
-
+    await DioHelper.getData(url: EndPoints.privacyPolicy)
+        .then((value) {
+          print(value.data);
+          privacyPolicy = value.data['data'];
+          emit(ProfilePrivacyPolicyDone());
+        })
+        .catchError((error) {
+          emit(ProfilePrivacyPolicyError(error));
+        });
+  }
 
   // Profile Information
   var profileInfo;
@@ -87,7 +87,7 @@ Future<void> getPrivacyPolicy()async{
         profileInfo = response.data['data'];
 
         final user = profileInfo;
-print(response.data['data']);
+        print(response.data['data']);
         // Saving all profile data using setBoolean for each CacheKey
         CacheHelper.setData(key: CacheKeys.id, value: user['id']);
         CacheHelper.setData(key: CacheKeys.fullName, value: user['full_name']);
@@ -166,19 +166,18 @@ print(response.data['data']);
 
   List homeWorksResultsForProfile = [];
   Future<void> getHomeWorksResultsForProfile() async {
-    await DioHelper.getData(url: EndPoints.homeWorksResultsForProfile,token: CacheHelper.getData(key: CacheKeys.token))
+    await DioHelper.getData(
+          url: EndPoints.homeWorksResultsForProfile,
+          token: CacheHelper.getData(key: CacheKeys.token),
+        )
         .then((value) {
-      // print(value.data['data']);
-      homeWorksResultsForProfile=[];
-      homeWorksResultsForProfile.addAll( value.data['data']);
-    })
+          // print(value.data['data']);
+          homeWorksResultsForProfile = [];
+          homeWorksResultsForProfile.addAll(value.data['data']);
+        })
         .catchError((error) {});
   }
 
-
-
-  
-  
   // List homeWorksResults = [];
   // Future<void> getHomeworks() async {
   //   await DioHelper.getData(url: EndPoints.resultHomework)
@@ -194,7 +193,7 @@ print(response.data['data']);
   Uint8List? bytes;
   String? userImage;
   File? selectedImage;
-   int? selectedGovernmentId;
+  int? selectedGovernmentId;
   int? selectedLevelId;
 
   void pickImage() async {
@@ -242,63 +241,70 @@ print(response.data['data']);
     emit(UpdateProfileInfoLoading());
 
     // Optional: if pickImage() isn't needed here, remove it
-    pickImage();
 
     final token = CacheHelper.getData(key: CacheKeys.token);
 
     final formFields = {
       "email": email ?? CacheHelper.getData(key: CacheKeys.email),
       "phone": phone ?? CacheHelper.getData(key: CacheKeys.phone),
-      "parent_phone": parentPhone ?? CacheHelper.getData(key: CacheKeys.parentPhone),
+      "parent_phone":
+          parentPhone ?? CacheHelper.getData(key: CacheKeys.parentPhone),
       "parent_job": parentJob ?? CacheHelper.getData(key: CacheKeys.parentJob),
-      "government_id": (governmentId ?? CacheHelper.getData(key: CacheKeys.governmentId)).toString(),
-      "category_id": (categoryId ?? CacheHelper.getData(key: CacheKeys.categoryId)).toString(),
+      "government_id":
+          (governmentId ?? CacheHelper.getData(key: CacheKeys.governmentId))
+              .toString(),
+      "category_id":
+          (categoryId ?? CacheHelper.getData(key: CacheKeys.categoryId))
+              .toString(),
       if (image != null) "image": await MultipartFile.fromFile(image.path),
     };
 
     await DioHelper.postFormData(
-      url: EndPoints.updateProfileInfo,
-      data: formFields,
-      token: token,
-    ).then((response) async {
-      print(response);
-      print(response.statusCode);
-      print(response.data);
-      print(response.requestOptions);
-      print(response.realUri);
-      final status = response.statusCode ?? 0;
-      final message = response.data['message'] ?? 'حدث خطأ غير متوقع';
+          url: EndPoints.updateProfileInfo,
+          data: formFields,
+          token: token,
+        )
+        .then((response) async {
+          await getProfileInfo();
+          print(response);
+          print(response.statusCode);
+          print(response.data);
+          print(response.requestOptions);
+          print(response.realUri);
+          final status = response.statusCode ?? 0;
+          final message = response.data['message'] ?? 'حدث خطأ غير متوقع';
 
-      if (status.toString().startsWith('2') || status.toString().startsWith('3')) {
-        emit(UpdateProfileInfoDone());
-        await getProfileInfo(); // refresh profile info if needed
-        showSnackBar(context, message, 3, Colors.green);
-      } else if (status.toString().startsWith('4')) {
-        emit(UpdateProfileInfoError(message));
-        showSnackBar(context, message, 3, Colors.red);
-      } else {
-        emit(UpdateProfileInfoError('حدث خطأ غير متوقع'));
-        showSnackBar(context, 'حدث خطأ غير متوقع', 3, Colors.red);
-      }
-    }).catchError((error) {
-      if (kDebugMode) {
-        print('Update Profile Info Error: $error');
-      }
-      emit(UpdateProfileInfoError(error.toString()));
-      showSnackBar(context, 'فشل الاتصال بالخادم', 3, Colors.red);
-    });
+          if (status.toString().startsWith('2') ||
+              status.toString().startsWith('3')) {
+            emit(UpdateProfileInfoDone());
+            await getProfileInfo(); // refresh profile info if needed
+            showSnackBar(context, message, 3, Colors.green);
+          } else if (status.toString().startsWith('4')) {
+            emit(UpdateProfileInfoError(message));
+            showSnackBar(context, message, 3, Colors.red);
+          } else {
+            emit(UpdateProfileInfoError('حدث خطأ غير متوقع'));
+            showSnackBar(context, 'حدث خطأ غير متوقع', 3, Colors.red);
+          }
+        })
+        .catchError((error) {
+          if (kDebugMode) {
+            print('Update Profile Info Error: $error');
+          }
+          emit(UpdateProfileInfoError(error.toString()));
+          showSnackBar(context, 'فشل الاتصال بالخادم', 3, Colors.red);
+        });
   }
-
-
-
-
 
   // OTP State Variables
   int? remainingSeconds;
   String? otpVia;
 
   /// Send OTP
-  Future<void> sendOTP({required String email, required BuildContext context}) async {
+  Future<void> sendOTP({
+    required String email,
+    required BuildContext context,
+  }) async {
     emit(SendOtpLoading());
     try {
       final response = await DioHelper.postFormUrlEncoded(
@@ -315,14 +321,20 @@ print(response.data['data']);
         if (kDebugMode) {
           print(response.data);
         }
-        emit(SendOtpSuccess(
-          otp: response.data['data']['otp'],
-          remainingSeconds: remainingSeconds!,
-          via: otpVia!,
-        ));
+        emit(
+          SendOtpSuccess(
+            otp: response.data['data']['otp'],
+            remainingSeconds: remainingSeconds!,
+            via: otpVia!,
+          ),
+        );
       } else {
-
-        showSnackBar(context, response.data['message'] ?? 'فشل في إرسال الكود', 4, Colors.red);
+        showSnackBar(
+          context,
+          response.data['message'] ?? 'فشل في إرسال الكود',
+          4,
+          Colors.red,
+        );
         emit(SendOtpError(response.data['message'] ?? 'فشل في إرسال الكود'));
       }
     } catch (error) {
@@ -335,7 +347,10 @@ print(response.data['data']);
   }
 
   /// Resend OTP
-  Future<void> resendOTP({required String email, required BuildContext context}) async {
+  Future<void> resendOTP({
+    required String email,
+    required BuildContext context,
+  }) async {
     emit(ResendOtpLoading());
     try {
       final response = await DioHelper.postFormUrlEncoded(
@@ -351,14 +366,23 @@ print(response.data['data']);
         if (kDebugMode) {
           print(response);
         }
-        emit(ResendOtpSuccess(
-          otp: response.data['data']['otp'],
-          remainingSeconds: remainingSeconds!,
-          via: otpVia!,
-        ));
+        emit(
+          ResendOtpSuccess(
+            otp: response.data['data']['otp'],
+            remainingSeconds: remainingSeconds!,
+            via: otpVia!,
+          ),
+        );
       } else {
-        showSnackBar(context, response.data['message'] ?? 'فشل في إعادة الإرسال', 4, Colors.red);
-        emit(ResendOtpError(response.data['message'] ?? 'فشل في إعادة الإرسال'));
+        showSnackBar(
+          context,
+          response.data['message'] ?? 'فشل في إعادة الإرسال',
+          4,
+          Colors.red,
+        );
+        emit(
+          ResendOtpError(response.data['message'] ?? 'فشل في إعادة الإرسال'),
+        );
       }
     } catch (error) {
       if (kDebugMode) {
@@ -370,7 +394,11 @@ print(response.data['data']);
   }
 
   /// Verify OTP
-  Future<void> verifyOTP({required String email, required String otp, required BuildContext context}) async {
+  Future<void> verifyOTP({
+    required String email,
+    required String otp,
+    required BuildContext context,
+  }) async {
     emit(VerifyOtpLoading());
     try {
       final response = await DioHelper.postData(
@@ -381,10 +409,14 @@ print(response.data['data']);
       if (response.statusCode.toString().startsWith('2')) {
         showSnackBar(context, 'تم التحقق من الكود بنجاح', 4, Colors.green);
 
-
         emit(VerifyOtpSuccess());
       } else {
-        showSnackBar(context, response.data['message'] ?? 'كود غير صحيح', 4, Colors.red);
+        showSnackBar(
+          context,
+          response.data['message'] ?? 'كود غير صحيح',
+          4,
+          Colors.red,
+        );
         emit(VerifyOtpError(response.data['message'] ?? 'كود غير صحيح'));
       }
     } catch (error) {
@@ -396,12 +428,6 @@ print(response.data['data']);
     }
   }
 
-
-
-
-
-
-
   Future<void> updateProfilePassword({
     required String oldPassword,
     required String newPassword,
@@ -411,55 +437,58 @@ print(response.data['data']);
     emit(UpdateProfilePasswordLoading());
 
     await DioHelper.putData(
-      url: EndPoints.updateProfilePassword,
-      data: {
-        "old_password": oldPassword,
-        "password": newPassword,
-        "password_confirmation": confirmPassword,
-      },
-      token: CacheHelper.getData(key: CacheKeys.token),
-    ).then((response) {
-      final status = response.statusCode ?? 0;
-      final String message = response.data['message'] ?? 'حدث خطأ غير متوقع';
+          url: EndPoints.updateProfilePassword,
+          data: {
+            "old_password": oldPassword,
+            "password": newPassword,
+            "password_confirmation": confirmPassword,
+          },
+          token: CacheHelper.getData(key: CacheKeys.token),
+        )
+        .then((response) {
+          final status = response.statusCode ?? 0;
+          final String message =
+              response.data['message'] ?? 'حدث خطأ غير متوقع';
 
-      if (status.toString().startsWith('2') || status.toString().startsWith('3')) {
-        if (kDebugMode) print('Password updated or redirected: $message');
+          if (status.toString().startsWith('2') ||
+              status.toString().startsWith('3')) {
+            if (kDebugMode) print('Password updated or redirected: $message');
 
-        showSnackBar(context, message, 3, Colors.green);
+            showSnackBar(context, message, 3, Colors.green);
 
-        Navigator.pushAndRemoveUntil(context, CupertinoPageRoute(builder: (context){
-          return HomeLayout();
-        }), (context){
-          return false;
+            Navigator.pushAndRemoveUntil(
+              context,
+              CupertinoPageRoute(
+                builder: (context) {
+                  return HomeLayout();
+                },
+              ),
+              (context) {
+                return false;
+              },
+            );
+            emit(UpdateProfilePasswordSuccess());
+          } else if (status.toString().startsWith('4')) {
+            if (kDebugMode) print('Client error: ${response.data}');
+
+            showSnackBar(context, message, 4, Colors.red);
+            emit(UpdateProfilePasswordError(message));
+          } else {
+            showSnackBar(context, 'حدث خطأ غير متوقع', 4, Colors.red);
+            emit(UpdateProfilePasswordError('حدث خطأ غير متوقع'));
+          }
+        })
+        .catchError((error) {
+          if (kDebugMode) {
+            print(state);
+
+            print(error);
+          }
+          showSnackBar(context, 'فشل الاتصال بالخادم', 4, Colors.red);
+          emit(UpdateProfilePasswordError(error.toString()));
         });
-        emit(UpdateProfilePasswordSuccess());
-      } else if (status.toString().startsWith('4')) {
-        if (kDebugMode) print('Client error: ${response.data}');
-
-        showSnackBar(context, message, 4, Colors.red);
-        emit(UpdateProfilePasswordError(message));
-      } else {
-        showSnackBar(context, 'حدث خطأ غير متوقع', 4, Colors.red);
-        emit(UpdateProfilePasswordError('حدث خطأ غير متوقع'));
-      }
-    }).catchError((error) {
-      if (kDebugMode) {
-        print(state);
-
-        print(error);
-      }
-      showSnackBar(context, 'فشل الاتصال بالخادم', 4, Colors.red);
-      emit(UpdateProfilePasswordError(error.toString()));
-    });
   }
 
-
-
-
-
-
-
-  // Logout methods
   Future<void> logout({required BuildContext context}) async {
     emit(LogoutLoading());
     try {
@@ -470,42 +499,46 @@ print(response.data['data']);
       );
 
       if (response.statusCode == 200) {
-        // Clear all relevant cached data
+        emit(LogoutDone());
+
+        // Immediately navigate to login page (new context)
+        HomeCubit.get(context).changeBottomNavBarIndex(index: 0);
         Navigator.pushAndRemoveUntil(
           context,
-          CupertinoPageRoute(builder: (context) => LoginPage()),
-              (route) => false,
+          CupertinoPageRoute(builder: (context) => const LoginPage()),
+          (route) => false,
         );
-        final keysToRemove = [
-          CacheKeys.token,
-          CacheKeys.id,
-          CacheKeys.levelID,
-          CacheKeys.level,
-          CacheKeys.govID,
-          CacheKeys.gov,
-          CacheKeys.firstName,
-          CacheKeys.middleName,
-          CacheKeys.lastName,
-          CacheKeys.phone,
-          CacheKeys.email,
-          CacheKeys.image,
-          CacheKeys.fullName,
-          CacheKeys.parentPhone,
-          CacheKeys.parentJob,
-          CacheKeys.gender,
-          CacheKeys.governmentId,
-          CacheKeys.governmentName,
-          CacheKeys.categoryId,
-          CacheKeys.categoryName,
-          CacheKeys.loginDone, // optional depending on your logic
-        ];
 
-        for (final key in keysToRemove) {
-          await CacheHelper.deleteData(key: key);
-        }
+        // Clear cache safely after navigation using a microtask
+        Future.microtask(() async {
+          final keysToRemove = [
+            CacheKeys.token,
+            CacheKeys.id,
+            CacheKeys.levelID,
+            CacheKeys.level,
+            CacheKeys.govID,
+            CacheKeys.gov,
+            CacheKeys.firstName,
+            CacheKeys.middleName,
+            CacheKeys.lastName,
+            CacheKeys.phone,
+            CacheKeys.email,
+            CacheKeys.image,
+            CacheKeys.fullName,
+            CacheKeys.parentPhone,
+            CacheKeys.parentJob,
+            CacheKeys.gender,
+            CacheKeys.governmentId,
+            CacheKeys.governmentName,
+            CacheKeys.categoryId,
+            CacheKeys.categoryName,
+            CacheKeys.loginDone,
+          ];
 
-
-        emit(LogoutDone());
+          for (final key in keysToRemove) {
+            await CacheHelper.deleteData(key: key);
+          }
+        });
       } else {
         emit(LogoutError('فشل تسجيل الخروج من الخادم'));
       }
@@ -574,40 +607,40 @@ print(response.data['data']);
         });
   }
 
-
   List inProgressCourses = [];
   List completedCourses = [];
 
   Future<void> getMyInProgressCourses() async {
     emit(GetMyCoursesLoading());
     await DioHelper.getData(
-      url: EndPoints.myCourses,
-      query: {
-        "status": "in_progress"
-      },
-      token: CacheHelper.getData(key: CacheKeys.token),
-    ).then((value){
-      inProgressCourses=value.data['data'];
-    emit(GetMyCoursesDone());
-    }).catchError((error){
-      print(error);
-      emit(GetMyCoursesError(error));
-    });
+          url: EndPoints.myCourses,
+          query: {"status": "in_progress"},
+          token: CacheHelper.getData(key: CacheKeys.token),
+        )
+        .then((value) {
+          inProgressCourses = value.data['data'];
+          emit(GetMyCoursesDone());
+        })
+        .catchError((error) {
+          print(error);
+          emit(GetMyCoursesError(error));
+        });
   }
+
   Future<void> getMyCompletedCourses() async {
     emit(GetMyCompletedCoursesLoading());
     await DioHelper.getData(
-      url: EndPoints.myCourses,
-      query: {
-        "status": "completed"
-      },
-      token: CacheHelper.getData(key: CacheKeys.token),
-    ).then((value){
-      completedCourses=value.data['data'];
-    emit(GetMyCompletedCoursesDone());
-    }).catchError((error){
-      print(error);
-      emit(GetMyCompletedCoursesError(error));
-    });
+          url: EndPoints.myCourses,
+          query: {"status": "completed"},
+          token: CacheHelper.getData(key: CacheKeys.token),
+        )
+        .then((value) {
+          completedCourses = value.data['data'];
+          emit(GetMyCompletedCoursesDone());
+        })
+        .catchError((error) {
+          print(error);
+          emit(GetMyCompletedCoursesError(error));
+        });
   }
 }

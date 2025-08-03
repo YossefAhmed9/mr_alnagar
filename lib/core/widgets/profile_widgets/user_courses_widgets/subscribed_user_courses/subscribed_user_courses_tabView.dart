@@ -97,10 +97,10 @@ class _SubscribedUserCoursesTabViewState extends State<SubscribedUserCoursesTabV
                                  setState(() {
                                    isLoading=true;
                                  });
-                                 await LessonsCubit.get(context).getCourseByID(id: course['id']);
+                                 //await LessonsCubit.get(context).getCourseByID(id: course['id']);
                                  await LessonsCubit.get(context).getUserLessons(id: course['id']);
-                                 await LessonsCubit.get(context).getClassDataByID(classId: course['id'],context: context);
-
+                                 //await LessonsCubit.get(context).getClassDataByID(classId: course['id'],context: context);
+                                // print(course['id']);
                                  Navigator.push(
                                    context,
                                    CupertinoPageRoute(

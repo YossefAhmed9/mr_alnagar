@@ -4,23 +4,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
-import 'package:mr_alnagar/core/cubits/courses_cubit/courses_cubit.dart';
-import 'package:mr_alnagar/core/cubits/courses_cubit/courses_state.dart';
+import 'package:mr_alnagar/core/cubits/books_cubit/books_cubit.dart';
+import 'package:mr_alnagar/core/cubits/books_cubit/books_state.dart';
 import 'package:mr_alnagar/core/utils/app_colors.dart';
 import 'package:mr_alnagar/core/utils/text_styles.dart';
-import 'package:mr_alnagar/features/courses_view/videos_view/videos_view.dart';
 
-class ReservationStepsListView extends StatefulWidget {
-  const ReservationStepsListView({Key? key, required this.data}) : super(key: key);
+class BookReservationStepsListView extends StatefulWidget {
+  const BookReservationStepsListView({Key? key, required this.data}) : super(key: key);
   final dynamic data;
 
   @override
-  State<ReservationStepsListView> createState() => _ReservationStepsListViewState();
+  State<BookReservationStepsListView> createState() => _BookReservationStepsListViewState();
 }
 
-class _ReservationStepsListViewState extends State<ReservationStepsListView> {
+class _BookReservationStepsListViewState extends State<BookReservationStepsListView> {
   final ScrollController scrollController = ScrollController();
   int currentIndex = 0;
+TextEditingController quantityController=TextEditingController();
+TextEditingController addressController=TextEditingController();
+
 
   void scrollToIndex(int index) {
     final double itemWidth = 290.w + 16;
@@ -34,12 +36,12 @@ class _ReservationStepsListViewState extends State<ReservationStepsListView> {
     });
   }
 
-  Future<void> _showSubscriptionDialog(BuildContext context) async {
-    CoursesCubit.get(context).changeIsCourseLoading();
-    await CoursesCubit.get(context).getVideosByCourse(id: CoursesCubit.get(context).courseResult[0]['id'], context: context);
-    Navigator.push(context, CupertinoPageRoute(builder: (context) => CourseVideoScreen(videoIndex: CoursesCubit.get(context).courseResult[0]['id'])));
-    CoursesCubit.get(context).changeIsCourseLoading();
-  }
+  // Future<void> _showSubscriptionDialog(BuildContext context) async {
+  //   CoursesCubit.get(context).changeIsCourseLoading();
+  //   await CoursesCubit.get(context).getVideosByCourse(id: CoursesCubit.get(context).courseResult[0]['id'], context: context);
+  //   Navigator.push(context, CupertinoPageRoute(builder: (context) => CourseVideoScreen(videoIndex: CoursesCubit.get(context).courseResult[0]['id'])));
+  //   CoursesCubit.get(context).changeIsCourseLoading();
+  // }
 
   List<Widget> buildPaymentCards() {
     final paymentType = widget.data['payment_type'];
@@ -111,9 +113,9 @@ class _ReservationStepsListViewState extends State<ReservationStepsListView> {
   }
 
   Widget buildWalletCard() {
-    final courseResult = CoursesCubit.get(context).courseResult;
-    final phoneNumber = (courseResult.isNotEmpty && courseResult[0]['phone'] != null)
-        ? courseResult[0]['phone'].toString()
+    final courseResult = BooksCubit.get(context).book;
+    final phoneNumber = (courseResult.isNotEmpty && courseResult['phone'] != null)
+        ? courseResult['phone'].toString()
         : 'رقم غير متاح حالياً';
 
     return buildCard(
@@ -136,10 +138,120 @@ class _ReservationStepsListViewState extends State<ReservationStepsListView> {
     );
   }
 
-  void _handleButtonPress(String method) async {
+
+  void showOrderDialog(String method) {
+    final _formKey = GlobalKey<FormState>();
+    bool isLoading = false;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return SingleChildScrollView(
+              child: Directionality(
+                textDirection: TextDirection.rtl,
+                child: AlertDialog(
+                  backgroundColor: AppColors.lightBlue,
+                  actionsAlignment: MainAxisAlignment.center,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                  title: const Text('معلومات الطلب', textAlign: TextAlign.center),
+                  content: Form(
+                    key: _formKey,
+                    child: Container(
+                      decoration: BoxDecoration(
+
+                      ),
+                     // height: 400,
+                      child: Column(
+                        spacing: 5,
+                        children: [
+                          Image.asset('assets/images/pic.png'),
+                          SizedBox(height: 20,),
+                          TextFormField(
+
+                            controller: addressController,
+                            decoration: const InputDecoration(labelText: 'العنوان',border: OutlineInputBorder(),fillColor: Colors.white54,filled: true),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) return 'يرجى إدخال العنوان';
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            controller: quantityController,
+                            decoration: const InputDecoration(labelText: 'الكمية',border: OutlineInputBorder(),fillColor: Colors.white54,filled: true),
+                            keyboardType: TextInputType.number,
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) return 'يرجى إدخال الكمية';
+                              if (int.tryParse(value) == null) return 'الكمية يجب أن تكون رقم';
+                              if (int.parse(value) <= 0) return 'الكمية يجب أن تكون أكبر من 0';
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                          if (isLoading) const CircularProgressIndicator(),
+                        ],
+                      ),
+                    ),
+                  ),
+                  actions: [
+                    InkWell(
+                      child: Container(
+                        width: double.infinity,
+                          height: 50,
+                          decoration: BoxDecoration(color: AppColors.primaryColor,borderRadius: BorderRadius.circular(25),),
+                          child: Center(child: Text('إلغاء',style: TextStyles.textStyle16w700(context).copyWith(color: Colors.white),))
+                      ),
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    SizedBox(height: 10,),
+                    InkWell(
+                      child: Container(
+                          width: double.infinity,
+                          height: 50,
+                          decoration: BoxDecoration(color: AppColors.primaryColor,borderRadius: BorderRadius.circular(25),),
+                          child: Center(child: Text('تأكيد الطلب',style: TextStyles.textStyle16w700(context).copyWith(color: Colors.white),))
+                      ),
+                      onTap: () async {
+                        if (_formKey.currentState!.validate()) {
+                          setState(() => isLoading = true);
+
+                          await BooksCubit.get(context).orderOfBook(
+                            id: widget.data['id'],
+                            paymentMethod: method,
+                            address: addressController.text.trim(),
+                            quantity: int.parse(quantityController.text.trim()),
+                          );
+
+                          setState(() {
+                            widget.data['status'] = 'pending';
+                            widget.data['payment_type'] = method;
+                          });
+
+                          Navigator.of(context).pop(); // close dialog
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('تم إرسال الطلب بنجاح'),backgroundColor: Colors.green,),
+                          );
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _handleButtonPress(String method) {
     final isEnrolled = widget.data['is_enrolled'] == true;
-    final String status = widget.data['request_status']?['key'] ??
-        (isEnrolled ? 'approved' : widget.data['status'] ?? '');
+    final String status = widget.data['request_status']?['key'] ?? (isEnrolled ? 'approved' : widget.data['status'] ?? '');
 
     if (!isEnrolled && status == 'approved') {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('يرجى التواصل مع الدعم لتفعيل اشتراكك')));
@@ -147,18 +259,13 @@ class _ReservationStepsListViewState extends State<ReservationStepsListView> {
     }
 
     if (status == 'approved') {
-      _showSubscriptionDialog(context);
+      // _showSubscriptionDialog(context);
     } else if (status == 'pending') {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('طلبك قيد المراجعة حالياً')));
     } else if (status == 'rejected') {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('طلبك مرفوض، تواصل مع الدعم')));
     } else {
-      print('here');
-     await CoursesCubit.get(context).enrollInCourse(courseID: widget.data['id'], paymentType: method);
-      setState(() {
-        widget.data['status'] = 'pending';
-        widget.data['payment_type'] = method;
-      });
+      showOrderDialog(method);
     }
   }
 
@@ -265,7 +372,7 @@ class _ReservationStepsListViewState extends State<ReservationStepsListView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<CoursesCubit, CoursesState>(
+    return BlocConsumer<BooksCubit, BooksState>(
       listener: (context, state) {},
       builder: (context, state) {
         final cards = buildPaymentCards();

@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:mr_alnagar/core/widgets/Courses%20widgets/book_card.dart';
-
 import '../../cubits/books_cubit/books_cubit.dart';
-import '../../cubits/courses_cubit/courses_cubit.dart';
-import '../../utils/app_colors.dart';
-import '../../utils/text_styles.dart';
 
-class BooksTabBarView extends StatelessWidget {
+class BooksTabBarView extends StatefulWidget {
   const BooksTabBarView({Key? key, }) : super(key: key);
+
+  @override
+  State<BooksTabBarView> createState() => _BooksTabBarViewState();
+}
+
+class _BooksTabBarViewState extends State<BooksTabBarView> {
   @override
   Widget build(BuildContext context) {
     ScrollController controller=ScrollController();

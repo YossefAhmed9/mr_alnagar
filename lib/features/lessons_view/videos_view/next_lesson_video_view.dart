@@ -21,19 +21,19 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../homework_view/home_work_view.dart';
 import 'next_lesson_video_view.dart';
 
-class LessonVideoScreen extends StatefulWidget {
+class NextLessonVideoView extends StatefulWidget {
   final int videoIndex;
-  const LessonVideoScreen({super.key, required this.videoIndex});
+  const NextLessonVideoView({super.key, required this.videoIndex});
 
   @override
-  _LessonVideoScreenState createState() => _LessonVideoScreenState();
+  _NextLessonVideoViewState createState() => _NextLessonVideoViewState();
 }
 
-class _LessonVideoScreenState extends State<LessonVideoScreen> {
+class _NextLessonVideoViewState extends State<NextLessonVideoView> {
   late YoutubePlayerController controller;
   bool isFullScreen = false;
   bool isControllerReady = false;
-  final scaffoldKey = GlobalKey<ScaffoldState>();
+  final nextScaffoldKey = GlobalKey<ScaffoldState>();
 
   List<Map<String, dynamic>> _videos = [];
   bool isLoading = true;
@@ -57,7 +57,7 @@ class _LessonVideoScreenState extends State<LessonVideoScreen> {
         context,
         CupertinoPageRoute(
           builder:
-              (context) => LessonVideoScreen(
+              (context) => NextLessonVideoView(
                 videoIndex: LessonsCubit.get(context).classData['id'],
               ),
         ),
@@ -129,7 +129,6 @@ class _LessonVideoScreenState extends State<LessonVideoScreen> {
     if (data == null) return;
 
     final courseId = data['id'];
-    if (courseId != widget.videoIndex) return;
 
     final savedVideoId = CacheHelper.getData(
       key: CacheKeys.lastLessonVideoIndex,
@@ -199,6 +198,7 @@ class _LessonVideoScreenState extends State<LessonVideoScreen> {
             Duration(seconds: currentVideo['last_watched_second'] ?? 0),
           );
           controller.play();
+          controller.pause();
           _startTracking();
         }
       }
@@ -214,17 +214,13 @@ class _LessonVideoScreenState extends State<LessonVideoScreen> {
 
   void _playVideo(Map<String, dynamic> video) {
     final videoId = YoutubePlayer.convertUrlToId(video['video_url']);
-    CacheHelper.setData(key: CacheKeys.lastLessonVideoIndex, value: video['id']);
+    CacheHelper.setData(key: CacheKeys.lastVideoIndex, value: video['id']);
     if (videoId != null) {
       controller.load(videoId);
-
-      //_hasSeeked=true;
-      //controller.load(videoId);
       controller.seekTo(Duration(seconds: video['last_watched_second']));
       //controller.pause();
       controller.play();
       //controller.pause();
-      _startTracking();
       setState(() {
         currentVideoIndex = video['index'];
         _sessionWatchSeconds = 0;
@@ -300,10 +296,14 @@ class _LessonVideoScreenState extends State<LessonVideoScreen> {
       builder: (context, state) {
         return BlocBuilder<LessonsCubit, LessonsState>(
           builder: (context, state) {
+            print('////////////////////');
+            print(LessonsCubit.get(
+              context,
+            ).classData['title']);
             return isLoad
                 ? Scaffold(body: Center(child: CircularProgressIndicator()))
                 : Scaffold(
-                  key: scaffoldKey,
+                  key: nextScaffoldKey,
                   appBar:
                       isFullScreen
                           ? null
@@ -730,291 +730,109 @@ class _LessonVideoScreenState extends State<LessonVideoScreen> {
                                                           const SizedBox(
                                                             height: 12,
                                                           ),
-                                                            Container(
-                                                              width: 150,
-                                                              height: 70,
-                                                              child: ElevatedButton(
-                                                                onPressed: () async {
-                                                                  setState(() {
-                                                                    LessonsCubit.get(context).isLessonLoading = true;
-                                                                  });
+                                                          Container(
+                                                            width: 150,
+                                                            height: 70,
+                                                            child: ElevatedButton(
+                                                              onPressed: () async {
+                                                                setState(() {
+                                                                  LessonsCubit.get(
+                                                                        context,
+                                                                      ).isLessonLoading =
+                                                                      true;
+                                                                });
 
-                                                                  await LessonsCubit.get(context).getClassDataByID(classId: LessonsCubit.get(context).classData?['next_class_id'] ?? 0, context: context,);
+                                                                // Use getClassDataByID instead of getVideosByClass
+                                                                await LessonsCubit.get(
+                                                                  context,
+                                                                ).getClassDataByID(
+                                                                  classId:
+                                                                      LessonsCubit.get(
+                                                                        context,
+                                                                      ).classData?['next_class_id'] ??
+                                                                      0,
+                                                                  context:
+                                                                      context,
+                                                                );
 
-                                                                  final classData =
-                                                                      LessonsCubit.get(context).classData;
-                                                                  // Quiz required check
-                                                                  if (classData['has_quizzes'] == true && classData['quiz_required'] == 1) {
-                                                                    setState(() {
-                                                                      LessonsCubit.get(context).isLessonLoading = false;
-                                                                    });
-                                                                    showDialog(
-                                                                      context: context,
-                                                                      barrierDismissible: true,
+                                                                // Check if we have valid data before navigation
+                                                                if (LessonsCubit.get(
+                                                                      context,
+                                                                    ).classData !=
+                                                                    null) {
+                                                                  Navigator.pushReplacement(
+                                                                    context,
+                                                                    CupertinoPageRoute(
                                                                       builder:
                                                                           (
                                                                             context,
-                                                                          ) => WillPopScope(
-                                                                            onWillPop: () async => false,
-                                                                            child: Directionality(
-                                                                              textDirection: TextDirection.rtl,
-                                                                              child: AlertDialog(
-                                                                                backgroundColor: Colors.white,
-                                                                                title: Text('تنبيهات مهمة',
-                                                                                  textAlign: TextAlign.center,
-                                                                                ),
-                                                                                titleTextStyle: TextStyles.textStyle16w700(context).copyWith(
-                                                                                  color: AppColors.secondary,
-                                                                                ),
-                                                                                content: SingleChildScrollView(
-                                                                                  child: Column(
-                                                                                    children: [
-                                                                                      Image.asset(
-                                                                                        'assets/images/pic2.png',
-                                                                                      ),
-                                                                                      Text(
-                                                                                        'يجب حل الامتحان اولا',
-                                                                                        style: TextStyles.textStyle16w700(context).copyWith(color: AppColors.secondary,
-                                                                                        ),
-                                                                                      ),
-                                                                                    ],
-                                                                                  ),
-                                                                                ),
-
-                                                                                actions: [
-                                                                                  InkWell(
-                                                                                    onTap: () async {
-                                                                                      await LessonsCubit.get(context).startQuiz(quizId: classData['quiz_id'],);
-                                                                                      showDialog(
-                                                                                        context: context,
-                                                                                        barrierDismissible: true,
-                                                                                        builder:
-                                                                                            (context) => WillPopScope(
-                                                                                              onWillPop: () async => false,
-                                                                                              child: Directionality(
-                                                                                                textDirection: TextDirection.rtl,
-                                                                                                child: AlertDialog(
-                                                                                                  backgroundColor: Colors.white,
-                                                                                                  title: Text(
-                                                                                                    'تنبيهات مهمة',
-                                                                                                    textAlign: TextAlign.center,
-                                                                                                  ),
-                                                                                                  titleTextStyle: TextStyles.textStyle16w700(context).copyWith(color: AppColors.secondary,
-                                                                                                  ),
-                                                                                                  content: SingleChildScrollView(
-                                                                                                    child: Column(
-                                                                                                      children: [
-                                                                                                        Image.asset(
-                                                                                                          'assets/images/pic2.png',
-                                                                                                        ),
-                                                                                                        Container(
-                                                                                                          decoration: BoxDecoration(
-                                                                                                            color: const Color(0xFFFDF3D0,),
-                                                                                                            borderRadius: BorderRadius.circular(15,),
-                                                                                                          ),
-                                                                                                          child: Column(
-                                                                                                            children: [
-                                                                                                              LessonsCubit.get(context).quiz == null
-                                                                                                                  ? const Center(
-                                                                                                                    child:
-                                                                                                                        CircularProgressIndicator(),
-                                                                                                                  )
-                                                                                                                  : Padding(
-                                                                                                                    padding: const EdgeInsets.all(
-                                                                                                                      8.0,
-                                                                                                                    ),
-                                                                                                                    child: Text(
-                                                                                                                      HtmlUnescape().convert(
-                                                                                                                        LessonsCubit.get(context).quiz['quiz']['description'].replaceAll(
-                                                                                                                              RegExp(r'<style[^>]*>[\s\S]*?</style>',caseSensitive:
-                                                                                                                                    false,
-                                                                                                                              ), '',).replaceAll(RegExp(r'<[^>]+>',), '',).replaceAll(
-                                                                                                                              RegExp(r'\s+',), ' ',).trim(),
-                                                                                                                      ),
-                                                                                                                      style: TextStyles.textStyle16w700(context).copyWith(
-                                                                                                                        color: AppColors.secondary,
-                                                                                                                      ),
-                                                                                                                      textDirection: TextDirection.rtl,
-                                                                                                                      textAlign: TextAlign.right,
-                                                                                                                    ),
-                                                                                                                  ),
-                                                                                                              Padding(
-                                                                                                                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16,),
-                                                                                                                child: Container(
-                                                                                                                  decoration: BoxDecoration(color: AppColors.primaryColor,
-                                                                                                                    borderRadius: BorderRadius.circular(25,),
-                                                                                                                  ),
-                                                                                                                  width: double.infinity,
-                                                                                                                  height: 44,
-                                                                                                                  child: MaterialButton(
-                                                                                                                    onPressed: () async {
-                                                                                                                      await LessonsCubit.get(context).startQuiz(quizId: LessonsCubit.get(context).classData['quiz_id'],
-                                                                                                                      );
-                                                                                                                      Navigator.pop(context);
-                                                                                                                      Navigator.pushAndRemoveUntil(context,CupertinoPageRoute(
-                                                                                                                          builder:
-                                                                                                                              (context,) => LessonsExamView(quizID: LessonsCubit.get(context).classData['quiz_id'],
-                                                                                                                              ),
-                                                                                                                        ),
-                                                                                                                        (route,) => false,
-                                                                                                                      );
-                                                                                                                    },
-                                                                                                                    child: Container(
-                                                                                                                      width: double.infinity,
-                                                                                                                      decoration: BoxDecoration(
-                                                                                                                        color: AppColors.primaryColor,
-                                                                                                                      ),
-                                                                                                                      child: Text(
-                                                                                                                        'ابدا الامتحان',
-                                                                                                                        style: TextStyles.textStyle16w700(context).copyWith(color: Colors.white,
-                                                                                                                        ),
-                                                                                                                      ),
-                                                                                                                    ),
-                                                                                                                  ),
-                                                                                                                ),
-                                                                                                              ),
-                                                                                                            ],
-                                                                                                          ),
-                                                                                                        ),
-                                                                                                      ],
-                                                                                                    ),
-                                                                                                  ),
-                                                                                                ),
-                                                                                              ),
-                                                                                            ),
-                                                                                      );
-                                                                                    },
-
-                                                                                    child: Container(
-                                                                                      width: double.infinity, height: 50,
-                                                                                      decoration: BoxDecoration(
-                                                                                        color: AppColors.primaryColor,
-                                                                                        borderRadius: BorderRadius.circular(
-                                                                                          25,
-                                                                                        ),
-                                                                                      ),
-                                                                                      child: Center(
-                                                                                        child: Text(
-                                                                                          'الانتقال للامتحان',
-                                                                                          style: TextStyle(
-                                                                                            color:
-                                                                                                Colors.white,
-                                                                                            fontSize:
-                                                                                                20,
-                                                                                            fontWeight:
-                                                                                                FontWeight.w900,
-                                                                                          ),
-                                                                                        ),
-                                                                                      ),
-                                                                                    ),
-                                                                                  ),
-                                                                                  SizedBox(
-                                                                                    height:
-                                                                                        10,
-                                                                                  ),
-                                                                                  InkWell(
-                                                                                    onTap: () {
-                                                                                      Navigator.pop(
-                                                                                        context,
-                                                                                      );
-                                                                                    },
-                                                                                    child: Container(
-                                                                                      decoration: BoxDecoration(
-                                                                                        border: Border.all(
-                                                                                          color:
-                                                                                              AppColors.primaryColor,
-                                                                                          width:
-                                                                                              2,
-                                                                                        ),
-                                                                                        borderRadius: BorderRadius.circular(
-                                                                                          25,
-                                                                                        ),
-                                                                                        color:
-                                                                                            Colors.white,
-                                                                                      ),
-                                                                                      width:
-                                                                                          double.infinity,
-                                                                                      height:
-                                                                                          50,
-                                                                                      child: Center(
-                                                                                        child: Text(
-                                                                                          'الغاء',
-                                                                                          style: TextStyle(
-                                                                                            fontSize:
-                                                                                                20,
-                                                                                            fontWeight:
-                                                                                                FontWeight.w900,
-                                                                                          ),
-                                                                                        ),
-                                                                                      ),
-                                                                                    ),
-                                                                                  ),
-                                                                                ],
-                                                                              ),
-                                                                            ),
+                                                                          ) => NextLessonVideoView(
+                                                                            videoIndex:
+                                                                                LessonsCubit.get(
+                                                                                  context,
+                                                                                ).nextClass ??
+                                                                                0,
                                                                           ),
-                                                                    );
-                                                                    return;
-                                                                  }
+                                                                    ),
+                                                                  );
+                                                                } else {
+                                                                  // Show error message if data loading failed
+                                                                  LessonsCubit.get(
+                                                                    context,
+                                                                  ).showSnackBar(
+                                                                    context,
+                                                                    'فشل في تحميل بيانات الحصة التالية',
+                                                                    3,
+                                                                    Colors.red,
+                                                                  );
+                                                                }
 
-
-                                                                  // If neither is required, navigate to next lesson
-                                                                  if (classData['has_quizzes'] == true && classData['quiz_required'] ==0) {
-                                                                    Navigator.pushReplacement(
-                                                                      context,
-                                                                      CupertinoPageRoute(
-                                                                        builder:
-                                                                            (
-                                                                              context,
-                                                                            ) => NextLessonVideoView(
-                                                                              videoIndex:
-                                                                                  LessonsCubit.get(
-                                                                                    context,
-                                                                                  ).nextClass ?? 0,
-                                                                            ),
-                                                                      ),
-                                                                    );
-                                                                  } else {
-                                                                    LessonsCubit.get(
-                                                                      context,
-                                                                    ).showSnackBar(
-                                                                      context,
-                                                                      'فشل في تحميل بيانات الحصة التالية',
-                                                                      3,
-                                                                      Colors.red,
-                                                                    );
-                                                                  }
-                                                                  setState(() {
-                                                                    LessonsCubit.get(
-                                                                          context,
-                                                                        ).isLessonLoading =
-                                                                        false;
-                                                                  });
-                                                                },
-                                                                style: ElevatedButton.styleFrom(
-                                                                  backgroundColor: AppColors.primaryColor,
-                                                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12,),
-                                                                  shape: RoundedRectangleBorder(
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
+                                                                setState(() {
+                                                                  LessonsCubit.get(
+                                                                        context,
+                                                                      ).isLessonLoading =
+                                                                      false;
+                                                                });
+                                                              },
+                                                              style: ElevatedButton.styleFrom(
+                                                                backgroundColor:
+                                                                    AppColors
+                                                                        .primaryColor,
+                                                                padding:
+                                                                    const EdgeInsets.symmetric(
+                                                                      horizontal:
+                                                                          24,
+                                                                      vertical:
                                                                           12,
-                                                                        ),
-                                                                  ),
+                                                                    ),
+                                                                shape: RoundedRectangleBorder(
+                                                                  borderRadius:
+                                                                      BorderRadius.circular(
+                                                                        12,
+                                                                      ),
                                                                 ),
-                                                                child:
-                                                                    LessonsCubit.get(context).isLessonLoading
-                                                                        ? Center(
-                                                                          child: CircularProgressIndicator(
-                                                                            color:
-                                                                                Colors.white,
-                                                                          ),
-                                                                        )
-                                                                        : Text(
-                                                                          "الحصة التالية",
-                                                                          style: TextStyles.textStyle16w700(context).copyWith(color: Colors.white,),
-                                                                        ),
                                                               ),
+                                                              child:
+                                                                  LessonsCubit.get(
+                                                                        context,
+                                                                      ).isLessonLoading
+                                                                      ? Center(
+                                                                        child: CircularProgressIndicator(
+                                                                          color:
+                                                                              Colors.white,
+                                                                        ),
+                                                                      )
+                                                                      : Text(
+                                                                        "الحصة التالية",
+                                                                        style: TextStyles.textStyle16w700(
+                                                                          context,
+                                                                        ).copyWith(
+                                                                          color:
+                                                                              Colors.white,
+                                                                        ),
+                                                                      ),
                                                             ),
+                                                          ),
                                                           const SizedBox(
                                                             height: 12,
                                                           ),
@@ -1029,7 +847,9 @@ class _LessonVideoScreenState extends State<LessonVideoScreen> {
                                       ),
 
                                       Container(
-                                        width: MediaQuery.sizeOf(context).width * 1,
+                                        width:
+                                            MediaQuery.sizeOf(context).width *
+                                            1,
                                         //height: 40,
                                         child: SingleChildScrollView(
                                           scrollDirection: Axis.horizontal,
@@ -1038,26 +858,46 @@ class _LessonVideoScreenState extends State<LessonVideoScreen> {
                                               top: 20.0,
                                             ),
                                             child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
                                               spacing: 5,
                                               children: [
-                                                LessonsCubit.get(context).classData['attachment'] != null
+                                                LessonsCubit.get(
+                                                          context,
+                                                        ).classData['attachment'] !=
+                                                        null
                                                     ? _buildActionButton(
                                                       context,
                                                       Icons
                                                           .picture_as_pdf_outlined,
                                                       'تحميل المذكرة',
                                                       () async {
-                                                        var url = LessonsCubit.get(context).classData['attachment'];
-                                                        if (url != null && url.toString().isNotEmpty) {
-                                                          var uri = Uri.parse(url);
-                                                          if (await canLaunchUrl(uri)) {
+                                                        var url =
+                                                            LessonsCubit.get(
+                                                              context,
+                                                            ).classData['attachment'];
+                                                        if (url != null &&
+                                                            url
+                                                                .toString()
+                                                                .isNotEmpty) {
+                                                          var uri = Uri.parse(
+                                                            url,
+                                                          );
+                                                          if (await canLaunchUrl(
+                                                            uri,
+                                                          )) {
                                                             await launchUrl(
-                                                              uri, mode: LaunchMode.externalApplication,
+                                                              uri,
+                                                              mode:
+                                                                  LaunchMode
+                                                                      .externalApplication,
                                                             );
                                                           } else {
-                                                            LessonsCubit.get(context).showSnackBar(
+                                                            LessonsCubit.get(
+                                                              context,
+                                                            ).showSnackBar(
                                                               context,
                                                               'تعذر فتح الرابط',
                                                               3,
@@ -1065,7 +905,9 @@ class _LessonVideoScreenState extends State<LessonVideoScreen> {
                                                             );
                                                           }
                                                         } else {
-                                                          LessonsCubit.get(context).showSnackBar(
+                                                          LessonsCubit.get(
+                                                            context,
+                                                          ).showSnackBar(
                                                             context,
                                                             'لا يوجد ملف مرفق',
                                                             3,

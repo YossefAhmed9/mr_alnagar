@@ -213,6 +213,8 @@ void showLoadOnRefresh({required int id ,required BuildContext context}){
       print(value.data["data"]);
     emit(EnrollInCourseDone());
     }).catchError((error){
+      print('error from enrollment');
+      print(error);
       emit(EnrollInCourseError(error));
     });
   }

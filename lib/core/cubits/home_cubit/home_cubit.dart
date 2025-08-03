@@ -27,9 +27,6 @@ class HomeCubit extends Cubit<HomeState> {
   HomeCubit() : super(HomeInitial());
   static HomeCubit get(context) => BlocProvider.of(context);
 
-
-
-
   List screens = [
     HomePage(),
     LessonsView(),
@@ -44,28 +41,24 @@ class HomeCubit extends Cubit<HomeState> {
     emit(ChangeNavBarIndex());
   }
 
-
-
   var aboutUs;
-  Future<void> getAboutUsData()async{
+  Future<void> getAboutUsData() async {
     emit(GetAboutUsDataLoading());
     await DioHelper.getData(url: EndPoints.aboutUs)
-        .then((value){
-          aboutUs=value.data['data'];
+        .then((value) {
+          aboutUs = value.data['data'];
           emit(GetAboutUsDataDone());
-      if (kDebugMode) {
-        print(value.data);
-      }
-    }).catchError((error){
-      if (kDebugMode) {
-        print(error);
-      }
-      emit(GetAboutUsDataError(error));
-    });
-
+          if (kDebugMode) {
+            print(value.data);
+          }
+        })
+        .catchError((error) {
+          if (kDebugMode) {
+            print(error);
+          }
+          emit(GetAboutUsDataError(error));
+        });
   }
-
-
 
   Future<void> POSTaskUS({
     required String name,
@@ -124,6 +117,7 @@ class HomeCubit extends Cubit<HomeState> {
   var homeData;
   List homeSliders = [];
   List commonQuestion = [];
+  var faqQuestion;
   List rates = [];
   var contactUsData;
   var howToUse;
@@ -139,30 +133,31 @@ class HomeCubit extends Cubit<HomeState> {
 
     await DioHelper.getData(url: EndPoints.home)
         .then((value) {
-      var data = value.data['data'];
+          var data = value.data['data'];
 
-      // Save all parts of the response
-      home=value.data['data'];
-      homeData = data['ask_us'];
-      homeSliders = data['sliders'];
-      commonQuestion = data['CommonQuestion']['question_and_answer'];
-      rates = data['rates'];
-      contactUsData = data['contact_us_data'];
-      howToUse = data['HowUse'];
+          // Save all parts of the response
+          home = value.data['data'];
+          homeData = data['ask_us'];
+          homeSliders = data['sliders'];
+          faqQuestion = data['CommonQuestion'];
+          commonQuestion = data['CommonQuestion']['question_and_answer'];
+          rates = data['rates'];
+          contactUsData = data['contact_us_data'];
+          howToUse = data['HowUse'];
 
-      books = data['Books'];
-      featuredCourses = data['featured_courses'];
-      courses = data['courses'];
-      categories = data['categories'];
-      heroesByCategory = data['heroes_by_category'];
+          books = data['Books'];
+          featuredCourses = data['featured_courses'];
+          courses = data['courses'];
+          categories = data['categories'];
+          heroesByCategory = data['heroes_by_category'];
 
-      emit(GETHomeDataDone());
-    })
+          emit(GETHomeDataDone());
+        })
         .catchError((error) {
-      print('Home Data Error: $error');
+          print('Home Data Error: $error');
 
-      emit(GETHomeDataError(error));
-    });
+          emit(GETHomeDataError(error));
+        });
   }
 
   List books = [];
@@ -206,7 +201,6 @@ class HomeCubit extends Cubit<HomeState> {
     }
   }
 
-
   List topStudents = [];
   Future<void> getLeaderBoard({required int categoryID}) async {
     emit(GETLeaderBoardLoading());
@@ -215,8 +209,8 @@ class HomeCubit extends Cubit<HomeState> {
           query: {"category_id": categoryID},
         )
         .then((value) {
-          topStudents=[];
-          topStudents=value.data['data']['topStudents'];
+          topStudents = [];
+          topStudents = value.data['data']['topStudents'];
           print(value.data);
           emit(GETLeaderBoardDone());
         })

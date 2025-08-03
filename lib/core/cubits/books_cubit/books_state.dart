@@ -2,6 +2,7 @@
 sealed class BooksState {}
 
 final class BooksInitial extends BooksState {}
+final class IsBookLoadingChanged extends BooksState {}
 final class GetAllBooksLoading extends BooksState {}
 final class GetAllBooksDone extends BooksState {}
 final class GetAllBooksError extends BooksState {

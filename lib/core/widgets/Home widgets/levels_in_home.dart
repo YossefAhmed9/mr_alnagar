@@ -67,7 +67,7 @@ class LevelsInHome extends StatelessWidget {
                       // Course name
                       Center(
                         child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 20.h),
+                          padding: EdgeInsets.only(right: 8.w,left:8.w, top: 30.h,bottom:15),
                           child: Column(
                             spacing: 10,
                             children: [
@@ -78,24 +78,30 @@ class LevelsInHome extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                               ),
                               Container(decoration: BoxDecoration(color: Colors.grey),width:double.infinity,height: 1,),
-                              Wrap(
-                                spacing: 5,
-                                children: [
-                                  Text(
-                                    'عدد الكورسات ',
-                                    style: TextStyles.textStyle16w700(context).copyWith(color: AppColors.primaryColor),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  Text(
-                                    '${data[index]['count_of_courses']}',
-                                    style: TextStyles.textStyle16w700(context).copyWith(color: AppColors.secondary,fontSize: 25),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+                              Text.rich(
+                                TextSpan(
 
-                                ],
-                              ),
+
+                                  children: [
+                                    TextSpan(
+                                      text: 'عدد الكورسات ',
+                                      style: TextStyles.textStyle16w700(context)
+                                          .copyWith(color: AppColors.primaryColor),
+                                    ),
+
+                                    TextSpan(
+                                      text: '${data[index]['count_of_courses']}',
+                                      style: TextStyles.textStyle16w700(context).copyWith(
+                                        color: AppColors.secondary,
+                                        fontSize: 25,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              )
+
 
                             ],
                           ),

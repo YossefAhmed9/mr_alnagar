@@ -14,6 +14,7 @@ import '../../core/cubits/lessons_cubit/lessons_cubit.dart';
 import '../../core/cubits/lessons_cubit/lessons_state.dart';
 import '../../core/utils/app_colors.dart';
 import '../lessons_view/subscriptions_list_view.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class LessonReservationScreen extends StatefulWidget {
   const LessonReservationScreen({Key? key, required this.data})
@@ -21,12 +22,16 @@ class LessonReservationScreen extends StatefulWidget {
   final data;
 
   @override
-  State<LessonReservationScreen> createState() => _LessonReservationScreenState();
+  State<LessonReservationScreen> createState() =>
+      _LessonReservationScreenState();
 }
-String showMore='عرض المزيد';
-String showLess='عرض اقل';
-bool showMoreButton=false;
-int newMaxLinesValue=5;
+
+String showMore = 'عرض المزيد';
+String showLess = 'عرض اقل';
+bool showMoreButton = false;
+int newMaxLinesValue = 5;
+ScrollController scrollController = ScrollController();
+
 class _LessonReservationScreenState extends State<LessonReservationScreen> {
   @override
   Widget build(BuildContext context) {
@@ -41,7 +46,7 @@ class _LessonReservationScreenState extends State<LessonReservationScreen> {
         // print(CacheHelper.getData(key: CacheKeys.token));
         //
         //
-        LessonsCubit.get(context).isLessonLoading=false;
+        // LessonsCubit.get(context).isLessonLoading=false;
         List icons = [
           Icons.menu_book_outlined,
           Icons.list,
@@ -144,44 +149,56 @@ class _LessonReservationScreenState extends State<LessonReservationScreen> {
                                     isDisabled
                                         ? null
                                         : () async {
-                                          if (status == 'approved') {
-                                            //LessonsCubit.get(context,).changeIsLessonLoading();
-                                            LessonsCubit.get(context).isLessonLoading=true;
-                                            await LessonsCubit.get(context).getUserLessons(id: widget.data['id']);
-                                            //print(widget.data['id']);
+                                          if (status == 'approved' &&
+                                              buttonLabel != 'احجز الان' &&
+                                              buttonLabel !=
+                                                  'تم الرفض، برجاء التواصل مع الدعم') {
+                                            setState(() {
+                                              LessonsCubit.get(context)
+                                                  .isLessonLoading = true;
+                                            });
+                                            await LessonsCubit.get(
+                                              context,
+                                            ).getUserLessons(
+                                              id: widget.data['id'],
+                                            );
                                             Navigator.push(
                                               context,
                                               CupertinoPageRoute(
-                                                builder: (context) => SubscriptionsListView()
+                                                builder:
+                                                    (context) =>
+                                                        SubscriptionsListView(),
                                               ),
-
                                             );
-                                            LessonsCubit.get(context).isLessonLoading=false;
-
+                                            setState(() {
+                                              LessonsCubit.get(context)
+                                                  .isLessonLoading = false;
+                                            });
                                           } else {
-                                            await LessonsCubit.get(
-                                              context,
-                                            ).enrollInLesson(
-                                              courseID: course['id'],
-                                              paymentType:
-                                                  course['payment_type']!,
+                                            scrollController.animateTo(
+                                              scrollController
+                                                  .position
+                                                  .maxScrollExtent,
+                                              duration: const Duration(
+                                                milliseconds: 300,
+                                              ),
+                                              curve: Curves.easeInOut,
                                             );
-                                            // After enrollment, fetch the latest lesson data
-                                            await LessonsCubit.get(
-                                              context,
-                                            ).getCourseByID(id: course['id']);
-                                            // ignore: use_build_context_synchronously
-                                            (context as Element)
-                                                .markNeedsBuild();
                                           }
                                         },
-                                child: LessonsCubit.get(context).isLessonLoading ?
-                                Center(child: CircularProgressIndicator(),) : Text(
-                                  buttonLabel,
-                                  style: TextStyles.textStyle16w700(
-                                    context,
-                                  ).copyWith(color: textColor),
-                                ),
+                                child:
+                                    LessonsCubit.get(context).isLessonLoading
+                                        ? const Center(
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                        : Text(
+                                          buttonLabel,
+                                          style: TextStyles.textStyle16w700(
+                                            context,
+                                          ).copyWith(color: textColor),
+                                        ),
                               ),
                             ),
                           ),
@@ -190,11 +207,7 @@ class _LessonReservationScreenState extends State<LessonReservationScreen> {
                     },
                   ),
                 ),
-                //             floatingActionButton: FloatingActionButton(onPressed: () async {
-                //
-                //
-                //
-                //             }),
+
                 appBar: AppBar(
                   elevation: 0,
                   backgroundColor: Colors.white,
@@ -211,6 +224,7 @@ class _LessonReservationScreenState extends State<LessonReservationScreen> {
                   centerTitle: true,
                 ),
                 body: SingleChildScrollView(
+                  controller: scrollController,
                   child: ModalProgressHUD(
                     inAsyncCall: LessonsCubit.get(context).isLessonLoading,
                     child: Padding(
@@ -251,7 +265,10 @@ class _LessonReservationScreenState extends State<LessonReservationScreen> {
                                             MainAxisAlignment.center,
                                         spacing: 3,
                                         children: [
-                                          Icon(icons[index], color: Colors.white),
+                                          Icon(
+                                            icons[index],
+                                            color: Colors.white,
+                                          ),
                                           Text(
                                             '${LessonsCubit.get(context).courseResult[0][counts[index]]}',
                                             style: TextStyles.textStyle12w700(
@@ -274,7 +291,10 @@ class _LessonReservationScreenState extends State<LessonReservationScreen> {
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(top: 15.0, bottom: 5),
+                            padding: const EdgeInsets.only(
+                              top: 15.0,
+                              bottom: 5,
+                            ),
                             child: Text(
                               'اشترك دلوقتي وابدأ رحلة التفوق مع مستر محمد النجار !',
                               style: TextStyles.textStyle16w700(context),
@@ -299,10 +319,18 @@ class _LessonReservationScreenState extends State<LessonReservationScreen> {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               clipBehavior: Clip.antiAliasWithSaveLayer,
-                              child: Image.network(
-                                LessonsCubit.get(
-                                  context,
-                                ).courseResult[0]['image'],
+                              child: CachedNetworkImage(
+                                imageUrl:
+                                    LessonsCubit.get(
+                                      context,
+                                    ).courseResult[0]['image'],
+                                placeholder: (context, url) => Container(),
+                                errorWidget:
+                                    (context, url, error) =>
+                                        const Icon(Icons.error),
+                                fit: BoxFit.cover,
+                                height: 200,
+                                width: double.infinity,
                               ),
                             ),
                           ),
@@ -311,253 +339,60 @@ class _LessonReservationScreenState extends State<LessonReservationScreen> {
                             style: TextStyles.textStyle16w700(context),
                           ),
 
-                         Wrap(
-                           alignment:WrapAlignment.center,
-                           children: [
-                             Text(maxLines: newMaxLinesValue,
-                               HtmlUnescape()
-                                   .convert(
-                                 '${LessonsCubit.get(context).courseResult[0]['description']}',
-                               )
-                                   .replaceAll(RegExp(r'<[^>]*>'), ''),
-                               style: TextStyles.textStyle16w400(context).copyWith(),
-                             ),
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            children: [
+                              Text(
+                                maxLines: newMaxLinesValue,
+                                HtmlUnescape()
+                                    .convert(
+                                      '${LessonsCubit.get(context).courseResult[0]['description']}',
+                                    )
+                                    .replaceAll(RegExp(r'<[^>]*>'), ''),
+                                style:
+                                    TextStyles.textStyle16w400(
+                                      context,
+                                    ).copyWith(),
+                              ),
 
-                             TextButton(onPressed: (){
-                               print(newMaxLinesValue);
-                               setState(() {
-                                 showMoreButton=!showMoreButton;
-                                 if (newMaxLinesValue == 5) {
-                                   newMaxLinesValue=200;
-                                 }
-                                 else if (newMaxLinesValue ==200){
-                                   newMaxLinesValue=5;
-                                 }
-                               });
-                             }, child: Container(
-                                 width: 100,height: 30,
-                                 decoration: BoxDecoration(color: AppColors.secondary,borderRadius: BorderRadius.circular(20)),
-                                 child: Center(child: Text(showMoreButton ? showLess : showMore,style: TextStyle(fontSize: 15,fontWeight: FontWeight.w900,color: Colors.white),))))
+                              TextButton(
+                                onPressed: () {
+                                  print(newMaxLinesValue);
+                                  setState(() {
+                                    showMoreButton = !showMoreButton;
+                                    if (newMaxLinesValue == 5) {
+                                      newMaxLinesValue = 200;
+                                    } else if (newMaxLinesValue == 200) {
+                                      newMaxLinesValue = 5;
+                                    }
+                                  });
+                                },
+                                child: Container(
+                                  width: 100,
+                                  height: 30,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.secondary,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      showMoreButton ? showLess : showMore,
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w900,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
 
-                           ],
-                         ),
 
-                          // ListView.builder(
-                          //     itemCount: points.length,
-                          //     shrinkWrap: true,
-                          //     physics: NeverScrollableScrollPhysics(),
-                          //
-                          //     itemBuilder: (context,index){
-                          //       return  Padding(
-                          //         padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          //         child: Row(
-                          //           spacing: 10,
-                          //           children:  [
-                          //             Icon(Icons.check_circle, color: Colors.teal),
-                          //             Flexible(child: ),
-                          //           ],
-                          //         ),
-                          //       );
-                          //     }),
                           ReservationStepsListView(data: widget.data),
 
-                          // Column(
-                          //   crossAxisAlignment: CrossAxisAlignment.start,
-                          //   children: [
-                          //     Container(
-                          //       decoration: BoxDecoration(color: Colors.grey.shade100,borderRadius: BorderRadius.circular(15),),
-                          //       child: Column(
-                          //         children: [
-                          //           Padding(
-                          //             padding: const EdgeInsets.all(8.0),
-                          //             child: Row(
-                          //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          //               children: [
-                          //                 Text('التقييمات', style: TextStyle(fontWeight: FontWeight.bold)),
-                          //                 TextButton(
-                          //                   child: Text('أكتب تقييمك', style: TextStyles.textStyle14w700(context).copyWith(color: AppColors.primaryColor)),
-                          //                   onPressed: (){
-                          //                     showDialog(
-                          //                       context: context,
-                          //
-                          //                       builder: (context) => Dialog(
-                          //                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                          //
-                          //                         child: Container(
-                          //                           decoration: BoxDecoration(
-                          //                             color: Color(0xffE6FAFA),
-                          //                           ),
-                          //                           child: Padding(
-                          //                             padding: const EdgeInsets.all(16.0),
-                          //                             child: Column(
-                          //                               mainAxisSize: MainAxisSize.min,
-                          //                               mainAxisAlignment: MainAxisAlignment.end,
-                          //                               crossAxisAlignment: CrossAxisAlignment.end,
-                          //                               children: [
-                          //                                 Row(
-                          //                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          //                                   children: [
-                          //                                     Icon(Icons.close, color: Colors.red),
-                          //                                     Text('أكتب تقييمك', style: TextStyle(fontWeight: FontWeight.bold)),
-                          //                                   ],
-                          //                                 ),
-                          //                                 Padding(
-                          //                                   padding: const EdgeInsets.symmetric(vertical:  15.0),
-                          //                                   child: Container(
-                          //                                     decoration: BoxDecoration(color: Colors.white,
-                          //                                       borderRadius: BorderRadius.circular(10),
-                          //                                     ),
-                          //                                     width: double.infinity,
-                          //                                     height: 2,
-                          //                                   ),
-                          //                                 ),
-                          //                                 TextFormField(
-                          //                                   controller: rateController,
-                          //                                   decoration: InputDecoration(border: OutlineInputBorder()),
-                          //                                   maxLines: 3,
-                          //                                 ),
-                          //                                 SizedBox(height: 12),
-                          //                                 Text('سجل بصوتك',textAlign: TextAlign.end,),
-                          //                                 Container(
-                          //                                   decoration: BoxDecoration(color: Colors.white,borderRadius: BorderRadius.circular(20)),
-                          //                                   child: Row(
-                          //                                     children: [
-                          //                                       IconButton(onPressed: () {}, icon: Icon(Icons.delete, color: Colors.red)),
-                          //                                       IconButton(onPressed: () {}, icon: Icon(Icons.check_circle, color: Colors.green)),
-                          //                                       Expanded(
-                          //                                         child: Container(
-                          //                                           height: 40,
-                          //                                           color: Colors.white,
-                          //                                           // child: Center(child: Text('🎙️ Waveform Here')),
-                          //                                         ),
-                          //                                       ),
-                          //                                       IconButton(onPressed: () {}, icon: Icon(Icons.play_arrow, color: Colors.blue)),
-                          //                                     ],
-                          //                                   ),
-                          //                                 ),
-                          //                                 SizedBox(height: 12),
-                          //                                 ElevatedButton(
-                          //                                   style: ElevatedButton.styleFrom(backgroundColor: Color(0xff4C67FF)),
-                          //                                   onPressed: () {},
-                          //                                   child: Center(child: Text('إرسال', style: TextStyle(color: Colors.white))),
-                          //                                 ),
-                          //                               ],
-                          //                             ),
-                          //                           ),
-                          //                         ),
-                          //                       ),
-                          //                     );
-                          //                   },
-                          //                 ),
-                          //               ],
-                          //             ),
-                          //           ),
-                          //           SizedBox(height: 8),
-                          //           Padding(
-                          //             padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                          //             child: Row(
-                          //               spacing: 12,
-                          //               children: [
-                          //                 Expanded(
-                          //                   child: Column(
-                          //                     children: List.generate(5, (index) {
-                          //                       return Row(
-                          //                         children: [
-                          //                           Expanded(
-                          //                             child: LinearProgressIndicator(minHeight: 10,borderRadius: BorderRadius.circular(10),
-                          //                               value: [0.8, 0.6, 0.4, 0.2, 0.1][index],
-                          //                               color: Colors.orange,
-                          //                               backgroundColor: Colors.grey.shade300,
-                          //                             ),
-                          //                           ),
-                          //                           SizedBox(width: 8),
-                          //                           Text('${5 - index}'),
-                          //                         ],
-                          //                       );
-                          //                     }),
-                          //                   ),
-                          //                 ),
-                          //                 Column(
-                          //                   spacing: 10,
-                          //                   children: [
-                          //                     Text('4.5', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                          //                     Text('20 تقييم'),
-                          //                     Text('88 %'),
-                          //                     Text('توصية'),
-                          //
-                          //                   ],
-                          //                 ),
-                          //
-                          //
-                          //
-                          //               ],
-                          //             ),
-                          //           ),
-                          //           SizedBox(height: 12),
-                          //
-                          //         ],
-                          //       ),
-                          //     ),
-                          //
-                          //     Padding(
-                          //       padding: const EdgeInsets.only(bottom:  8.0,top: 10),
-                          //       child: Container(
-                          //         decoration: BoxDecoration(color: Colors.grey.shade100,borderRadius: BorderRadius.circular(15),),
-                          //         child: Column(
-                          //           spacing: 10,
-                          //           crossAxisAlignment: CrossAxisAlignment.start,
-                          //           children: [
-                          //             Padding(
-                          //               padding: const EdgeInsets.all(8.0),
-                          //               child: Text('تقييمات الطلاب', style: TextStyle(fontWeight: FontWeight.bold)),
-                          //             ),
-                          //
-                          //             Padding(
-                          //               padding: const EdgeInsets.only(bottom: 15.0),
-                          //               child: Container(
-                          //                 width: double.infinity,
-                          //                 height: 2,
-                          //                 decoration: BoxDecoration(color: Colors.grey),
-                          //               ),
-                          //             ),
-                          //             // Example single review
-                          //             Padding(
-                          //               padding: const EdgeInsets.all(12.0),
-                          //               child: Column(
-                          //                 crossAxisAlignment: CrossAxisAlignment.start,
-                          //                 children: [
-                          //                   Row(
-                          //                     children: [
-                          //                       CircleAvatar(radius: 16, ),
-                          //                       SizedBox(width: 8),
-                          //                       Text('عمر ماهر', style: TextStyle(fontWeight: FontWeight.bold)),
-                          //                       SizedBox(width: 8),
-                          //                       Row(children: List.generate(5, (i) => Icon(Icons.star, color: Colors.orange, size: 16))),
-                          //                     ],
-                          //                   ),
-                          //                   SizedBox(height: 8),
-                          //                   Text(
-                          //                     'الحمد لله قفلت في الامتحان الزيادة وحده بفضل ربنا ثم حضرتك...',
-                          //                     softWrap: true,
-                          //                   ),
-                          //                   SizedBox(height: 8),
-                          //                   Row(
-                          //                     children: [
-                          //                       Icon(Icons.play_circle_fill, color: Colors.blue),
-                          //                       Text('0:05')
-                          //                     ],
-                          //                   ),
-                          //                 ],
-                          //               ),
-                          //             ),
-                          //           ],
-                          //         ),
-                          //       ),
-                          //     ),
-                          //
-                          //
-                          //   ],
-                          // )
+
                         ],
                       ),
                     ),
@@ -569,3 +404,217 @@ class _LessonReservationScreenState extends State<LessonReservationScreen> {
     );
   }
 }
+// Column(
+//   crossAxisAlignment: CrossAxisAlignment.start,
+//   children: [
+//     Container(
+//       decoration: BoxDecoration(color: Colors.grey.shade100,borderRadius: BorderRadius.circular(15),),
+//       child: Column(
+//         children: [
+//           Padding(
+//             padding: const EdgeInsets.all(8.0),
+//             child: Row(
+//               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//               children: [
+//                 Text('التقييمات', style: TextStyle(fontWeight: FontWeight.bold)),
+//                 TextButton(
+//                   child: Text('أكتب تقييمك', style: TextStyles.textStyle14w700(context).copyWith(color: AppColors.primaryColor)),
+//                   onPressed: (){
+//                     showDialog(
+//                       context: context,
+//
+//                       builder: (context) => Dialog(
+//                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+//
+//                         child: Container(
+//                           decoration: BoxDecoration(
+//                             color: Color(0xffE6FAFA),
+//                           ),
+//                           child: Padding(
+//                             padding: const EdgeInsets.all(16.0),
+//                             child: Column(
+//                               mainAxisSize: MainAxisSize.min,
+//                               mainAxisAlignment: MainAxisAlignment.end,
+//                               crossAxisAlignment: CrossAxisAlignment.end,
+//                               children: [
+//                                 Row(
+//                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                                   children: [
+//                                     Icon(Icons.close, color: Colors.red),
+//                                     Text('أكتب تقييمك', style: TextStyle(fontWeight: FontWeight.bold)),
+//                                   ],
+//                                 ),
+//                                 Padding(
+//                                   padding: const EdgeInsets.symmetric(vertical:  15.0),
+//                                   child: Container(
+//                                     decoration: BoxDecoration(color: Colors.white,
+//                                       borderRadius: BorderRadius.circular(10),
+//                                     ),
+//                                     width: double.infinity,
+//                                     height: 2,
+//                                   ),
+//                                 ),
+//                                 TextFormField(
+//                                   controller: rateController,
+//                                   decoration: InputDecoration(border: OutlineInputBorder()),
+//                                   maxLines: 3,
+//                                 ),
+//                                 SizedBox(height: 12),
+//                                 Text('سجل بصوتك',textAlign: TextAlign.end,),
+//                                 Container(
+//                                   decoration: BoxDecoration(color: Colors.white,borderRadius: BorderRadius.circular(20)),
+//                                   child: Row(
+//                                     children: [
+//                                       IconButton(onPressed: () {}, icon: Icon(Icons.delete, color: Colors.red)),
+//                                       IconButton(onPressed: () {}, icon: Icon(Icons.check_circle, color: Colors.green)),
+//                                       Expanded(
+//                                         child: Container(
+//                                           height: 40,
+//                                           color: Colors.white,
+//                                           // child: Center(child: Text('🎙️ Waveform Here')),
+//                                         ),
+//                                       ),
+//                                       IconButton(onPressed: () {}, icon: Icon(Icons.play_arrow, color: Colors.blue)),
+//                                     ],
+//                                   ),
+//                                 ),
+//                                 SizedBox(height: 12),
+//                                 ElevatedButton(
+//                                   style: ElevatedButton.styleFrom(backgroundColor: Color(0xff4C67FF)),
+//                                   onPressed: () {},
+//                                   child: Center(child: Text('إرسال', style: TextStyle(color: Colors.white))),
+//                                 ),
+//                               ],
+//                             ),
+//                           ),
+//                         ),
+//                       ),
+//                     );
+//                   },
+//                 ),
+//               ],
+//             ),
+//           ),
+//           SizedBox(height: 8),
+//           Padding(
+//             padding: const EdgeInsets.symmetric(horizontal: 10.0),
+//             child: Row(
+//               spacing: 12,
+//               children: [
+//                 Expanded(
+//                   child: Column(
+//                     children: List.generate(5, (index) {
+//                       return Row(
+//                         children: [
+//                           Expanded(
+//                             child: LinearProgressIndicator(minHeight: 10,borderRadius: BorderRadius.circular(10),
+//                               value: [0.8, 0.6, 0.4, 0.2, 0.1][index],
+//                               color: Colors.orange,
+//                               backgroundColor: Colors.grey.shade300,
+//                             ),
+//                           ),
+//                           SizedBox(width: 8),
+//                           Text('${5 - index}'),
+//                         ],
+//                       );
+//                     }),
+//                   ),
+//                 ),
+//                 Column(
+//                   spacing: 10,
+//                   children: [
+//                     Text('4.5', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+//                     Text('20 تقييم'),
+//                     Text('88 %'),
+//                     Text('توصية'),
+//
+//                   ],
+//                 ),
+//
+//
+//
+//               ],
+//             ),
+//           ),
+//           SizedBox(height: 12),
+//
+//         ],
+//       ),
+//     ),
+//
+//     Padding(
+//       padding: const EdgeInsets.only(bottom:  8.0,top: 10),
+//       child: Container(
+//         decoration: BoxDecoration(color: Colors.grey.shade100,borderRadius: BorderRadius.circular(15),),
+//         child: Column(
+//           spacing: 10,
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             Padding(
+//               padding: const EdgeInsets.all(8.0),
+//               child: Text('تقييمات الطلاب', style: TextStyle(fontWeight: FontWeight.bold)),
+//             ),
+//
+//             Padding(
+//               padding: const EdgeInsets.only(bottom: 15.0),
+//               child: Container(
+//                 width: double.infinity,
+//                 height: 2,
+//                 decoration: BoxDecoration(color: Colors.grey),
+//               ),
+//             ),
+//             // Example single review
+//             Padding(
+//               padding: const EdgeInsets.all(12.0),
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   Row(
+//                     children: [
+//                       CircleAvatar(radius: 16, ),
+//                       SizedBox(width: 8),
+//                       Text('عمر ماهر', style: TextStyle(fontWeight: FontWeight.bold)),
+//                       SizedBox(width: 8),
+//                       Row(children: List.generate(5, (i) => Icon(Icons.star, color: Colors.orange, size: 16))),
+//                     ],
+//                   ),
+//                   SizedBox(height: 8),
+//                   Text(
+//                     'الحمد لله قفلت في الامتحان الزيادة وحده بفضل ربنا ثم حضرتك...',
+//                     softWrap: true,
+//                   ),
+//                   SizedBox(height: 8),
+//                   Row(
+//                     children: [
+//                       Icon(Icons.play_circle_fill, color: Colors.blue),
+//                       Text('0:05')
+//                     ],
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     ),
+//
+//
+//   ],
+// )
+// ListView.builder(
+//     itemCount: points.length,
+//     shrinkWrap: true,
+//     physics: NeverScrollableScrollPhysics(),
+//
+//     itemBuilder: (context,index){
+//       return  Padding(
+//         padding: const EdgeInsets.symmetric(vertical: 8.0),
+//         child: Row(
+//           spacing: 10,
+//           children:  [
+//             Icon(Icons.check_circle, color: Colors.teal),
+//             Flexible(child: ),
+//           ],
+//         ),
+//       );
+//     }),

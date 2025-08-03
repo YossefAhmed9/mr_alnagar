@@ -28,9 +28,7 @@ class ProfileLayout extends StatelessWidget {
     final GlobalKey<ScaffoldState> profilScaffoldKey = GlobalKey<ScaffoldState>();
 
     return Scaffold(
-      // floatingActionButton: FloatingActionButton(onPressed: (){
-      //   AuthCubit.get(context).sendOTP(email: '0101003130', context: context);
-      // }),
+
       key: profilScaffoldKey,
       drawer: Drawer(
         backgroundColor: Colors.white,
