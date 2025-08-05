@@ -56,6 +56,9 @@ class ProfileView extends StatelessWidget {
         return Directionality(
           textDirection: TextDirection.rtl,
           child: Scaffold(
+            // floatingActionButton: FloatingActionButton(onPressed: (){
+            //   ProfileCubit.get(context).getProfileInfo();
+            // }),
             key: scaffoldKey,
             body:
                 cubit.profileInfo == null

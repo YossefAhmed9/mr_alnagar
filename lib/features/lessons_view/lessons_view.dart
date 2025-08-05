@@ -6,6 +6,7 @@ import 'package:mr_alnagar/core/network/local/cashe_keys.dart';
 import 'package:mr_alnagar/core/network/local/shared_prefrence.dart';
 import 'package:mr_alnagar/core/widgets/lessons%20widgets/lessons_reservation_tab_bar.dart';
 import 'package:mr_alnagar/core/widgets/lessons%20widgets/lessons_subscribtion_tab_bar.dart';
+import 'package:mr_alnagar/core/widgets/lessons%20widgets/one_time_lessons_tab_bar.dart';
 import '../../core/cubits/lessons_cubit/lessons_state.dart';
 import '../../core/utils/app_colors.dart';
 import '../../core/utils/text_styles.dart';
@@ -56,7 +57,7 @@ class LessonsView extends StatelessWidget {
                           child: TabBar(
                             tabAlignment: TabAlignment.start,
                             onTap: (int index) async{
-
+                               LessonsCubit.get(context).getAllOneTimeClasses();
                                 await LessonsCubit.get(context).getCoursesByCategory(categoryID: CacheHelper.getData(key: CacheKeys.categoryId));
                                  await LessonsCubit.get(context).getMyLessons(categoryID: CacheHelper.getData(key: CacheKeys.categoryId));
 
@@ -67,7 +68,7 @@ class LessonsView extends StatelessWidget {
                             tabs: [
                               Tab(text: 'احجز الان'),
                               Tab(text: 'اشتراكاتي'),
-                              Tab(text: 'استخدم الكود'),
+                              Tab(text: 'حصص المرة الواحدة'),
                             ],
                             labelStyle: TextStyles.textStyle16w700(context),
                             labelPadding: EdgeInsets.symmetric(horizontal: 35),
@@ -95,9 +96,7 @@ class LessonsView extends StatelessWidget {
                                 lessons: LessonsCubit.get(context).otherLessons,
                               ),
                               LessonsSubscribtionTabBar(),
-                              LessonsReservationTabBar(
-                                lessons: LessonsCubit.get(context).courses,
-                              ),
+                              OneTimeLessonsTabBar(lessons: LessonsCubit.get(context).oneTimeClassesAll)
                             ],
                           ),
                         ),

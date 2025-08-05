@@ -54,7 +54,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _refreshData() async {
-    await ProfileCubit.get(context).getProfileInfo();
+    await ProfileCubit.get(context).getProfileInfo(context: context);
     await CoursesCubit.get(context).getCourses();
     await BooksCubit.get(context).getAllBooks();
     return HomeCubit.get(context).getHomeData(context: context);

@@ -27,6 +27,37 @@ final class GetUserLessonsError extends LessonsState {
   GetUserLessonsError(this.error);
 }
 
+final class GetAllOneTimeLessonsLoading extends LessonsState {}
+
+final class GetAllOneTimeLessonsDone extends LessonsState {}
+
+final class GetAllOneTimeLessonsError extends LessonsState {
+  final dynamic error;
+  GetAllOneTimeLessonsError(this.error);
+}
+
+final class GetOneTimeLessonVideosWithCodeLoading extends LessonsState {}
+
+final class GetOneTimeLessonVideosWithCodeDone extends LessonsState {}
+
+final class GetOneTimeLessonVideosWithCodeError extends LessonsState {
+  final dynamic error;
+  GetOneTimeLessonVideosWithCodeError(this.error);
+}
+
+
+
+
+
+final class OneTimeLessonAccessClassLoading extends LessonsState {}
+
+final class OneTimeLessonAccessClassDone extends LessonsState {}
+
+final class OneTimeLessonAccessClassError extends LessonsState {
+  final dynamic error;
+  OneTimeLessonAccessClassError(this.error);
+}
+
 final class GetClassDataByIDLoading extends LessonsState {}
 
 final class GetClassDataByIDDone extends LessonsState {}
@@ -35,6 +66,16 @@ final class GetClassDataByIDError extends LessonsState {
   final dynamic error;
   GetClassDataByIDError(this.error);
 }
+
+final class GetVideosByClassesWithCodeLoading extends LessonsState {}
+
+final class GetVideosByClassesWithCodeDone extends LessonsState {}
+
+final class GetVideosByClassesWithCodeError extends LessonsState {
+  final dynamic error;
+  GetVideosByClassesWithCodeError(this.error);
+}
+
 
 final class HomeWorkSubmissionLoading extends LessonsState {}
 

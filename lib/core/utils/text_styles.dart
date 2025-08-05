@@ -45,7 +45,7 @@ abstract class TextStyles {
   );
 
   static TextStyle textStyle16w700(context) => TextStyle(
-    fontSize: 16 ,
+    fontSize: 16.sp ,
     fontWeight: FontWeight.w700,
     fontFamily: 'cairo',
   );

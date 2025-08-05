@@ -7,6 +7,8 @@ import 'package:mr_alnagar/core/utils/app_colors.dart';
 import 'package:mr_alnagar/core/utils/text_styles.dart';
 import 'package:mr_alnagar/core/widgets/Home%20widgets/google_maps_container.dart';
 import 'package:solar_icons/solar_icons.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 
 class ContactUs extends StatelessWidget {
   const ContactUs({super.key});
@@ -91,64 +93,95 @@ class ContactUs extends StatelessWidget {
                     children: [
                       // Phone
                       Expanded(
-                        child: Container(
-                          padding: EdgeInsets.all(12.w),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFE6FAFA),
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
-                          child: Column(
-                            spacing: 10,
-                            mainAxisAlignment: MainAxisAlignment.center,
+                        child: InkWell(
+                          onTap: () async {
+                            final phoneNumber = HomeCubit.get(context).contactUsData["phone_number"];
+                            final Uri phoneUri = Uri(scheme: 'tel', path: phoneNumber);
+                            if (await canLaunchUrl(phoneUri)) {
+                              await launchUrl(phoneUri);
+                            } else {
+                              // Handle error
+                            }
+                          },
+                          child: Container(
+                            padding: EdgeInsets.all(12.w),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE6FAFA),
+                              borderRadius: BorderRadius.circular(12.r),
+                            ),
+                            child: Column(
+                              spacing: 10,
+                              mainAxisAlignment: MainAxisAlignment.center,
 
-                            children: [
-                              Icon(
-                                SolarIconsBold.phone,
-                                color: AppColors.primaryColor,
-                                size: 50,
-                              ),
-                              Text(
-                                'رقم الهاتف',
-                                style: TextStyles.textStyle16w700(context),
-                              ),
-                              Text(
-                                '${HomeCubit.get(context).contactUsData["phone_number"]}',
-                                style: TextStyles.textStyle14w400(
-                                  context,
-                                ).copyWith(color: Colors.black),
-                              ),
-                            ],
+                              children: [
+                                Icon(
+                                  SolarIconsBold.phone,
+                                  color: AppColors.primaryColor,
+                                  size: 50,
+                                ),
+                                Text(
+                                  'رقم الهاتف',
+                                  style: TextStyles.textStyle16w700(context),
+                                ),
+                                Text(
+                                  '${HomeCubit.get(context).contactUsData["phone_number"]}',
+                                  style: TextStyles.textStyle14w400(
+                                    context,
+                                  ).copyWith(color: Colors.black),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
                       // Email
                       Expanded(
-                        child: Container(
-                          padding: EdgeInsets.all(12.w),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFE6FAFA),
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
-                          child: Column(
-                            spacing: 10,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                TablerIcons.mail_filled,
-                                color: AppColors.primaryColor,
-                                size: 50,
-                              ),
-                              Text(
-                                'البريد الالكتروني',
-                                style: TextStyles.textStyle16w700(context),
-                              ),
-                              Text(
-                                '${HomeCubit.get(context).contactUsData["email"]}',
-                                style: TextStyles.textStyle14w400(
-                                  context,
-                                ).copyWith(color: Colors.black),
-                              ),
-                            ],
+                        child: InkWell(
+                          onTap: () async {
+                            String? encodeQueryParameters(Map<String, String> params) {
+                            return params.entries
+                                .map((MapEntry<String, String> e) =>
+                            '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+                                .join('&');
+                          }
+
+                          final Uri emailLaunchUri = Uri(
+                            scheme: 'mailto',
+                            path:'${HomeCubit.get(context).contactUsData["email"]}' ,
+                            query: encodeQueryParameters(<String, String>{
+                              'subject': 'اكتب سؤالك هنا',
+                            }),
+                          );
+
+                          launchUrl(emailLaunchUri);
+                          },
+                          child: Container(
+                            padding: EdgeInsets.all(12.w),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE6FAFA),
+                              borderRadius: BorderRadius.circular(12.r),
+                            ),
+                            child: Column(
+                              spacing: 10,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  TablerIcons.mail_filled,
+                                  color: AppColors.primaryColor,
+                                  size: 50,
+                                ),
+                                Text(
+                                  'البريد الالكتروني',
+                                  style: TextStyles.textStyle16w700(context),
+                                ),
+                                Text(
+                                  '${HomeCubit.get(context).contactUsData["email"]}',
+                                  style: TextStyles.textStyle14w400(
+                                    context,
+                                  ).copyWith(color: Colors.black),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),

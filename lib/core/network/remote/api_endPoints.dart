@@ -38,6 +38,9 @@ abstract class EndPoints {
   static String videos = 'videos';
 
   static String myCourses='my-courses';
+  static String videosByClassesWithCode='videos_by_classes_with_code';
+  static String allClasses='all_classes';
+  static String accessClass='access_class';
   static String startHomework = 'homeworks';
   static String submitHomework = 'student-homeworks';
   static String resultHomework = 'student-homeworks';

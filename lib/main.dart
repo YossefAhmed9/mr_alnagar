@@ -97,41 +97,40 @@ class _ConnectivityWrapperState extends State<ConnectivityWrapper> {
       children: [
         widget.child,
         if (!_isConnected)
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              color: Colors.white,
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+          Container(
+            width: double.infinity,
+            height: MediaQuery.sizeOf(context).height * 1,
+            color: Colors.white,
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
 
-                spacing: 20,
-                children: [
-                  Image.asset('assets/images/no internet.jpg'),
+              spacing: 20,
+              children: [
+                Image.asset('assets/images/no internet.jpg'),
 
-                  Text(
-                    'لا يوجد اتصال بالانترنت',
-                    style: TextStyle(color: AppColors.primaryColor,fontSize: 20,fontWeight: FontWeight.w900),
-                  ),
-                  Center(
-                    child: Container(
-                      height:50,
-                      width: double.infinity,
-                      decoration:BoxDecoration(
-                          color:AppColors.primaryColor,
-                          borderRadius:BorderRadius.circular(35)),
-                      child: MaterialButton(
-                        onPressed: _checkInternetAccess,
-                       child:Text(
-                         'اعادة المحاولة',
-                         style: TextStyle(color: Colors.white,fontSize:20,fontWeight:FontWeight.w700),
+                Text(
+                  'لا يوجد اتصال بالانترنت',
+                  style: TextStyle(color: AppColors.primaryColor,fontSize: 20,fontWeight: FontWeight.w900),
+                ),
+                Center(
+                  child: Container(
+                    height:50,
+                    width: double.infinity,
+                    decoration:BoxDecoration(
+                        color:AppColors.primaryColor,
+                        borderRadius:BorderRadius.circular(35)),
+                    child: MaterialButton(
+                      onPressed: _checkInternetAccess,
+                     child:Text(
+                       'اعادة المحاولة',
+                       style: TextStyle(color: Colors.white,fontSize:20,fontWeight:FontWeight.w700),
 
-                       ),
-                      ),
+                     ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
       ],
@@ -270,7 +269,7 @@ class _MyAppState extends State<MyApp> {
                       ),
                     )..getOtherLessons(categoryID: CacheHelper.getData(
                     key: CacheKeys.categoryId,
-                  ),),
+                  ),)..getAllOneTimeClasses(),
           lazy: true,
         ),
         BlocProvider(create: (context) => QuizCubit(), lazy: true),
@@ -290,7 +289,7 @@ class _MyAppState extends State<MyApp> {
               (context) =>
                   ProfileCubit()
                     ..getHomeWorksResultsForProfile()
-                    ..getProfileInfo()
+                    ..getProfileInfo(context: context)
                     ..getUserStats()
                     ..getPrivacyPolicy()
                     ..getMyCompletedCourses()
@@ -319,7 +318,7 @@ class _MyAppState extends State<MyApp> {
               seedColor: AppColors.primaryColor,
             ),
           ),
-          home: SplashScreen(),
+          home: HomeLayout(),
         ),
       ),
     );

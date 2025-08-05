@@ -75,7 +75,7 @@ class ProfileCubit extends Cubit<ProfileState> {
 
   // Profile Information
   var profileInfo;
-  Future<void> getProfileInfo() async {
+  Future<void> getProfileInfo({required BuildContext context}) async {
     emit(ProfileInfoLoading());
     try {
       final response = await DioHelper.getData(
@@ -135,7 +135,7 @@ class ProfileCubit extends Cubit<ProfileState> {
           value: user['category']['name'],
         );
 
-        // Legacy (for compatibility)
+
         CacheHelper.setData(
           key: CacheKeys.levelID,
           value: user['category']['id'],
@@ -158,8 +158,13 @@ class ProfileCubit extends Cubit<ProfileState> {
         emit(ProfileInfoError('Failed to fetch profile information'));
       }
     } catch (error) {
-      print(error.toString());
-      print(error.runtimeType);
+      if (error.toString()=="type 'String' is not a subtype of type 'int' of 'index'" && error.runtimeType.toString()=="_TypeError") {
+        Navigator.pushAndRemoveUntil(context, CupertinoPageRoute(builder: (context)=>LoginPage()), (route)=>false);
+      }
+      if (kDebugMode) {
+        print(error.toString());
+        print(error.runtimeType);
+      }
       emit(ProfileInfoError(error.toString()));
     }
   }
@@ -265,7 +270,7 @@ class ProfileCubit extends Cubit<ProfileState> {
           token: token,
         )
         .then((response) async {
-          await getProfileInfo();
+          await getProfileInfo(context: context);
           print(response);
           print(response.statusCode);
           print(response.data);
@@ -277,7 +282,7 @@ class ProfileCubit extends Cubit<ProfileState> {
           if (status.toString().startsWith('2') ||
               status.toString().startsWith('3')) {
             emit(UpdateProfileInfoDone());
-            await getProfileInfo(); // refresh profile info if needed
+            await getProfileInfo(context: context); // refresh profile info if needed
             showSnackBar(context, message, 3, Colors.green);
           } else if (status.toString().startsWith('4')) {
             emit(UpdateProfileInfoError(message));

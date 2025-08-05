@@ -102,6 +102,61 @@ class LessonsCubit extends Cubit<LessonsState> {
         });
   }
 
+  List oneTimeClassesAll=[];
+  Future<void> getAllOneTimeClasses()async{
+    emit(GetAllOneTimeLessonsLoading());
+    await DioHelper.getData(url: EndPoints.allClasses,
+    token: CacheHelper.getData(key: CacheKeys.token),
+    ).then((value){
+      oneTimeClassesAll=[];
+      oneTimeClassesAll.addAll(value.data['data']);
+      print(value.data);
+      print("oneTimeClassesAll");
+      print(oneTimeClassesAll);
+      emit(GetAllOneTimeLessonsDone());
+
+    }).catchError((error){
+      emit(GetUserLessonsError(error));
+    });
+  }
+
+
+Future<void> oneTimeLessonAccessClass({required int classID,required String code})async{
+    emit(OneTimeLessonAccessClassLoading());
+    await DioHelper.postData(url: EndPoints.accessClass,
+        token: CacheHelper.getData(key: CacheKeys.token),
+        data: {
+      "class_id":classID,
+      "code":code,
+    }).then((value){
+      print(value.data);
+      emit(OneTimeLessonAccessClassDone());
+    }).catchError((error){
+      print(error);
+      emit(OneTimeLessonAccessClassError(error));
+    });
+  }
+
+
+  var videosByClassesWithCode;
+  Future<void> getVideosByClassesWithCode({required int classID})async{
+    emit(GetVideosByClassesWithCodeLoading());
+await DioHelper.getData(url: "${EndPoints.videosByClassesWithCode}/$classID",
+token: CacheHelper.getData(key: CacheKeys.token)
+).then((value){
+  print(value.data);
+  emit(GetVideosByClassesWithCodeDone());
+}).catchError((error){
+  emit(GetVideosByClassesWithCodeError(error));
+
+});
+
+  }
+
+
+
+
+
   var quizResult;
   Future<void> getQuizResult({required int attemptID}) async {
     emit(GetCourseLoading());

@@ -6,15 +6,16 @@ import 'package:mr_alnagar/core/utils/app_colors.dart';
 import 'package:mr_alnagar/core/utils/text_styles.dart';
 import 'package:mr_alnagar/core/widgets/Courses%20widgets/course_card.dart';
 import 'package:mr_alnagar/core/widgets/lessons%20widgets/lessons_subscreption_item.dart';
+import 'package:mr_alnagar/core/widgets/lessons%20widgets/one_time_lesson_card.dart';
 
 import '../../cubits/lessons_cubit/lessons_state.dart';
 import '../../network/local/cashe_keys.dart';
 import '../../network/local/shared_prefrence.dart';
 import 'lesson_card.dart';
 
-class LessonsReservationTabBar extends StatelessWidget {
-  const LessonsReservationTabBar({Key? key, required this.lessons})
-    : super(key: key);
+class OneTimeLessonsTabBar extends StatelessWidget {
+  const OneTimeLessonsTabBar({Key? key, required this.lessons})
+      : super(key: key);
   final List lessons;
 
   @override
@@ -43,10 +44,10 @@ class LessonsReservationTabBar extends StatelessWidget {
         final course = lessons[index];
         return Stack(
             children:
-        [
-          LessonCard(data: course, index: index),
+            [
+              OneTimeLessonCard(data: course, index: index),
 
-        ]
+            ]
         );
       },
     );

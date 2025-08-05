@@ -167,32 +167,61 @@ class LessonsHomeworkResultView extends StatelessWidget {
                                     ),
                                     const SizedBox(height: 8),
                                     if (type == 'short_answer') ...[
-                                      Text(
-                                        "Your answer:",
-                                        style: TextStyles.textStyle14w700(
-                                          context,
-                                        ),
+                                      Row(
+                                        spacing: 10,
+                                        mainAxisAlignment:MainAxisAlignment.end,
+                                        children: [
+
+                                          Text(
+                                            studentAnswer['answer']?.toString() ?? '-',
+                                            style: TextStyles.textStyle20w700(
+                                              context,
+                                            ).copyWith(color:question['is_correct'] ?AppColors.primaryColor : Colors.red  ),
+                                          ),
+                                          Text(
+                                            " : اجابتك ",
+                                            style: TextStyles.textStyle20w700(
+                                              context,
+                                            ).copyWith(color:question['is_correct'] ?AppColors.primaryColor : Colors.red  ),
+                                          ),
+                                        ],
                                       ),
-                                      Text(
-                                        studentAnswer?['answer']?.toString() ??
-                                            '-',
-                                        style: TextStyles.textStyle14w400(
-                                          context,
-                                        ),
+                                      Row(
+                                        spacing: 10,
+                                        mainAxisAlignment:MainAxisAlignment.end,
+                                        children: [
+
+                                          Text(
+                                            question['answer_percent']?.toString() ?? '-',
+                                            style: TextStyle(color:AppColors.secondary80,fontWeight: FontWeight.w600),
+                                          ),
+                                          Text(': نسبة اجابتك للاجابة الصحيحة ')
+
+                                        ],
                                       ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        "Correct answer:",
-                                        style: TextStyles.textStyle14w700(
-                                          context,
-                                        ),
-                                      ),
-                                      Text(
-                                        correctAnswer?['answer']?.toString() ??
-                                            '-',
-                                        style: TextStyles.textStyle14w400(
-                                          context,
-                                        ).copyWith(color: Colors.red),
+                                      const SizedBox(height: 20),
+
+                                      Row(
+                                        spacing: 10,
+                                        mainAxisAlignment:MainAxisAlignment.end,
+                                        children: [
+
+
+                                          Text(
+                                            correctAnswer['answer']?.toString() ?? '-',
+                                            style: TextStyles.textStyle20w700(
+                                              context,
+                                            ).copyWith(
+                                              color: AppColors.primaryColor,
+                                            ),
+                                          ),
+                                          Text(
+                                            " : الاجابة الصحيحة",
+                                            style: TextStyles.textStyle20w700(
+                                              context,
+                                            ).copyWith(color:AppColors.primaryColor),
+                                          ),
+                                        ],
                                       ),
                                     ] else
                                       ListView.builder(
