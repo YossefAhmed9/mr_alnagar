@@ -7,6 +7,7 @@ import 'package:mr_alnagar/core/cubits/home_cubit/home_cubit.dart';
 import 'package:mr_alnagar/core/utils/app_colors.dart';
 import '../../cubits/auth_cubit/auth_cubit/auth_cubit.dart';
 import '../../utils/text_styles.dart';
+import '../../../core/utils/app_loaders.dart';
 
 class AskQuestion extends StatefulWidget {
   const AskQuestion({super.key});
@@ -89,7 +90,7 @@ class _AskQuestionState extends State<AskQuestion> {
                             style: TextStyles.textStyle14w400(context).copyWith(color: Colors.grey)),
                         SizedBox(height: 4.h),
                         AuthCubit.get(context).levelsForAuthCategories.length <= 2
-                            ? CircularProgressIndicator(
+                            ? AppLoaderInkDrop(
                           color: AppColors.primaryColor,
                         )
                             : DropdownButtonFormField<String>(

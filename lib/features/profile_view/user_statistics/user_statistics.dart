@@ -12,26 +12,31 @@ class UserStatistics extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      physics: BouncingScrollPhysics(),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          children: [
-            TotalPassPercentageContainer(
-                passedExams: ProfileCubit.get(context).successRate['success_quizzes'],
-                totalExams: ProfileCubit.get(context).successRate['total_quizzes']),
-             BestAndWorstGrade(
-              highestScore: ProfileCubit.get(context).highestScore,
-               lowestScore: ProfileCubit.get(context).lowestScore,
-            ),
-             UserChart(chartData: ProfileCubit.get(context).chartData,),
+    return RefreshIndicator(
+      onRefresh: ()async{
+        return await ProfileCubit.get(context).getUserStats();
+      },
+      child: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        physics: AlwaysScrollableScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            children: [
+              TotalPassPercentageContainer(
+                  passedExams: ProfileCubit.get(context).successRate['success_quizzes'],
+                  totalExams: ProfileCubit.get(context).successRate['total_quizzes'],),
+               BestAndWorstGrade(
+                highestScore: ProfileCubit.get(context).highestScore,
+                 lowestScore: ProfileCubit.get(context).lowestScore,
+              ),
+               UserChart(chartData: ProfileCubit.get(context).chartData,),
 
-             AverageAndCompare(
-              performanceData: ProfileCubit.get(context).performanceComparison,
-            ),
-          ],
+               AverageAndCompare(
+                performanceData: ProfileCubit.get(context).performanceComparison,
+              ),
+            ],
+          ),
         ),
       ),
     );

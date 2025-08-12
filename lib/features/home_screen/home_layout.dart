@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-
+import 'package:mr_alnagar/core/cubits/lessons_cubit/lessons_cubit.dart';
 import 'package:mr_alnagar/core/cubits/home_cubit/home_cubit.dart';
 import 'package:mr_alnagar/core/utils/app_colors.dart';
 import 'package:mr_alnagar/core/utils/text_styles.dart';
@@ -75,6 +75,7 @@ class HomeLayout extends StatelessWidget {
                     HomeCubit.get(
                       context,
                     ).changeBottomNavBarIndex(index: index);
+                    LessonsCubit.get(context).isOneTimeLessonShowAll=false;
                     // Auto-refresh HomePage when navigating to it
                     // if (index == 0) {
                     //   // Call the refresh logic directly on the cubit
@@ -95,9 +96,7 @@ class HomeLayout extends StatelessWidget {
                       icon: Icons.home,
                       text: 'الرئيسية',
                       rippleColor: AppColors.primaryColor,
-                      textStyle: TextStyles.textStyle12w400(
-                        context,
-                      ).copyWith(color: Colors.white),
+                      textStyle: TextStyles.textStyle12w400(context).copyWith(color: Colors.white),
                       iconSize: 24.sp,
                     ),
                     GButton(

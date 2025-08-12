@@ -12,8 +12,10 @@ import 'package:mr_alnagar/core/utils/app_colors.dart';
 import 'package:mr_alnagar/core/utils/text_styles.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:mr_alnagar/features/profile_view/homework_results/home_work_results.dart';
+import '../../../core/utils/app_loaders.dart';
 
 import '../../../core/cubits/lessons_cubit/lessons_state.dart';
+import '../../../main.dart';
 import '../../home_screen/home_layout.dart';
 import 'homework_result.dart';
 
@@ -533,6 +535,8 @@ LessonsCubit.get(context).isLessonLoading=true;
         // print(homework);
 
         return ModalProgressHUD(
+          progressIndicator: AppLoaderHourglass(),
+
           inAsyncCall: LessonsCubit.get(context).isSubmissionLoading,
 
           child: Scaffold(
@@ -546,243 +550,248 @@ LessonsCubit.get(context).isLessonLoading=true;
             ),
             body:
                 homework == null
-                    ? const Center(child: CircularProgressIndicator())
-                    : Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Scrollbar(
-                        controller: scrollController,
-                        interactive: true,
-                        thickness: 10,
-                        radius: Radius.circular(25),
+                    ? const Center(child: AppLoaderInkDrop())
+                    : InternetAwareWrapper(
+                  onInternetRestored:[
+                        ()=>_submitHomework(auto: true),
+                  ],
+                  child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Scrollbar(
+                          controller: scrollController,
+                          interactive: true,
+                          thickness: 10,
+                          radius: Radius.circular(25),
 
-                        child: Stack(
-                          children: [
+                          child: Stack(
+                            children: [
 
-                            SingleChildScrollView(
-                              controller: scrollController,
-                              child: Column(
-                                children: [
-                                  if (homework?['have_duration'] == true)
-                                    Container(
-                                      decoration: BoxDecoration(color: Colors.white),
-                                      child: Container(
-                                        width: double.infinity,
-                                        height: 140.h,
-                                        decoration: const BoxDecoration(
-                                          color: Colors.white,
-                                          image: DecorationImage(
-                                            image: AssetImage('assets/images/pattern 2.png'),
-                                            fit: BoxFit.fill,
+                              SingleChildScrollView(
+                                controller: scrollController,
+                                child: Column(
+                                  children: [
+                                    if (homework?['have_duration'] == true)
+                                      Container(
+                                        decoration: BoxDecoration(color: Colors.white),
+                                        child: Container(
+                                          width: double.infinity,
+                                          height: 140.h,
+                                          decoration: const BoxDecoration(
+                                            color: Colors.white,
+                                            image: DecorationImage(
+                                              image: AssetImage('assets/images/pattern 2.png'),
+                                              fit: BoxFit.fill,
+                                            ),
                                           ),
-                                        ),
-                                        child: Column(
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.all(8.0),
-                                              child: Center(
-                                                child: DottedBorder(
-                                                  borderType: BorderType.RRect,
-                                                  radius: const Radius.circular(40),
-                                                  dashPattern: [6, 4],
-                                                  color: AppColors.secondary30,
-                                                  strokeWidth: 2,
-                                                  child: Container(
-                                                    width: 240,
-                                                    height: 40,
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.white,
-                                                      borderRadius: BorderRadius.circular(40),
-                                                    ),
-                                                    child: Column(
-                                                      children: [
-                                                        Row(
-                                                          mainAxisAlignment: MainAxisAlignment.center,
-                                                          children: [
-                                                            Icon(
-                                                              MingCuteIcons.mgc_time_duration_line,
-                                                              color: AppColors.secondary30,
-                                                              size: 30,
-                                                            ),
-                                                            const SizedBox(width: 10),
-                                                            Text(
-                                                              _formatTime(remainingSeconds),
-                                                              style: TextStyles.textStyle20w700(context).copyWith(fontSize: 23),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ],
+                                          child: Column(
+                                            children: [
+                                              Padding(
+                                                padding: const EdgeInsets.all(8.0),
+                                                child: Center(
+                                                  child: DottedBorder(
+                                                    borderType: BorderType.RRect,
+                                                    radius: const Radius.circular(40),
+                                                    dashPattern: [6, 4],
+                                                    color: AppColors.secondary30,
+                                                    strokeWidth: 2,
+                                                    child: Container(
+                                                      width: 240,
+                                                      height: 40,
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white,
+                                                        borderRadius: BorderRadius.circular(40),
+                                                      ),
+                                                      child: Column(
+                                                        children: [
+                                                          Row(
+                                                            mainAxisAlignment: MainAxisAlignment.center,
+                                                            children: [
+                                                              Icon(
+                                                                MingCuteIcons.mgc_time_duration_line,
+                                                                color: AppColors.secondary30,
+                                                                size: 30,
+                                                              ),
+                                                              const SizedBox(width: 10),
+                                                              Text(
+                                                                _formatTime(remainingSeconds),
+                                                                style: TextStyles.textStyle20w700(context).copyWith(fontSize: 23),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
                                               ),
-                                            ),
-                                            Column(
-                                              spacing: 10,
-                                              children: [Row(
-                                                children: [
-                                                  Text('${homework['full_score']} الدرجة  ',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black),),
-                                                  Spacer(),
-                                                  Text('${homework['question_count']} عدد الاسئلة  ',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black)),
-                                                ],
-                                              ),Row(
-                                                children: [
-                                                  Text('المحاولات المتبقية ${homework['remaining_attempts']}',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black)),
-                                                  Spacer(),
-                                                  Text('المحاولات الكلية ${homework['attempt_count']}',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black))],
-                                              ),],),
-
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  const SizedBox(height: 10),
-
-
-                                  Text(
-                                    'Choose the correct answer from a, b, c or d:',
-                                    style: TextStyles.textStyle18w700(
-                                      context,
-                                    ).copyWith(color: AppColors.secondary),
-                                  ),
-                                  _buildQuestionTypeSection(
-                                    'reading_passage',
-                                    'Reading Passage Questions',
-                                  ),
-                                  _buildQuestionTypeSection(
-                                    'multiple_choice',
-                                    'Multiple Choice Questions',
-                                  ),
-                                  _buildQuestionTypeSection(
-                                    'true_false',
-                                    'True or False Questions',
-                                  ),
-                                  _buildQuestionTypeSection(
-                                    'short_answer',
-                                    'Short Answer Questions',
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16.0,
-                                    ),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: AppColors.primaryColor,
-                                        borderRadius: BorderRadius.circular(25),
-                                      ),
-                                      width: double.infinity,
-                                      height: 44,
-                                      child: MaterialButton(
-                                        onPressed: () async {
-                                          final firstUnansweredIndex = studentHomeWorkAnswers.indexWhere((answer) => answer?['answer'] == null);
-                                          if (firstUnansweredIndex != -1) {
-                                            // Scroll to the approximate position of the unanswered question
-                                            scrollController.animateTo(
-                                              firstUnansweredIndex * 300,
-                                              duration: const Duration(milliseconds: 500),
-                                              curve: Curves.easeInOut,
-                                            );
-
-                                            Fluttertoast.showToast(
-                                              msg: "السؤال رقم ${firstUnansweredIndex + 1} لسه من غير اجابة",
-                                              toastLength: Toast.LENGTH_LONG,
-                                              gravity: ToastGravity.BOTTOM,
-                                              backgroundColor: Colors.red,
-                                              textColor: Colors.white,
-                                              fontSize: 16.0,
-                                            );
-
-                                            return;
-                                          }
-                                          LessonsCubit.get(context).changeIsSubmissionLoading();
-                                          await _submitHomework();
-                                          LessonsCubit.get(context,).changeIsSubmissionLoading();
-                                        },
-                                        child: Text(
-                                          'تسليم الواجب',
-                                          style: TextStyles.textStyle16w700(
-                                            context,
-                                          ).copyWith(color: Colors.white),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 20),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              decoration: BoxDecoration(color: Colors.white),
-                              child: Container(
-                                width: double.infinity,
-                                height: 140.h,
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  image: DecorationImage(
-                                    image: AssetImage('assets/images/pattern 2.png'),
-                                    fit: BoxFit.fill,
-                                  ),
-                                ),
-                                child: Column(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Center(
-                                        child: DottedBorder(
-                                          borderType: BorderType.RRect,
-                                          radius: const Radius.circular(40),
-                                          dashPattern: [6, 4],
-                                          color: AppColors.secondary30,
-                                          strokeWidth: 2,
-                                          child: Container(
-                                            width: 240,
-                                            height: 40,
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius: BorderRadius.circular(40),
-                                            ),
-                                            child: Column(
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                              Column(
+                                                spacing: 10,
+                                                children: [Row(
                                                   children: [
-                                                    Icon(
-                                                      MingCuteIcons.mgc_time_duration_line,
-                                                      color: AppColors.secondary30,
-                                                      size: 30,
-                                                    ),
-                                                    const SizedBox(width: 10),
-                                                    Text(
-                                                      _formatTime(remainingSeconds),
-                                                      style: TextStyles.textStyle20w700(context).copyWith(fontSize: 23),
-                                                    ),
+                                                    Text('${homework['full_score']} الدرجة  ',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black),),
+                                                    Spacer(),
+                                                    Text('${homework['question_count']} عدد الاسئلة  ',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black)),
                                                   ],
-                                                ),
-                                              ],
-                                            ),
+                                                ),Row(
+                                                  children: [
+                                                    Text('المحاولات المتبقية ${homework['remaining_attempts']}',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black)),
+                                                    Spacer(),
+                                                    Text('المحاولات الكلية ${homework['attempt_count']}',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black))],
+                                                ),],),
+
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    const SizedBox(height: 10),
+
+
+                                    Text(
+                                      'Choose the correct answer from a, b, c or d:',
+                                      style: TextStyles.textStyle18w700(
+                                        context,
+                                      ).copyWith(color: AppColors.secondary),
+                                    ),
+                                    _buildQuestionTypeSection(
+                                      'reading_passage',
+                                      'Reading Passage Questions',
+                                    ),
+                                    _buildQuestionTypeSection(
+                                      'multiple_choice',
+                                      'Multiple Choice Questions',
+                                    ),
+                                    _buildQuestionTypeSection(
+                                      'true_false',
+                                      'True or False Questions',
+                                    ),
+                                    _buildQuestionTypeSection(
+                                      'short_answer',
+                                      'Short Answer Questions',
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16.0,
+                                      ),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primaryColor,
+                                          borderRadius: BorderRadius.circular(25),
+                                        ),
+                                        width: double.infinity,
+                                        height: 44,
+                                        child: MaterialButton(
+                                          onPressed: () async {
+                                            final firstUnansweredIndex = studentHomeWorkAnswers.indexWhere((answer) => answer?['answer'] == null);
+                                            if (firstUnansweredIndex != -1) {
+                                              // Scroll to the approximate position of the unanswered question
+                                              scrollController.animateTo(
+                                                firstUnansweredIndex * 300,
+                                                duration: const Duration(milliseconds: 500),
+                                                curve: Curves.easeInOut,
+                                              );
+
+                                              Fluttertoast.showToast(
+                                                msg: "السؤال رقم ${firstUnansweredIndex + 1} لسه من غير اجابة",
+                                                toastLength: Toast.LENGTH_LONG,
+                                                gravity: ToastGravity.BOTTOM,
+                                                backgroundColor: Colors.red,
+                                                textColor: Colors.white,
+                                                fontSize: 16.0,
+                                              );
+
+                                              return;
+                                            }
+                                            LessonsCubit.get(context).changeIsSubmissionLoading();
+                                            await _submitHomework();
+                                            LessonsCubit.get(context,).changeIsSubmissionLoading();
+                                          },
+                                          child: Text(
+                                            'تسليم الواجب',
+                                            style: TextStyles.textStyle16w700(
+                                              context,
+                                            ).copyWith(color: Colors.white),
                                           ),
                                         ),
                                       ),
                                     ),
-                                    Column(
-                                      spacing: 10,
-                                      children: [Row(
-                                        children: [
-                                          Text('${homework['full_score']} الدرجة  ',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black),),
-                                          Spacer(),
-                                          Text('${homework['question_count']} عدد الاسئلة  ',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black)),
-                                        ],
-                                      ),Row(
-                                        children: [
-                                          Text('المحاولات المتبقية ${homework['remaining_attempts']}',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black)),
-                                          Spacer(),
-                                          Text('المحاولات الكلية ${homework['attempt_count']}',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black))],
-                                      ),],),
-
+                                    const SizedBox(height: 20),
                                   ],
                                 ),
                               ),
-                            ),
-                          ],
+                              Container(
+                                decoration: BoxDecoration(color: Colors.white),
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 140.h,
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                    image: DecorationImage(
+                                      image: AssetImage('assets/images/pattern 2.png'),
+                                      fit: BoxFit.fill,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Center(
+                                          child: DottedBorder(
+                                            borderType: BorderType.RRect,
+                                            radius: const Radius.circular(40),
+                                            dashPattern: [6, 4],
+                                            color: AppColors.secondary30,
+                                            strokeWidth: 2,
+                                            child: Container(
+                                              width: 240,
+                                              height: 40,
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius: BorderRadius.circular(40),
+                                              ),
+                                              child: Column(
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                    children: [
+                                                      Icon(
+                                                        MingCuteIcons.mgc_time_duration_line,
+                                                        color: AppColors.secondary30,
+                                                        size: 30,
+                                                      ),
+                                                      const SizedBox(width: 10),
+                                                      Text(
+                                                        _formatTime(remainingSeconds),
+                                                        style: TextStyles.textStyle20w700(context).copyWith(fontSize: 23),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Column(
+                                        spacing: 10,
+                                        children: [Row(
+                                          children: [
+                                            Text('${homework['full_score']} الدرجة  ',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black),),
+                                            Spacer(),
+                                            Text('${homework['question_count']} عدد الاسئلة  ',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black)),
+                                          ],
+                                        ),Row(
+                                          children: [
+                                            Text('المحاولات المتبقية ${homework['remaining_attempts']}',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black)),
+                                            Spacer(),
+                                            Text('المحاولات الكلية ${homework['attempt_count']}',style: TextStyles.textStyle14w700(context).copyWith(color: Colors.black))],
+                                        ),],),
+
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

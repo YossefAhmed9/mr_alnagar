@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../core/utils/app_loaders.dart';
 
 import '../../cubits/courses_cubit/courses_cubit.dart';
 import '../../cubits/courses_cubit/courses_state.dart';
@@ -69,7 +70,7 @@ class FeaturedCourses extends StatelessWidget {
                   ? Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Center(
-                  child: CircularProgressIndicator(
+                  child: AppLoaderInkDrop(
                     color: AppColors.primaryColor,
                   ),
                 ),

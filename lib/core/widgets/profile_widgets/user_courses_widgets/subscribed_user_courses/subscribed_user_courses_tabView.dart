@@ -12,6 +12,7 @@ import 'package:mr_alnagar/features/lessons_view/subscriptions_list_view.dart';
 
 import '../../../../../features/courses_view/videos_view/videos_view.dart';
 import '../../../../utils/app_colors.dart';
+import '../../../../utils/app_loaders.dart';
 import '../../../../utils/text_styles.dart';
 
 class SubscribedUserCoursesTabView extends StatefulWidget {
@@ -39,20 +40,38 @@ class _SubscribedUserCoursesTabViewState extends State<SubscribedUserCoursesTabV
 
         if(ProfileCubit.get(context).inProgressCourses.isEmpty){
           return RefreshIndicator(
-            onRefresh: (){
-              return ProfileCubit.get(context).getMyInProgressCourses();
+            triggerMode: RefreshIndicatorTriggerMode.anywhere,
+
+            onRefresh: ()async{
+
+
+              return await ProfileCubit.get(context).getMyInProgressCourses();
             },
             child: Center(
-              child: Text('No Courses available'),
+              child: SingleChildScrollView(
+                  physics: AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  children: [
+                    Text('No Courses available',
+                    style: TextStyles.textStyle20w700(context).copyWith(
+                      color: AppColors.primaryColor
+                    ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           );
         }
         if (widget.inProgressCourses.isNotEmpty) {
           return RefreshIndicator(
+            triggerMode: RefreshIndicatorTriggerMode.anywhere,
             onRefresh: (){
               return ProfileCubit.get(context).getMyInProgressCourses();
             },
             child: ModalProgressHUD(
+              progressIndicator: AppLoaderHourglass(),
+
              inAsyncCall: isLoading,
               child: Padding(
                 padding: const EdgeInsets.only(left: 5.0),
@@ -64,11 +83,11 @@ class _SubscribedUserCoursesTabViewState extends State<SubscribedUserCoursesTabV
                   thickness: 10,
                   child: ListView.builder(
                     physics: BouncingScrollPhysics(),
-                    itemCount: widget.inProgressCourses.length,
+                    itemCount: ProfileCubit.get(context).inProgressCourses.length,
                     controller: controller,
                     shrinkWrap: true,
                     itemBuilder: (context, index) {
-                      final course = widget.inProgressCourses[index];
+                      final course = ProfileCubit.get(context).inProgressCourses[index];
                       return Stack(
                         children: [
                           Padding(
@@ -144,7 +163,7 @@ class _SubscribedUserCoursesTabViewState extends State<SubscribedUserCoursesTabV
           );
         }
         else{
-          return Center(child: CircularProgressIndicator(),);
+          return Center(child: AppLoaderInkDrop(),);
         }
 
       },

@@ -4,6 +4,7 @@ import 'package:mr_alnagar/core/cubits/home_cubit/home_cubit.dart';
 import 'package:mr_alnagar/core/utils/app_colors.dart';
 import 'package:mr_alnagar/core/utils/text_styles.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../../core/utils/app_loaders.dart';
 
 class LeaderBoard extends StatefulWidget {
   const LeaderBoard({Key? key, required this.categoryID}) : super(key: key);
@@ -26,7 +27,7 @@ class _LeaderBoardState extends State<LeaderBoard> {
       return SvgPicture.network(
         url,
         placeholderBuilder:
-            (context) => Center(child: CircularProgressIndicator()),
+            (context) => Center(child: AppLoaderInkDrop()),
         fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,

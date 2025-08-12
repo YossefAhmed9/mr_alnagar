@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mr_alnagar/core/cubits/profile_cubit/profile_cubit.dart';
 import 'package:pinput/pinput.dart';
+import '../../../core/utils/app_loaders.dart';
 
 import '../../utils/app_colors.dart';
 import '../../utils/text_styles.dart';
@@ -275,7 +276,7 @@ class _PopUpResettingPasswordOTPState
 
                         },
                         child: state is UpdateProfilePasswordLoading
-                            ? const CircularProgressIndicator(color: Colors.white)
+                            ? const AppLoaderInkDrop(color: Colors.white)
                             : Text("التالي", style: TextStyles.textStyle16w700(context).copyWith(color: Colors.white)),
                       ),
                     ),

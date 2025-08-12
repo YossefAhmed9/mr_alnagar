@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mr_alnagar/core/cubits/courses_cubit/courses_cubit.dart';
 import 'package:mr_alnagar/core/cubits/courses_cubit/courses_state.dart';
+import '../../../core/utils/app_loaders.dart';
 
 import '../../cubits/home_cubit/home_cubit.dart';
 import '../../utils/app_colors.dart';
@@ -64,7 +65,7 @@ class CoursesSectionInHome extends StatelessWidget {
                   ? Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Center(
-                      child: CircularProgressIndicator(
+                      child: AppLoaderInkDrop(
                         color: AppColors.primaryColor,
                       ),
                     ),

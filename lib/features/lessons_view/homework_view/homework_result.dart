@@ -7,6 +7,7 @@ import 'package:mr_alnagar/core/utils/app_colors.dart';
 import 'package:mr_alnagar/core/utils/text_styles.dart';
 import 'package:mr_alnagar/features/home_screen/home_layout.dart';
 import 'package:mr_alnagar/features/lessons_view/lesson_reservation_screen.dart';
+import '../../../core/utils/app_loaders.dart';
 
 import '../../../core/cubits/lessons_cubit/lessons_cubit.dart';
 import '../../../core/cubits/lessons_cubit/lessons_state.dart';
@@ -29,7 +30,7 @@ class LessonsHomeworkResultView extends StatelessWidget {
         if (result == null) {
           // Ensure result is loaded
           cubit.getHomeWorkResult(attemptID: attemptID);
-          return Scaffold(body: Center(child: CircularProgressIndicator()));
+          return Scaffold(body: Center(child: AppLoaderInkDrop()));
         }
 
         final List results = result['results'] ?? [];
@@ -80,7 +81,7 @@ class LessonsHomeworkResultView extends StatelessWidget {
                 child: Center(
                   child:
                       LessonsCubit.get(context).isLessonLoading
-                          ? Center(child: CircularProgressIndicator())
+                          ? Center(child: AppLoaderInkDrop())
                           : Text(
                             'ابدا الحصة',
                             style: TextStyles.textStyle16w700(

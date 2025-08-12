@@ -4,12 +4,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:meta/meta.dart';
 import 'package:mr_alnagar/core/network/local/cashe_keys.dart';
 import 'package:mr_alnagar/core/network/local/shared_prefrence.dart';
 import 'package:mr_alnagar/core/network/remote/api_endPoints.dart';
 import 'package:mr_alnagar/core/network/remote/dio_helper.dart';
 
+import '../../../features/lessons_view/videos_view/one_time_lessons_videos_view.dart';
 import '../../utils/text_styles.dart';
 import 'lessons_state.dart';
 
@@ -23,6 +25,31 @@ class LessonsCubit extends Cubit<LessonsState> {
     emit(ChangeTabBarIndex());
   }
 
+
+  List lessonsListForOneTimeClasses=[];
+  Future<void> getLessonsListForOneTimeClasses({required int category_id})async {
+    emit(GetLessonsListForOneTimeClassesLoading());
+    await DioHelper.getData(url: EndPoints.coursesList,
+    query: {
+      "category_id":category_id,
+    },
+    ).
+    then((value) {
+      lessonsListForOneTimeClasses=[];
+      lessonsListForOneTimeClasses.addAll(value.data['data']);
+      emit(GetLessonsListForOneTimeClassesDone());
+    }).catchError((error){
+      emit(GetLessonsListForOneTimeClassesError(error));
+    });
+
+  }
+
+
+bool isOneTimeLessonShowAll=false;
+  void changeIsOneTimeLessonShowAll(){
+    isOneTimeLessonShowAll=! isOneTimeLessonShowAll;
+    emit(IsOneTimeLessonShowAll());
+  }
   // void selectAnswer({required int questionIndex, required int answerIndex}) {
   //   final updated = Map<int, int>.from(state);
   //   updated[questionIndex] = answerIndex;
@@ -120,31 +147,126 @@ class LessonsCubit extends Cubit<LessonsState> {
     });
   }
 
-
-Future<void> oneTimeLessonAccessClass({required int classID,required String code})async{
-    emit(OneTimeLessonAccessClassLoading());
-    await DioHelper.postData(url: EndPoints.accessClass,
-        token: CacheHelper.getData(key: CacheKeys.token),
-        data: {
-      "class_id":classID,
-      "code":code,
-    }).then((value){
+  List oneTimeLessonFiltered=[];
+  Future<void> getFilterationAllOneTimeClasses({required int? categoryID, required int? courseID})async{
+    emit(GetAllOneTimeLessonsLoading());
+    await DioHelper.getData(url: EndPoints.allClasses,
+      query: {
+        "category_id":categoryID,
+        "course_id":courseID,
+      },
+      token: CacheHelper.getData(key: CacheKeys.token),
+    ).then((value){
+      oneTimeLessonFiltered=[];
+      oneTimeLessonFiltered.addAll(value.data['data']);
       print(value.data);
-      emit(OneTimeLessonAccessClassDone());
+      print(value.realUri);
+      print("oneTimeClassesAll");
+      print(oneTimeLessonFiltered);
+      emit(GetAllOneTimeLessonsDone());
+
     }).catchError((error){
-      print(error);
-      emit(OneTimeLessonAccessClassError(error));
+      emit(GetUserLessonsError(error));
     });
   }
 
 
-  var videosByClassesWithCode;
-  Future<void> getVideosByClassesWithCode({required int classID})async{
+  Future<void> oneTimeLessonAccessClass({
+    required int classID,
+    required String code,
+    required BuildContext context
+  }) async {
+    emit(OneTimeLessonAccessClassLoading());
+
+    try {
+      final value = await DioHelper.postData(
+        url: EndPoints.accessClass,
+        token: CacheHelper.getData(key: CacheKeys.token),
+        data: {
+          "class_id": classID,
+          "code": code,
+        },
+      );
+
+      print(value.data);
+
+      // Handle response status or message
+      if (value.statusCode == 200) {
+        Fluttertoast.showToast(
+          msg: value.data['message'] ?? "Class accessed successfully!",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: const Color(0xFF4CAF50), // green
+          textColor: const Color(0xFFFFFFFF),
+          fontSize: 16.0,
+        );
+        await getVideosByClassesWithCode(
+          classID: classID,
+          code: codeController.text,
+        );
+        codeController.clear();
+        Navigator.push(context,CupertinoPageRoute(builder: (context)=>OneTimeLessonsVideosView(videoIndex: classID,)));
+
+        emit(OneTimeLessonAccessClassDone());
+      } else {
+        Fluttertoast.showToast(
+          msg: value.data['message'] ?? "Unable to access class",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: const Color(0xFFF44336), // red
+          textColor: const Color(0xFFFFFFFF),
+          fontSize: 16.0,
+        );
+        codeController.clear();
+        emit(OneTimeLessonAccessClassError(value.data['message']));
+      }
+    } catch (error) {
+      print(error);
+
+      // More detailed error handling for Dio errors
+      String errorMessage = "Something went wrong";
+      if (error is DioError) {
+        if (error.response != null) {
+          errorMessage = error.response?.data['message'] ??
+              "Error: ${error.response?.statusCode}";
+        } else {
+          errorMessage = error.message ?? errorMessage;
+        }
+      } else {
+        errorMessage = error.toString();
+      }
+
+      Fluttertoast.showToast(
+        msg: errorMessage,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: const Color(0xFFF44336), // red
+        textColor: const Color(0xFFFFFFFF),
+        fontSize: 16.0,
+      );
+
+      emit(OneTimeLessonAccessClassError(errorMessage));
+    }
+  }
+
+ // var videosByClassesWithCode;
+  TextEditingController codeController=TextEditingController();
+  var oneTimeLessonData;
+  Future<void> getVideosByClassesWithCode({required int classID,required String code})async{
     emit(GetVideosByClassesWithCodeLoading());
 await DioHelper.getData(url: "${EndPoints.videosByClassesWithCode}/$classID",
-token: CacheHelper.getData(key: CacheKeys.token)
+token: CacheHelper.getData(key: CacheKeys.token),
+  data:{
+    "code":code
+  }
 ).then((value){
+  videos = [];
+  oneTimeLessonData=value.data['data']['class_data'];
+  videos.add(value.data['data']['videos']);
+
+  print("getVideosByClassesWithCode");
   print(value.data);
+  print(value.realUri);
   emit(GetVideosByClassesWithCodeDone());
 }).catchError((error){
   emit(GetVideosByClassesWithCodeError(error));
@@ -512,7 +634,7 @@ print(error);
   List otherLessons=[];
   Future<void> getOtherLessons({
     required int categoryID,
-    String filter = 'other',
+    String? filter ,
   }) async {
     isLoading = true;
     emit(CoursesLoading());
@@ -587,7 +709,7 @@ print(error);
     emit(VideosLoading());
 
     await DioHelper.getData(
-          url: 'videos_by_classes/$classId',
+          url: '${EndPoints.videosByClasses}/$classId',
           token: CacheHelper.getData(key: CacheKeys.token),
         )
         .then((value) {

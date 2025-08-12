@@ -13,6 +13,7 @@ import '../../../../features/authentication/otp_screens/send_otp_screen.dart';
 import '../../../../features/authentication/register_screen/register_screen.dart';
 import '../../../cubits/auth_cubit/auth_cubit/auth_state.dart';
 import '../../../utils/app_colors.dart';
+import '../../../utils/app_loaders.dart';
 import '../../../utils/text_styles.dart';
 
 class SignInWithEmailORPhone extends StatefulWidget {
@@ -184,8 +185,8 @@ class _SignInWithEmailORPhoneState extends State<SignInWithEmailORPhone> {
                         child:
                             AuthCubit.get(context).loading == true
                                 ? Center(
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
+                                  child: AppLoaderInkDrop(
+                                    color: Colors.white,size: 40,
                                   ),
                                 )
                                 : Text(

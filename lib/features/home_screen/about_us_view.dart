@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -7,6 +8,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mr_alnagar/core/cubits/home_cubit/home_cubit.dart';
 import 'package:mr_alnagar/core/utils/app_colors.dart';
 import 'package:mr_alnagar/core/utils/text_styles.dart';
+import '../../../core/utils/app_loaders.dart';
 
 import '../../core/widgets/Home widgets/about_us_records.dart';
 
@@ -38,7 +40,7 @@ class AboutUsView extends StatelessWidget {
           ),
           body: aboutUsData == null
               ? Center(
-            child: CircularProgressIndicator(
+            child: AppLoaderInkDrop(
               color: AppColors.primaryColor,
             ),
           )
@@ -73,7 +75,12 @@ class AboutUsView extends StatelessWidget {
                               borderRadius: BorderRadius.circular(20),
 
                             ),
-                            child: Image.network(aboutUsData['ask_us']['image_url']),
+                            child: CachedNetworkImage(
+                              imageUrl: aboutUsData['ask_us']['image_url'],
+                              placeholder: (context, url) => Image.asset('assets/images/error image.png'),
+                              errorWidget: (context, url, error) => Image.asset('assets/images/error image.png'),
+                            )
+                            ,
                           ),
                           Text(
                               HtmlUnescape().convert('${aboutUsData['ask_us']['description']}')

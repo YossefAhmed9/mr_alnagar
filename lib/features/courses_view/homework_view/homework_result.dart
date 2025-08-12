@@ -8,6 +8,7 @@ import 'package:mr_alnagar/core/cubits/courses_cubit/courses_state.dart';
 import 'package:mr_alnagar/core/utils/app_colors.dart';
 import 'package:mr_alnagar/core/utils/text_styles.dart';
 import 'package:mr_alnagar/features/home_screen/home_layout.dart';
+import '../../../core/utils/app_loaders.dart';
 
 class HomeworkResultView extends StatelessWidget {
   final int attemptID;
@@ -26,7 +27,7 @@ class HomeworkResultView extends StatelessWidget {
           // Ensure result is loaded
           cubit.getHomeWorkResult(attemptID: attemptID);
           return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
+            body: Center(child: AppLoaderInkDrop()),
           );
         }
 

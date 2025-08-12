@@ -17,6 +17,7 @@ import 'package:mr_alnagar/features/lessons_view/quiz_view/exam_view.dart';
 import 'package:mr_alnagar/features/profile_view/homework_results/home_work_results.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import '../../../core/utils/app_loaders.dart';
 
 import '../homework_view/home_work_view.dart';
 import 'next_lesson_video_view.dart';
@@ -301,7 +302,7 @@ class _NextLessonVideoViewState extends State<NextLessonVideoView> {
               context,
             ).classData['title']);
             return isLoad
-                ? Scaffold(body: Center(child: CircularProgressIndicator()))
+                ? Scaffold(body: Center(child: AppLoaderInkDrop()))
                 : Scaffold(
                   key: nextScaffoldKey,
                   appBar:
@@ -343,7 +344,7 @@ class _NextLessonVideoViewState extends State<NextLessonVideoView> {
                             LessonsCubit.get(context).classData == null &&
                                     isControllerReady == false
                                 ? const Center(
-                                  child: CircularProgressIndicator(),
+                                  child: AppLoaderInkDrop(),
                                 )
                                 : Padding(
                                   padding: const EdgeInsets.all(12.0),
@@ -817,7 +818,7 @@ class _NextLessonVideoViewState extends State<NextLessonVideoView> {
                                                                         context,
                                                                       ).isLessonLoading
                                                                       ? Center(
-                                                                        child: CircularProgressIndicator(
+                                                                        child: AppLoaderInkDrop(
                                                                           color:
                                                                               Colors.white,
                                                                         ),
@@ -1028,7 +1029,7 @@ class _NextLessonVideoViewState extends State<NextLessonVideoView> {
                                                                                         null
                                                                                     ? const Center(
                                                                                       child:
-                                                                                          CircularProgressIndicator(),
+                                                                                          AppLoaderInkDrop(),
                                                                                     )
                                                                                     : Padding(
                                                                                       padding: const EdgeInsets.all(

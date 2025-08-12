@@ -4,7 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mr_alnagar/core/cubits/courses_cubit/courses_cubit.dart';
 import 'package:mr_alnagar/core/cubits/courses_cubit/courses_state.dart';
+import 'package:mr_alnagar/core/cubits/lessons_cubit/lessons_cubit.dart';
 import 'package:mr_alnagar/features/courses_view/course_reservation_screen.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:mr_alnagar/features/lessons_view/lesson_reservation_screen.dart';
 
 import '../../utils/app_colors.dart';
 import '../../utils/text_styles.dart';
@@ -25,15 +28,28 @@ class CourseCard extends StatelessWidget {
       child: InkWell(
         splashColor: AppColors.primaryColor,
         onTap: ()async{
-          CoursesCubit.get(context).changeIsCourseLoading();
-          await CoursesCubit.get(context).getCourseByID(id: data['id']);
-          Navigator.push(context, CupertinoPageRoute(builder: (context){
-            return CourseReservationScreen(
-              data:data
-            );
-          }));
-          CoursesCubit.get(context).changeIsCourseLoading();
+         if (data['is_class']==0) {
+           CoursesCubit.get(context).changeIsCourseLoading();
+           await CoursesCubit.get(context).getCourseByID(id: data['id']);
+           Navigator.push(context, CupertinoPageRoute(builder: (context){
+             return CourseReservationScreen(
+                 data:data
+             );
+           }));
+           CoursesCubit.get(context).changeIsCourseLoading();
 
+         }
+         else{
+           CoursesCubit.get(context).changeIsCourseLoading();
+           await LessonsCubit.get(context).getCourseByID(id: data['id']);
+           Navigator.push(context, CupertinoPageRoute(builder: (context){
+             return LessonReservationScreen(
+                 data:LessonsCubit.get(context).courseResult[0]
+             );
+           }));
+           CoursesCubit.get(context).changeIsCourseLoading();
+
+         }
         },
         child: Container(
           // width: 240.w,
@@ -54,16 +70,23 @@ class CourseCard extends StatelessWidget {
               // Course image
               ClipRRect(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(12.r)),
-                child: Image.network(
-                  data['image'], // Replace with your actual course image
+                child: CachedNetworkImage(
+                  imageUrl: data['image'],
                   height: 130.h,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Image.asset(
-                      'assets/images/error image.png',fit: BoxFit.fill,height: 130,width: double.infinity,
-                    );
-                  },
-                ),
+                  placeholder: (context, url) => Image.asset(
+                    'assets/images/error image.png',
+                    fit: BoxFit.fill,
+                    height: 130,
+                    width: double.infinity,
+                  ),
+                  errorWidget: (context, url, error) => Image.asset(
+                    'assets/images/error image.png',
+                    fit: BoxFit.fill,
+                    height: 130,
+                    width: double.infinity,
+                  ),
+                )
               ),
 
               // Course name
@@ -138,7 +161,7 @@ class CourseCard extends StatelessWidget {
                       ),
                     ],
                     // CoursesCubit.get(context).isCourseLoading ?
-                    //     CircularProgressIndicator(color: AppColors.primaryColor,)
+                    //     AppLoaderInkDrop((color: AppColors.primaryColor,)
                     //     :
                     Padding(
                       padding: const EdgeInsets.all(8.0),

@@ -8,6 +8,7 @@ import 'package:mr_alnagar/core/cubits/books_cubit/books_cubit.dart';
 import 'package:mr_alnagar/core/cubits/books_cubit/books_state.dart';
 import 'package:mr_alnagar/core/utils/app_colors.dart';
 import 'package:mr_alnagar/core/utils/text_styles.dart';
+import '../../../core/utils/app_loaders.dart';
 
 class BookReservationStepsListView extends StatefulWidget {
   const BookReservationStepsListView({Key? key, required this.data}) : super(key: key);
@@ -191,7 +192,7 @@ TextEditingController addressController=TextEditingController();
                             },
                           ),
                           const SizedBox(height: 20),
-                          if (isLoading) const CircularProgressIndicator(),
+                          if (isLoading) const AppLoaderInkDrop(),
                         ],
                       ),
                     ),

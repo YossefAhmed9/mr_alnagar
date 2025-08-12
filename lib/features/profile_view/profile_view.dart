@@ -10,6 +10,7 @@ import 'package:mr_alnagar/core/network/local/shared_prefrence.dart';
 import 'package:mr_alnagar/core/utils/app_colors.dart';
 import 'package:mr_alnagar/core/utils/text_styles.dart';
 import 'package:mr_alnagar/core/widgets/profile_widgets/email_pop_up_for_setting_password.dart';
+import '../../../core/utils/app_loaders.dart';
 
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key});
@@ -20,16 +21,16 @@ class ProfileView extends StatelessWidget {
     final cubit = ProfileCubit.get(context);
 
     final emailController = TextEditingController(
-      text: CacheHelper.getData(key: CacheKeys.email),
+      text: cubit.profileInfo['email'],
     );
     final phoneController = TextEditingController(
-      text: CacheHelper.getData(key: CacheKeys.phone),
+      text: cubit.profileInfo['phone'],
     );
     final dadJobController = TextEditingController(
-      text: CacheHelper.getData(key: CacheKeys.parentJob),
+      text: cubit.profileInfo['parent_job'],
     );
     final dadPhoneController = TextEditingController(
-      text: CacheHelper.getData(key: CacheKeys.parentPhone),
+      text: cubit.profileInfo['parent_phone'],
     );
 
     final inputDecoration =
@@ -62,8 +63,10 @@ class ProfileView extends StatelessWidget {
             key: scaffoldKey,
             body:
                 cubit.profileInfo == null
-                    ? const Center(child: CircularProgressIndicator())
-                    : RefreshIndicator(
+                    ? const Center(child: AppLoaderInkDrop())
+                    : BlocBuilder<ProfileCubit, ProfileState>(
+  builder: (context, state) {
+    return RefreshIndicator(
                       onRefresh: () async {
                         cubit.enabled = false;
                         return await cubit.updateProfileInfo(
@@ -343,7 +346,7 @@ class ProfileView extends StatelessWidget {
                                                     cubit.selectedLevelId
                                                         ?.toString() ??
                                                     CacheHelper.getData(
-                                                      key: CacheKeys.levelID,
+                                                      key: CacheKeys.categoryId,
                                                     ).toString(),
                                                 decoration: inputDecoration(
                                                   'الصف الدراسي',
@@ -545,7 +548,9 @@ class ProfileView extends StatelessWidget {
                           );
                         },
                       ),
-                    ),
+                    );
+  },
+),
           ),
         );
       },

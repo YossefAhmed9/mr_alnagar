@@ -6,6 +6,7 @@ import 'package:mr_alnagar/core/cubits/books_cubit/books_state.dart';
 import 'package:mr_alnagar/core/cubits/home_cubit/home_cubit.dart';
 import 'package:mr_alnagar/core/cubits/lessons_cubit/lessons_cubit.dart';
 import 'package:mr_alnagar/core/utils/app_colors.dart';
+import '../../../core/utils/app_loaders.dart';
 
 import '../../utils/text_styles.dart';
 import '../Courses widgets/book_card.dart';
@@ -71,7 +72,7 @@ class ShowingBooksInHome extends StatelessWidget {
                 // ),
                 BooksCubit.get(context).books.isEmpty
                     ? Center(
-                      child: CircularProgressIndicator(
+                      child: AppLoaderInkDrop(
                         color: AppColors.primaryColor,
                       ),
                     )

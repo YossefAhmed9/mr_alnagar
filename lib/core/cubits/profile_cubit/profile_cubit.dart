@@ -137,7 +137,7 @@ class ProfileCubit extends Cubit<ProfileState> {
 
 
         CacheHelper.setData(
-          key: CacheKeys.levelID,
+          key: CacheKeys.categoryId,
           value: user['category']['id'],
         );
         CacheHelper.setData(
@@ -281,8 +281,8 @@ class ProfileCubit extends Cubit<ProfileState> {
 
           if (status.toString().startsWith('2') ||
               status.toString().startsWith('3')) {
-            emit(UpdateProfileInfoDone());
             await getProfileInfo(context: context); // refresh profile info if needed
+            emit(UpdateProfileInfoDone());
             showSnackBar(context, message, 3, Colors.green);
           } else if (status.toString().startsWith('4')) {
             emit(UpdateProfileInfoError(message));
@@ -519,7 +519,7 @@ class ProfileCubit extends Cubit<ProfileState> {
           final keysToRemove = [
             CacheKeys.token,
             CacheKeys.id,
-            CacheKeys.levelID,
+            CacheKeys.categoryId,
             CacheKeys.level,
             CacheKeys.govID,
             CacheKeys.gov,
@@ -624,6 +624,8 @@ class ProfileCubit extends Cubit<ProfileState> {
         )
         .then((value) {
           inProgressCourses = value.data['data'];
+          print("inProgressCourses");
+          print(inProgressCourses);
           emit(GetMyCoursesDone());
         })
         .catchError((error) {

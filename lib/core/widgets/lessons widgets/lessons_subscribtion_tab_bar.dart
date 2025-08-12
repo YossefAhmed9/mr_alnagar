@@ -26,9 +26,19 @@ class LessonsSubscribtionTabBar extends StatelessWidget {
               return LessonsCubit.get(context).getMyLessons(categoryID: CacheHelper.getData(key: CacheKeys.categoryId));
 
             },
-            child: Center(child: Text('لا توجد حصص مشترك فيها',style: TextStyles.textStyle16w700(context).copyWith(color: AppColors.primaryColor),)))
+            child: Center(
+              child: SingleChildScrollView(
+                physics: AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  children: [
+                    Center(child: Text('لا توجد حصص مشترك فيها',style: TextStyles.textStyle16w700(context).copyWith(color: AppColors.primaryColor),)),
+                  ],
+                ),
+              ),
+            ))
 
       :  RefreshIndicator(
+      triggerMode: RefreshIndicatorTriggerMode.anywhere,
       onRefresh:(){
         return LessonsCubit.get(context).getMyLessons(categoryID: CacheHelper.getData(key: CacheKeys.categoryId));
       } ,

@@ -6,6 +6,7 @@ import 'package:mr_alnagar/features/courses_view/book_reservation_screen.dart';
 import 'package:mr_alnagar/features/courses_view/course_reservation_screen.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/text_styles.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class BookCard extends StatefulWidget {
   const BookCard({super.key, required this.index});
@@ -56,24 +57,21 @@ class _BookCardState extends State<BookCard> {
               // Book image
               ClipRRect(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(12.r)),
-                child: Image.network(
-                  BooksCubit.get(
-                    context,
-                  ).books[widget.index]['image'], // Replace with your actual asset
+                child: CachedNetworkImage(
+                  imageUrl: BooksCubit.get(context).books[widget.index]['image'],
                   height: 135.h,
                   fit: BoxFit.cover,
-                  errorBuilder: (
-                    BuildContext context,
-                    Object exception,
-                    StackTrace? stackTrace,
-                  ) {
-                    return Image.asset(
-                      'assets/images/error image.png',
-                      width: 50.w,
-                      height: 50.h,
-                    );
-                  },
-                ),
+                  placeholder: (context, url) => Image.asset(
+                    'assets/images/error image.png',
+                    width: 50.w,
+                    height: 50.h,
+                  ),
+                  errorWidget: (context, url, error) => Image.asset(
+                    'assets/images/error image.png',
+                    width: 50.w,
+                    height: 50.h,
+                  ),
+                )
               ),
               // Title
               Padding(

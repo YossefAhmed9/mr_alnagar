@@ -9,6 +9,7 @@ import 'package:mr_alnagar/core/cubits/lessons_cubit/lessons_cubit.dart';
 import 'package:mr_alnagar/core/utils/app_colors.dart';
 import 'package:mr_alnagar/core/utils/text_styles.dart';
 
+import '../../../core/utils/app_loaders.dart';
 import '../../home_screen/home_layout.dart';
 import '../lesson_reservation_screen.dart';
 import '../subscriptions_list_view.dart';
@@ -41,7 +42,7 @@ class LessonsQuizResultView extends StatelessWidget {
             CupertinoPageRoute(
               builder:
                   (context) =>
-                      LessonVideoScreen(videoIndex: quizData['class_id']),
+                      LessonVideoScreen(videoIndex: quizData['class_id'],),
             ),
           );
           CoursesCubit.get(context).isCourseLoading = false;
@@ -90,6 +91,8 @@ class LessonsQuizResultView extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10.0),
         child: ModalProgressHUD(
+          progressIndicator: AppLoaderHourglass(),
+
           inAsyncCall: CoursesCubit.get(context).isCourseLoading,
 
           child: Stack(

@@ -3,6 +3,7 @@ abstract class EndPoints {
   static String courses = 'courses';
   static String privacyPolicy = 'privacy_policy';
   static String aboutUs = 'about_us';
+  static String coursesList = 'coursesList';
 
   static String levelsForAuthCategories = 'categories';
   static String home = 'home';
@@ -36,7 +37,6 @@ abstract class EndPoints {
   static String videosByCourse = 'videos_by_course';
   static String videosByClass = 'videos_by_classes';
   static String videos = 'videos';
-
   static String myCourses='my-courses';
   static String videosByClassesWithCode='videos_by_classes_with_code';
   static String allClasses='all_classes';
@@ -48,27 +48,22 @@ abstract class EndPoints {
   static String videosByClasses = 'videos_by_classes';
   static String certificate = 'certificate';
   static String enrollmentStatus = 'enrollment-status';
-
   // Profile-related endpoints
   static String profileInfo = 'profile-info';
   static String updateProfileInfo = 'update-profile-info';
   static String updatePassword = 'update-pass';
-
   // Logout endpoints
   static String logout = 'logout';
   static String logoutFromAllDevices = 'logout-all';
-
   // Additional profile-related endpoints
   static String quizzesResults = 'quizzes-results';
   static String studentQuizes = 'student-quizzes';
   static String homeworkResults = 'homework-results';
   static String stats = 'stats';
-
   // OTP Endpoints
   static String otpSend = 'send-otp';
   static String otpVerify = 'verify-otp';
   static String otpResend = 'resend-otp';
-
   // Password Update Endpoint
   static String updateProfilePassword = 'update-profile-password';
 }

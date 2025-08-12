@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:mr_alnagar/core/widgets/Courses%20widgets/book_card.dart';
 import '../../cubits/books_cubit/books_cubit.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class BooksTabBarView extends StatefulWidget {
   const BooksTabBarView({Key? key, }) : super(key: key);
@@ -28,7 +29,7 @@ class _BooksTabBarViewState extends State<BooksTabBarView> {
           interactive: true,
           thickness: 10,
           child: ListView.builder(
-              physics: BouncingScrollPhysics(),
+              physics: AlwaysScrollableScrollPhysics(),
               itemCount: BooksCubit.get(context).books.length,
               controller: controller,
               shrinkWrap: true,

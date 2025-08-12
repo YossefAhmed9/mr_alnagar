@@ -8,6 +8,7 @@ import 'package:mr_alnagar/core/utils/text_styles.dart';
 import 'package:mr_alnagar/core/widgets/Home%20widgets/google_maps_container.dart';
 import 'package:solar_icons/solar_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../core/utils/app_loaders.dart';
 
 
 class ContactUs extends StatelessWidget {
@@ -42,7 +43,7 @@ class ContactUs extends StatelessWidget {
                 child:
                     HomeCubit.get(context).contactUsData == null
                         ? Center(
-                          child: CircularProgressIndicator(
+                          child: AppLoaderInkDrop(
                             color: AppColors.primaryColor,
                           ),
                         )
@@ -84,7 +85,7 @@ class ContactUs extends StatelessWidget {
               // Contact Info (Phone and Email)
               HomeCubit.get(context).contactUsData == null
                   ? Center(
-                    child: CircularProgressIndicator(
+                    child: AppLoaderInkDrop(
                       color: AppColors.primaryColor,
                     ),
                   )

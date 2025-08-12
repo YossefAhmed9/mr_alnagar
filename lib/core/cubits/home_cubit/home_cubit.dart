@@ -118,6 +118,7 @@ class HomeCubit extends Cubit<HomeState> {
   List homeSliders = [];
   List commonQuestion = [];
   var faqQuestion;
+  List classesByCodeInHome=[];
   List rates = [];
   var contactUsData;
   var howToUse;
@@ -150,6 +151,7 @@ class HomeCubit extends Cubit<HomeState> {
           courses = data['courses'];
           categories = data['categories'];
           heroesByCategory = data['heroes_by_category'];
+          classesByCodeInHome = data['classes_by_code'];
 
           emit(GETHomeDataDone());
         })

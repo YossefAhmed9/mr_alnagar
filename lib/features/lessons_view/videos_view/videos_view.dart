@@ -17,7 +17,9 @@ import 'package:mr_alnagar/features/lessons_view/quiz_view/exam_view.dart';
 import 'package:mr_alnagar/features/profile_view/homework_results/home_work_results.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import '../../../core/utils/app_loaders.dart';
 
+import '../../../main.dart';
 import '../homework_view/home_work_view.dart';
 import 'next_lesson_video_view.dart';
 
@@ -301,649 +303,997 @@ class _LessonVideoScreenState extends State<LessonVideoScreen> {
         return BlocBuilder<LessonsCubit, LessonsState>(
           builder: (context, state) {
             return isLoad
-                ? Scaffold(body: Center(child: CircularProgressIndicator()))
-                : Scaffold(
-                  key: scaffoldKey,
-                  appBar:
-                      isFullScreen
-                          ? null
-                          : AppBar(
-                            leading: IconButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              icon: Icon(
-                                Icons.arrow_back_ios_outlined,
-                                size: 30,
-                                weight: 80,
-                                color: AppColors.primaryColor,
-                              ),
-                            ),
-                            actions: [
-                              Padding(
-                                padding: const EdgeInsets.only(right: 15.0),
-                                child: Text(
-                                  LessonsCubit.get(
-                                    context,
-                                  ).classData['title'],
-                                  style: TextStyles.textStyle16w700(context),
+                ? Scaffold(body: Center(child: AppLoaderInkDrop()))
+                : InternetAwareWrapper(
+              onInternetRestored: [
+                ()=>showLoadOnRefresh(),
+              ],
+                  child: Scaffold(
+                    key: scaffoldKey,
+                    appBar:
+                        isFullScreen
+                            ? null
+                            : AppBar(
+                              leading: IconButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                icon: Icon(
+                                  Icons.arrow_back_ios_outlined,
+                                  size: 30,
+                                  weight: 80,
+                                  color: AppColors.primaryColor,
                                 ),
                               ),
-                            ],
-                          ),
-                  body: RefreshIndicator(
-                    triggerMode: RefreshIndicatorTriggerMode.anywhere,
-                    onRefresh: () async {
-                      return showLoadOnRefresh();
-                    },
-                    child: Directionality(
-                      textDirection: TextDirection.rtl,
-                      child: SafeArea(
-                        child:
-                            LessonsCubit.get(context).classData == null &&
-                                    isControllerReady == false
-                                ? const Center(
-                                  child: CircularProgressIndicator(),
-                                )
-                                : Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Column(
-                                    children: [
-                                      Directionality(
-                                        textDirection: TextDirection.ltr,
+                              actions: [
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 15.0),
+                                  child: Text(
+                                    LessonsCubit.get(
+                                      context,
+                                    ).classData['title'],
+                                    style: TextStyles.textStyle16w700(context),
+                                  ),
+                                ),
+                              ],
+                            ),
+                    body: RefreshIndicator(
+                      triggerMode: RefreshIndicatorTriggerMode.anywhere,
+                      onRefresh: () async {
+                        return showLoadOnRefresh();
+                      },
+                      child: Directionality(
+                        textDirection: TextDirection.rtl,
+                        child: SafeArea(
+                          child:
+                              LessonsCubit.get(context).classData == null &&
+                                      isControllerReady == false
+                                  ? const Center(
+                                    child: AppLoaderInkDrop(),
+                                  )
+                                  : Padding(
+                                    padding: const EdgeInsets.all(12.0),
+                                    child: Column(
+                                      children: [
+                                        Directionality(
+                                          textDirection: TextDirection.ltr,
 
-                                        child: YoutubePlayerBuilder(
-                                          onEnterFullScreen: () {
-                                            setState(() {
-                                              isFullScreen = true;
-                                            });
-                                          },
-                                          onExitFullScreen: () {
-                                            isFullScreen = false;
-                                          },
-                                          player: YoutubePlayer(
-                                            controller: controller,
-                                            bottomActions: [
-                                              const SizedBox(width: 8.0),
-                                              CurrentPosition(
-                                                controller: controller,
-                                              ),
-                                              const SizedBox(width: 8.0),
-                                              ProgressBar(
-                                                isExpanded: true,
-                                                controller: controller,
-                                                colors: ProgressBarColors(
-                                                  backgroundColor: Colors.grey,
-                                                  handleColor: Colors.green,
-                                                  bufferedColor: Colors.white10,
-                                                  playedColor: Colors.green,
-                                                ),
-                                              ),
-
-                                              IconButton(
-                                                onPressed: () {
-                                                  setState(() {
-                                                    hd = !hd;
-                                                  });
-                                                },
-                                                icon: Icon(
-                                                  hd
-                                                      ? Icons.hd
-                                                      : Icons.hd_outlined,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-
-                                              RemainingDuration(
-                                                controller: controller,
-                                              ),
-                                              const SizedBox(width: 4.0),
-                                              PlaybackSpeedButton(
-                                                controller: controller,
-                                              ),
-
-                                              const SizedBox(width: 4.0),
-                                              FullScreenButton(
-                                                controller: controller,
-                                              ),
-                                            ],
-
-                                            showVideoProgressIndicator: true,
-                                            controlsTimeOut: const Duration(
-                                              seconds: 3,
-                                            ),
-                                            progressIndicatorColor: Colors.red,
-                                            onReady: () {
+                                          child: YoutubePlayerBuilder(
+                                            onEnterFullScreen: () {
                                               setState(() {
-                                                isControllerReady = true;
+                                                isFullScreen = true;
                                               });
                                             },
-                                          ),
-                                          builder:
-                                              (context, player) => Column(
-                                                children: [
-                                                  ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          12,
-                                                        ),
-                                                    child: player,
+                                            onExitFullScreen: () {
+                                              isFullScreen = false;
+                                            },
+                                            player: YoutubePlayer(
+                                              controller: controller,
+                                              bottomActions: [
+                                                const SizedBox(width: 8.0),
+                                                CurrentPosition(
+                                                  controller: controller,
+                                                ),
+                                                const SizedBox(width: 8.0),
+                                                ProgressBar(
+                                                  isExpanded: true,
+                                                  controller: controller,
+                                                  colors: ProgressBarColors(
+                                                    backgroundColor: Colors.grey,
+                                                    handleColor: Colors.green,
+                                                    bufferedColor: Colors.white10,
+                                                    playedColor: Colors.green,
                                                   ),
-                                                  const SizedBox(height: 15),
-                                                  Row(
-                                                    children: [
-                                                      Expanded(
-                                                        child: Text(
-                                                          'الفيديو الحالي',
-                                                          style: TextStyles.textStyle14w700(
-                                                            context,
-                                                          ).copyWith(
-                                                            color:
-                                                                AppColors
-                                                                    .primaryColor,
-                                                          ),
-                                                          maxLines: 3,
-                                                          overflow:
-                                                              TextOverflow
-                                                                  .ellipsis,
-                                                        ),
-                                                      ),
-                                                      Text(
-                                                        currentVideoIndex <
-                                                                _videos.length
-                                                            ? _videos[currentVideoIndex]['title']
-                                                            : '',
-                                                        style: const TextStyle(
-                                                          fontSize: 18,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  const SizedBox(height: 8),
-                                                  Text(
-                                                    currentVideoIndex <
-                                                            _videos.length
-                                                        ? _videos[currentVideoIndex]['description']
-                                                        : '',
-                                                    style: TextStyle(
-                                                      color: Colors.grey[700],
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                        ),
-                                      ),
+                                                ),
 
-                                      // _videos.isEmpty
-                                      //     ? Center(
-                                      //       child: Text(
-                                      //         'لا توجد فيديوهات حاليا, ستتوفر قريبا',
-                                      //         style: TextStyles.textStyle16w700(
-                                      //           context,
-                                      //         ).copyWith(
-                                      //           color: AppColors.primaryColor,
-                                      //         ),
-                                      //       ),
-                                      //     )
-                                      //     :
-                                      Expanded(
-                                        child: Container(
-                                          // height: MediaQuery.sizeOf(context).height * 0.5,
-                                          width: double.infinity,
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                            vertical: 5,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: AppColors.secondary8,
-                                            borderRadius: BorderRadius.circular(
-                                              20,
+                                                IconButton(
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      hd = !hd;
+                                                    });
+                                                  },
+                                                  icon: Icon(
+                                                    hd
+                                                        ? Icons.hd
+                                                        : Icons.hd_outlined,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+
+                                                RemainingDuration(
+                                                  controller: controller,
+                                                ),
+                                                const SizedBox(width: 4.0),
+                                                PlaybackSpeedButton(
+                                                  controller: controller,
+                                                ),
+
+                                                const SizedBox(width: 4.0),
+                                                FullScreenButton(
+                                                  controller: controller,
+                                                ),
+                                              ],
+
+                                              showVideoProgressIndicator: true,
+                                              controlsTimeOut: const Duration(
+                                                seconds: 3,
+                                              ),
+                                              progressIndicatorColor: Colors.red,
+                                              onReady: () {
+                                                setState(() {
+                                                  isControllerReady = true;
+                                                });
+                                              },
                                             ),
-                                          ),
-                                          child: Scrollbar(
-                                            controller: scrollController,
-                                            child: SingleChildScrollView(
-                                              controller: scrollController,
-                                              child: Column(
-                                                children: [
-                                                  ..._videos.asMap().entries.map((
-                                                    entry,
-                                                  ) {
-                                                    final videoIndex =
-                                                        entry.key;
-                                                    final video = entry.value;
-                                                    return InkWell(
-                                                      onTap: () {
-                                                        _playVideo(video);
-                                                      },
-                                                      child: Container(
-                                                        margin:
-                                                            const EdgeInsets.symmetric(
-                                                              horizontal: 12,
-                                                              vertical: 6,
-                                                            ),
-                                                        padding:
-                                                            const EdgeInsets.all(
-                                                              8,
-                                                            ),
-                                                        decoration: BoxDecoration(
-                                                          color: Colors.white,
-                                                          border:
-                                                              video['index'] ==
-                                                                      currentVideoIndex
-                                                                  ? Border.all(
-                                                                    color:
-                                                                        AppColors
-                                                                            .primaryColor,
-                                                                    width: 2,
-                                                                  )
-                                                                  : null,
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                12,
-                                                              ),
-                                                          boxShadow: [
-                                                            BoxShadow(
+                                            builder:
+                                                (context, player) => Column(
+                                                  children: [
+                                                    ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            12,
+                                                          ),
+                                                      child: player,
+                                                    ),
+                                                    const SizedBox(height: 15),
+                                                    Row(
+                                                      children: [
+                                                        Expanded(
+                                                          child: Text(
+                                                            'الفيديو الحالي',
+                                                            style: TextStyles.textStyle14w700(
+                                                              context,
+                                                            ).copyWith(
                                                               color:
-                                                                  Colors
-                                                                      .black12,
-                                                              blurRadius: 4,
-                                                              offset:
-                                                                  const Offset(
-                                                                    0,
-                                                                    2,
-                                                                  ),
+                                                                  AppColors
+                                                                      .primaryColor,
                                                             ),
-                                                          ],
+                                                            maxLines: 3,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                          ),
                                                         ),
-                                                        child: Row(
-                                                          children: [
-                                                            ClipRRect(
-                                                              borderRadius:
-                                                                  BorderRadius.circular(
-                                                                    12,
-                                                                  ),
-                                                              child: Stack(
-                                                                children: [
-                                                                  Image.network(
-                                                                    video['image'],
-                                                                    width: 120,
-                                                                    height: 80,
-                                                                    fit:
-                                                                        BoxFit
-                                                                            .cover,
-                                                                    errorBuilder: (
-                                                                      context,
-                                                                      error,
-                                                                      stackTrace,
-                                                                    ) {
-                                                                      return Image.asset(
-                                                                        'assets/images/error image.png',
-                                                                        fit:
-                                                                            BoxFit.cover,
-                                                                        height:
-                                                                            80,
-                                                                        width:
-                                                                            120,
-                                                                      );
-                                                                    },
-                                                                  ),
-                                                                  Container(
-                                                                    width: 120,
-                                                                    height: 80,
-                                                                    alignment:
-                                                                        Alignment
-                                                                            .bottomRight,
-                                                                    padding:
-                                                                        const EdgeInsets.all(
-                                                                          4,
-                                                                        ),
-                                                                    child: Text(
-                                                                      video['duration'],
-                                                                      style: const TextStyle(
-                                                                        color:
-                                                                            Colors.black,
-                                                                        fontSize:
-                                                                            13,
-                                                                        fontWeight:
-                                                                            FontWeight.w900,
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                ],
+                                                        Text(
+                                                          currentVideoIndex <
+                                                                  _videos.length
+                                                              ? _videos[currentVideoIndex]['title']
+                                                              : '',
+                                                          style: const TextStyle(
+                                                            fontSize: 18,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    const SizedBox(height: 8),
+                                                    Text(
+                                                      currentVideoIndex <
+                                                              _videos.length
+                                                          ? _videos[currentVideoIndex]['description']
+                                                          : '',
+                                                      style: TextStyle(
+                                                        color: Colors.grey[700],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                          ),
+                                        ),
+
+                                        // _videos.isEmpty
+                                        //     ? Center(
+                                        //       child: Text(
+                                        //         'لا توجد فيديوهات حاليا, ستتوفر قريبا',
+                                        //         style: TextStyles.textStyle16w700(
+                                        //           context,
+                                        //         ).copyWith(
+                                        //           color: AppColors.primaryColor,
+                                        //         ),
+                                        //       ),
+                                        //     )
+                                        //     :
+                                        Expanded(
+                                          child: Container(
+                                            // height: MediaQuery.sizeOf(context).height * 0.5,
+                                            width: double.infinity,
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 5,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: AppColors.secondary8,
+                                              borderRadius: BorderRadius.circular(
+                                                20,
+                                              ),
+                                            ),
+                                            child: Scrollbar(
+                                              controller: scrollController,
+                                              child: SingleChildScrollView(
+                                                controller: scrollController,
+                                                child: Column(
+                                                  children: [
+                                                    ..._videos.asMap().entries.map((
+                                                      entry,
+                                                    ) {
+                                                      final videoIndex =
+                                                          entry.key;
+                                                      final video = entry.value;
+                                                      return InkWell(
+                                                        onTap: () {
+                                                          _playVideo(video);
+                                                        },
+                                                        child: Container(
+                                                          margin:
+                                                              const EdgeInsets.symmetric(
+                                                                horizontal: 12,
+                                                                vertical: 6,
                                                               ),
-                                                            ),
-                                                            const SizedBox(
-                                                              width: 12,
-                                                            ),
-                                                            Expanded(
-                                                              child: Column(
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .start,
-                                                                children: [
-                                                                  Text(
-                                                                    video['title'],
-                                                                    style: const TextStyle(
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
+                                                          padding:
+                                                              const EdgeInsets.all(
+                                                                8,
+                                                              ),
+                                                          decoration: BoxDecoration(
+                                                            color: Colors.white,
+                                                            border:
+                                                                video['index'] ==
+                                                                        currentVideoIndex
+                                                                    ? Border.all(
+                                                                      color:
+                                                                          AppColors
+                                                                              .primaryColor,
+                                                                      width: 2,
+                                                                    )
+                                                                    : null,
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  12,
+                                                                ),
+                                                            boxShadow: [
+                                                              BoxShadow(
+                                                                color:
+                                                                    Colors
+                                                                        .black12,
+                                                                blurRadius: 4,
+                                                                offset:
+                                                                    const Offset(
+                                                                      0,
+                                                                      2,
                                                                     ),
-                                                                  ),
-                                                                  if (video['status'] !=
-                                                                      null)
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          child: Row(
+                                                            children: [
+                                                              ClipRRect(
+                                                                borderRadius:
+                                                                    BorderRadius.circular(
+                                                                      12,
+                                                                    ),
+                                                                child: Stack(
+                                                                  children: [
+                                                                    Image.network(
+                                                                      video['image'],
+                                                                      width: 120,
+                                                                      height: 80,
+                                                                      fit:
+                                                                          BoxFit
+                                                                              .cover,
+                                                                      errorBuilder: (
+                                                                        context,
+                                                                        error,
+                                                                        stackTrace,
+                                                                      ) {
+                                                                        return Image.asset(
+                                                                          'assets/images/error image.png',
+                                                                          fit:
+                                                                              BoxFit.cover,
+                                                                          height:
+                                                                              80,
+                                                                          width:
+                                                                              120,
+                                                                        );
+                                                                      },
+                                                                    ),
                                                                     Container(
-                                                                      margin: const EdgeInsets.symmetric(
-                                                                        vertical:
+                                                                      width: 120,
+                                                                      height: 80,
+                                                                      alignment:
+                                                                          Alignment
+                                                                              .bottomRight,
+                                                                      padding:
+                                                                          const EdgeInsets.all(
                                                                             4,
-                                                                      ),
-                                                                      padding: const EdgeInsets.symmetric(
-                                                                        horizontal:
-                                                                            8,
-                                                                        vertical:
-                                                                            4,
-                                                                      ),
-                                                                      decoration: BoxDecoration(
-                                                                        color: getStatusColor(
-                                                                          video['status'],
-                                                                        ),
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(
-                                                                              12,
-                                                                            ),
-                                                                      ),
+                                                                          ),
                                                                       child: Text(
-                                                                        getStatusLabel(
-                                                                          video['status'],
-                                                                        ),
+                                                                        video['duration'],
                                                                         style: const TextStyle(
                                                                           color:
-                                                                              Colors.white,
+                                                                              Colors.black,
                                                                           fontSize:
-                                                                              12,
+                                                                              13,
                                                                           fontWeight:
-                                                                              FontWeight.bold,
+                                                                              FontWeight.w900,
                                                                         ),
                                                                       ),
                                                                     ),
-                                                                  if (video['index'] ==
-                                                                      currentVideoIndex)
-                                                                    Row(
-                                                                      children: [
-                                                                        Icon(
-                                                                          Icons
-                                                                              .play_circle_fill,
-                                                                          color:
-                                                                              AppColors.primaryColor,
-                                                                          size:
-                                                                              16,
-                                                                        ),
-                                                                        const SizedBox(
-                                                                          width:
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                width: 12,
+                                                              ),
+                                                              Expanded(
+                                                                child: Column(
+                                                                  crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .start,
+                                                                  children: [
+                                                                    Text(
+                                                                      video['title'],
+                                                                      style: const TextStyle(
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .bold,
+                                                                      ),
+                                                                    ),
+                                                                    if (video['status'] !=
+                                                                        null)
+                                                                      Container(
+                                                                        margin: const EdgeInsets.symmetric(
+                                                                          vertical:
                                                                               4,
                                                                         ),
-                                                                        Text(
-                                                                          'الفيديو الحالي',
-                                                                          style: TextStyle(
+                                                                        padding: const EdgeInsets.symmetric(
+                                                                          horizontal:
+                                                                              8,
+                                                                          vertical:
+                                                                              4,
+                                                                        ),
+                                                                        decoration: BoxDecoration(
+                                                                          color: getStatusColor(
+                                                                            video['status'],
+                                                                          ),
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(
+                                                                                12,
+                                                                              ),
+                                                                        ),
+                                                                        child: Text(
+                                                                          getStatusLabel(
+                                                                            video['status'],
+                                                                          ),
+                                                                          style: const TextStyle(
                                                                             color:
-                                                                                AppColors.primaryColor,
+                                                                                Colors.white,
                                                                             fontSize:
                                                                                 12,
                                                                             fontWeight:
                                                                                 FontWeight.bold,
                                                                           ),
                                                                         ),
-                                                                      ],
+                                                                      ),
+                                                                    if (video['index'] ==
+                                                                        currentVideoIndex)
+                                                                      Row(
+                                                                        children: [
+                                                                          Icon(
+                                                                            Icons
+                                                                                .play_circle_fill,
+                                                                            color:
+                                                                                AppColors.primaryColor,
+                                                                            size:
+                                                                                16,
+                                                                          ),
+                                                                          const SizedBox(
+                                                                            width:
+                                                                                4,
+                                                                          ),
+                                                                          Text(
+                                                                            'الفيديو الحالي',
+                                                                            style: TextStyle(
+                                                                              color:
+                                                                                  AppColors.primaryColor,
+                                                                              fontSize:
+                                                                                  12,
+                                                                              fontWeight:
+                                                                                  FontWeight.bold,
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    Text(
+                                                                      video['description'],
+                                                                      maxLines: 2,
+                                                                      overflow:
+                                                                          TextOverflow
+                                                                              .ellipsis,
+                                                                      style: TextStyle(
+                                                                        color:
+                                                                            Colors
+                                                                                .grey[700],
+                                                                        fontSize:
+                                                                            12,
+                                                                      ),
                                                                     ),
-                                                                  Text(
-                                                                    video['description'],
-                                                                    maxLines: 2,
-                                                                    overflow:
-                                                                        TextOverflow
-                                                                            .ellipsis,
-                                                                    style: TextStyle(
-                                                                      color:
-                                                                          Colors
-                                                                              .grey[700],
-                                                                      fontSize:
-                                                                          12,
-                                                                    ),
-                                                                  ),
-                                                                ],
+                                                                  ],
+                                                                ),
                                                               ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    );
-                                                  }).toList(),
-
-                                                  // ✅ This is your extra button after the videos
-                                                  LessonsCubit.get(
-                                                            context,
-                                                          ).classData['next_class_id'] !=
-                                                          null
-                                                      ? Column(
-                                                        children: [
-                                                          const SizedBox(
-                                                            height: 12,
+                                                            ],
                                                           ),
-                                                            Container(
-                                                              width: 150,
-                                                              height: 70,
-                                                              child: ElevatedButton(
-                                                                onPressed: () async {
-                                                                  setState(() {
-                                                                    LessonsCubit.get(context).isLessonLoading = true;
-                                                                  });
+                                                        ),
+                                                      );
+                                                    }).toList(),
 
-                                                                  await LessonsCubit.get(context).getClassDataByID(classId: LessonsCubit.get(context).classData?['next_class_id'] ?? 0, context: context,);
-
-                                                                  final classData =
-                                                                      LessonsCubit.get(context).classData;
-                                                                  // Quiz required check
-                                                                  if (classData['has_quizzes'] == true && classData['quiz_required'] == 1) {
+                                                    // ✅ This is your extra button after the videos
+                                                    LessonsCubit.get(
+                                                              context,
+                                                            ).classData['next_class_id'] !=
+                                                            null
+                                                        ? Column(
+                                                          children: [
+                                                            const SizedBox(
+                                                              height: 12,
+                                                            ),
+                                                              Container(
+                                                                width: 150,
+                                                                height: 70,
+                                                                child: ElevatedButton(
+                                                                  onPressed: () async {
                                                                     setState(() {
-                                                                      LessonsCubit.get(context).isLessonLoading = false;
+                                                                      LessonsCubit.get(context).isLessonLoading = true;
                                                                     });
-                                                                    showDialog(
-                                                                      context: context,
-                                                                      barrierDismissible: true,
-                                                                      builder:
-                                                                          (
-                                                                            context,
-                                                                          ) => WillPopScope(
-                                                                            onWillPop: () async => false,
-                                                                            child: Directionality(
-                                                                              textDirection: TextDirection.rtl,
-                                                                              child: AlertDialog(
-                                                                                backgroundColor: Colors.white,
-                                                                                title: Text('تنبيهات مهمة',
-                                                                                  textAlign: TextAlign.center,
-                                                                                ),
-                                                                                titleTextStyle: TextStyles.textStyle16w700(context).copyWith(
-                                                                                  color: AppColors.secondary,
-                                                                                ),
-                                                                                content: SingleChildScrollView(
-                                                                                  child: Column(
-                                                                                    children: [
-                                                                                      Image.asset(
-                                                                                        'assets/images/pic2.png',
-                                                                                      ),
-                                                                                      Text(
-                                                                                        'يجب حل الامتحان اولا',
-                                                                                        style: TextStyles.textStyle16w700(context).copyWith(color: AppColors.secondary,
-                                                                                        ),
-                                                                                      ),
-                                                                                    ],
-                                                                                  ),
-                                                                                ),
 
-                                                                                actions: [
-                                                                                  InkWell(
-                                                                                    onTap: () async {
-                                                                                      await LessonsCubit.get(context).startQuiz(quizId: classData['quiz_id'],);
-                                                                                      showDialog(
-                                                                                        context: context,
-                                                                                        barrierDismissible: true,
-                                                                                        builder:
-                                                                                            (context) => WillPopScope(
-                                                                                              onWillPop: () async => false,
-                                                                                              child: Directionality(
-                                                                                                textDirection: TextDirection.rtl,
-                                                                                                child: AlertDialog(
-                                                                                                  backgroundColor: Colors.white,
-                                                                                                  title: Text(
-                                                                                                    'تنبيهات مهمة',
-                                                                                                    textAlign: TextAlign.center,
-                                                                                                  ),
-                                                                                                  titleTextStyle: TextStyles.textStyle16w700(context).copyWith(color: AppColors.secondary,
-                                                                                                  ),
-                                                                                                  content: SingleChildScrollView(
-                                                                                                    child: Column(
-                                                                                                      children: [
-                                                                                                        Image.asset(
-                                                                                                          'assets/images/pic2.png',
-                                                                                                        ),
-                                                                                                        Container(
-                                                                                                          decoration: BoxDecoration(
-                                                                                                            color: const Color(0xFFFDF3D0,),
-                                                                                                            borderRadius: BorderRadius.circular(15,),
+                                                                    await LessonsCubit.get(context).getClassDataByID(classId: LessonsCubit.get(context).classData?['next_class_id'] ?? 0, context: context,);
+
+                                                                    final classData =
+                                                                        LessonsCubit.get(context).classData;
+                                                                    // Quiz required check
+                                                                    if (classData['has_quizzes'] == true && classData['quiz_required'] == 1) {
+                                                                      setState(() {
+                                                                        LessonsCubit.get(context).isLessonLoading = false;
+                                                                      });
+                                                                      showDialog(
+                                                                        context: context,
+                                                                        barrierDismissible: true,
+                                                                        builder:
+                                                                            (
+                                                                              context,
+                                                                            ) => WillPopScope(
+                                                                              onWillPop: () async => false,
+                                                                              child: Directionality(
+                                                                                textDirection: TextDirection.rtl,
+                                                                                child: AlertDialog(
+                                                                                  backgroundColor: Colors.white,
+                                                                                  title: Text('تنبيهات مهمة',
+                                                                                    textAlign: TextAlign.center,
+                                                                                  ),
+                                                                                  titleTextStyle: TextStyles.textStyle16w700(context).copyWith(
+                                                                                    color: AppColors.secondary,
+                                                                                  ),
+                                                                                  content: SingleChildScrollView(
+                                                                                    child: Column(
+                                                                                      children: [
+                                                                                        Image.asset(
+                                                                                          'assets/images/pic2.png',
+                                                                                        ),
+                                                                                        Text(
+                                                                                          'يجب حل الامتحان اولا',
+                                                                                          style: TextStyles.textStyle16w700(context).copyWith(color: AppColors.secondary,
+                                                                                          ),
+                                                                                        ),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+
+                                                                                  actions: [
+                                                                                    InkWell(
+                                                                                      onTap: () async {
+                                                                                        await LessonsCubit.get(context).startQuiz(quizId: classData['quiz_id'],);
+                                                                                        showDialog(
+                                                                                          context: context,
+                                                                                          barrierDismissible: true,
+                                                                                          builder:
+                                                                                              (context) => WillPopScope(
+                                                                                                onWillPop: () async => false,
+                                                                                                child: Directionality(
+                                                                                                  textDirection: TextDirection.rtl,
+                                                                                                  child: AlertDialog(
+                                                                                                    backgroundColor: Colors.white,
+                                                                                                    title: Text(
+                                                                                                      'تنبيهات مهمة',
+                                                                                                      textAlign: TextAlign.center,
+                                                                                                    ),
+                                                                                                    titleTextStyle: TextStyles.textStyle16w700(context).copyWith(color: AppColors.secondary,
+                                                                                                    ),
+                                                                                                    content: SingleChildScrollView(
+                                                                                                      child: Column(
+                                                                                                        children: [
+                                                                                                          Image.asset(
+                                                                                                            'assets/images/pic2.png',
                                                                                                           ),
-                                                                                                          child: Column(
-                                                                                                            children: [
-                                                                                                              LessonsCubit.get(context).quiz == null
-                                                                                                                  ? const Center(
-                                                                                                                    child:
-                                                                                                                        CircularProgressIndicator(),
-                                                                                                                  )
-                                                                                                                  : Padding(
-                                                                                                                    padding: const EdgeInsets.all(
-                                                                                                                      8.0,
-                                                                                                                    ),
-                                                                                                                    child: Text(
-                                                                                                                      HtmlUnescape().convert(
-                                                                                                                        LessonsCubit.get(context).quiz['quiz']['description'].replaceAll(
-                                                                                                                              RegExp(r'<style[^>]*>[\s\S]*?</style>',caseSensitive:
-                                                                                                                                    false,
-                                                                                                                              ), '',).replaceAll(RegExp(r'<[^>]+>',), '',).replaceAll(
-                                                                                                                              RegExp(r'\s+',), ' ',).trim(),
-                                                                                                                      ),
-                                                                                                                      style: TextStyles.textStyle16w700(context).copyWith(
-                                                                                                                        color: AppColors.secondary,
-                                                                                                                      ),
-                                                                                                                      textDirection: TextDirection.rtl,
-                                                                                                                      textAlign: TextAlign.right,
-                                                                                                                    ),
-                                                                                                                  ),
-                                                                                                              Padding(
-                                                                                                                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16,),
-                                                                                                                child: Container(
-                                                                                                                  decoration: BoxDecoration(color: AppColors.primaryColor,
-                                                                                                                    borderRadius: BorderRadius.circular(25,),
-                                                                                                                  ),
-                                                                                                                  width: double.infinity,
-                                                                                                                  height: 44,
-                                                                                                                  child: MaterialButton(
-                                                                                                                    onPressed: () async {
-                                                                                                                      await LessonsCubit.get(context).startQuiz(quizId: LessonsCubit.get(context).classData['quiz_id'],
-                                                                                                                      );
-                                                                                                                      Navigator.pop(context);
-                                                                                                                      Navigator.pushAndRemoveUntil(context,CupertinoPageRoute(
-                                                                                                                          builder:
-                                                                                                                              (context,) => LessonsExamView(quizID: LessonsCubit.get(context).classData['quiz_id'],
-                                                                                                                              ),
-                                                                                                                        ),
-                                                                                                                        (route,) => false,
-                                                                                                                      );
-                                                                                                                    },
-                                                                                                                    child: Container(
-                                                                                                                      width: double.infinity,
-                                                                                                                      decoration: BoxDecoration(
-                                                                                                                        color: AppColors.primaryColor,
+                                                                                                          Container(
+                                                                                                            decoration: BoxDecoration(
+                                                                                                              color: const Color(0xFFFDF3D0,),
+                                                                                                              borderRadius: BorderRadius.circular(15,),
+                                                                                                            ),
+                                                                                                            child: Column(
+                                                                                                              children: [
+                                                                                                                LessonsCubit.get(context).quiz == null
+                                                                                                                    ? const Center(
+                                                                                                                      child:
+                                                                                                                          AppLoaderInkDrop(),
+                                                                                                                    )
+                                                                                                                    : Padding(
+                                                                                                                      padding: const EdgeInsets.all(
+                                                                                                                        8.0,
                                                                                                                       ),
                                                                                                                       child: Text(
-                                                                                                                        'ابدا الامتحان',
-                                                                                                                        style: TextStyles.textStyle16w700(context).copyWith(color: Colors.white,
+                                                                                                                        HtmlUnescape().convert(
+                                                                                                                          LessonsCubit.get(context).quiz['quiz']['description'].replaceAll(
+                                                                                                                                RegExp(r'<style[^>]*>[\s\S]*?</style>',caseSensitive:
+                                                                                                                                      false,
+                                                                                                                                ), '',).replaceAll(RegExp(r'<[^>]+>',), '',).replaceAll(
+                                                                                                                                RegExp(r'\s+',), ' ',).trim(),
+                                                                                                                        ),
+                                                                                                                        style: TextStyles.textStyle16w700(context).copyWith(
+                                                                                                                          color: AppColors.secondary,
+                                                                                                                        ),
+                                                                                                                        textDirection: TextDirection.rtl,
+                                                                                                                        textAlign: TextAlign.right,
+                                                                                                                      ),
+                                                                                                                    ),
+                                                                                                                Padding(
+                                                                                                                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16,),
+                                                                                                                  child: Container(
+                                                                                                                    decoration: BoxDecoration(color: AppColors.primaryColor,
+                                                                                                                      borderRadius: BorderRadius.circular(25,),
+                                                                                                                    ),
+                                                                                                                    width: double.infinity,
+                                                                                                                    height: 44,
+                                                                                                                    child: MaterialButton(
+                                                                                                                      onPressed: () async {
+                                                                                                                        await LessonsCubit.get(context).startQuiz(quizId: LessonsCubit.get(context).classData['quiz_id'],
+                                                                                                                        );
+                                                                                                                        Navigator.pop(context);
+                                                                                                                        Navigator.pushAndRemoveUntil(context,CupertinoPageRoute(
+                                                                                                                            builder:
+                                                                                                                                (context,) => LessonsExamView(quizID: LessonsCubit.get(context).classData['quiz_id'],
+                                                                                                                                ),
+                                                                                                                          ),
+                                                                                                                          (route,) => false,
+                                                                                                                        );
+                                                                                                                      },
+                                                                                                                      child: Container(
+                                                                                                                        width: double.infinity,
+                                                                                                                        decoration: BoxDecoration(
+                                                                                                                          color: AppColors.primaryColor,
+                                                                                                                        ),
+                                                                                                                        child: Text(
+                                                                                                                          'ابدا الامتحان',
+                                                                                                                          style: TextStyles.textStyle16w700(context).copyWith(color: Colors.white,
+                                                                                                                          ),
                                                                                                                         ),
                                                                                                                       ),
                                                                                                                     ),
                                                                                                                   ),
                                                                                                                 ),
-                                                                                                              ),
-                                                                                                            ],
+                                                                                                              ],
+                                                                                                            ),
                                                                                                           ),
-                                                                                                        ),
-                                                                                                      ],
+                                                                                                        ],
+                                                                                                      ),
                                                                                                     ),
                                                                                                   ),
                                                                                                 ),
                                                                                               ),
-                                                                                            ),
-                                                                                      );
-                                                                                    },
+                                                                                        );
+                                                                                      },
 
-                                                                                    child: Container(
-                                                                                      width: double.infinity, height: 50,
-                                                                                      decoration: BoxDecoration(
-                                                                                        color: AppColors.primaryColor,
-                                                                                        borderRadius: BorderRadius.circular(
-                                                                                          25,
+                                                                                      child: Container(
+                                                                                        width: double.infinity, height: 50,
+                                                                                        decoration: BoxDecoration(
+                                                                                          color: AppColors.primaryColor,
+                                                                                          borderRadius: BorderRadius.circular(
+                                                                                            25,
+                                                                                          ),
                                                                                         ),
-                                                                                      ),
-                                                                                      child: Center(
-                                                                                        child: Text(
-                                                                                          'الانتقال للامتحان',
-                                                                                          style: TextStyle(
-                                                                                            color:
-                                                                                                Colors.white,
-                                                                                            fontSize:
-                                                                                                20,
-                                                                                            fontWeight:
-                                                                                                FontWeight.w900,
+                                                                                        child: Center(
+                                                                                          child: Text(
+                                                                                            'الانتقال للامتحان',
+                                                                                            style: TextStyle(
+                                                                                              color:
+                                                                                                  Colors.white,
+                                                                                              fontSize:
+                                                                                                  20,
+                                                                                              fontWeight:
+                                                                                                  FontWeight.w900,
+                                                                                            ),
                                                                                           ),
                                                                                         ),
                                                                                       ),
                                                                                     ),
-                                                                                  ),
-                                                                                  SizedBox(
-                                                                                    height:
-                                                                                        10,
-                                                                                  ),
-                                                                                  InkWell(
-                                                                                    onTap: () {
-                                                                                      Navigator.pop(
-                                                                                        context,
-                                                                                      );
-                                                                                    },
+                                                                                    SizedBox(
+                                                                                      height:
+                                                                                          10,
+                                                                                    ),
+                                                                                    InkWell(
+                                                                                      onTap: () {
+                                                                                        Navigator.pop(
+                                                                                          context,
+                                                                                        );
+                                                                                      },
+                                                                                      child: Container(
+                                                                                        decoration: BoxDecoration(
+                                                                                          border: Border.all(
+                                                                                            color:
+                                                                                                AppColors.primaryColor,
+                                                                                            width:
+                                                                                                2,
+                                                                                          ),
+                                                                                          borderRadius: BorderRadius.circular(
+                                                                                            25,
+                                                                                          ),
+                                                                                          color:
+                                                                                              Colors.white,
+                                                                                        ),
+                                                                                        width:
+                                                                                            double.infinity,
+                                                                                        height:
+                                                                                            50,
+                                                                                        child: Center(
+                                                                                          child: Text(
+                                                                                            'الغاء',
+                                                                                            style: TextStyle(
+                                                                                              fontSize:
+                                                                                                  20,
+                                                                                              fontWeight:
+                                                                                                  FontWeight.w900,
+                                                                                            ),
+                                                                                          ),
+                                                                                        ),
+                                                                                      ),
+                                                                                    ),
+                                                                                  ],
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                      );
+                                                                      return;
+                                                                    }
+
+
+                                                                    // If neither is required, navigate to next lesson
+                                                                    if (classData['has_quizzes'] == true && classData['quiz_required'] ==0) {
+                                                                      Navigator.pushReplacement(
+                                                                        context,
+                                                                        CupertinoPageRoute(
+                                                                          builder:
+                                                                              (
+                                                                                context,
+                                                                              ) => NextLessonVideoView(
+                                                                                videoIndex:
+                                                                                    LessonsCubit.get(
+                                                                                      context,
+                                                                                    ).nextClass ?? 0,
+                                                                              ),
+                                                                        ),
+                                                                      );
+                                                                    } else {
+                                                                      LessonsCubit.get(
+                                                                        context,
+                                                                      ).showSnackBar(
+                                                                        context,
+                                                                        'فشل في تحميل بيانات الحصة التالية',
+                                                                        3,
+                                                                        Colors.red,
+                                                                      );
+                                                                    }
+                                                                    setState(() {
+                                                                      LessonsCubit.get(
+                                                                            context,
+                                                                          ).isLessonLoading =
+                                                                          false;
+                                                                    });
+                                                                  },
+                                                                  style: ElevatedButton.styleFrom(
+                                                                    backgroundColor: AppColors.primaryColor,
+                                                                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12,),
+                                                                    shape: RoundedRectangleBorder(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                            12,
+                                                                          ),
+                                                                    ),
+                                                                  ),
+                                                                  child:
+                                                                      LessonsCubit.get(context).isLessonLoading
+                                                                          ? Center(
+                                                                            child: AppLoaderInkDrop(
+                                                                              color:
+                                                                                  Colors.white,
+                                                                            ),
+                                                                          )
+                                                                          : Text(
+                                                                            "الحصة التالية",
+                                                                            style: TextStyles.textStyle16w700(context).copyWith(color: Colors.white,),
+                                                                          ),
+                                                                ),
+                                                              ),
+                                                            const SizedBox(
+                                                              height: 12,
+                                                            ),
+                                                          ],
+                                                        )
+                                                        : Container(),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+
+                                        Container(
+                                          width: MediaQuery.sizeOf(context).width * 1,
+                                          //height: 40,
+                                          child: SingleChildScrollView(
+                                            scrollDirection: Axis.horizontal,
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                top: 20.0,
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                spacing: 5,
+                                                children: [
+                                                  LessonsCubit.get(context).classData['attachment'] != null
+                                                      ? _buildActionButton(
+                                                        context,
+                                                        Icons
+                                                            .picture_as_pdf_outlined,
+                                                        'تحميل المذكرة',
+                                                        () async {
+                                                          var url = LessonsCubit.get(context).classData['attachment'];
+                                                          if (url != null && url.toString().isNotEmpty) {
+                                                            var uri = Uri.parse(url);
+                                                            if (await canLaunchUrl(uri)) {
+                                                              await launchUrl(
+                                                                uri, mode: LaunchMode.externalApplication,
+                                                              );
+                                                            } else {
+                                                              LessonsCubit.get(context).showSnackBar(
+                                                                context,
+                                                                'تعذر فتح الرابط',
+                                                                3,
+                                                                Colors.red,
+                                                              );
+                                                            }
+                                                          } else {
+                                                            LessonsCubit.get(context).showSnackBar(
+                                                              context,
+                                                              'لا يوجد ملف مرفق',
+                                                              3,
+                                                              Colors.orange,
+                                                            );
+                                                          }
+                                                        },
+                                                      )
+                                                      : Container(),
+
+                                                  LessonsCubit.get(
+                                                            context,
+                                                          ).classData['has_homeworks'] ==
+                                                          true
+                                                      ? _buildActionButton(
+                                                        context,
+                                                        Icons.assignment,
+                                                        'حل الواجب',
+                                                        () async {
+                                                          controller.pause();
+                                                          await LessonsCubit.get(
+                                                            context,
+                                                          ).startHomework(
+                                                            homeworkId:
+                                                                LessonsCubit.get(
+                                                                  context,
+                                                                ).classData['homework_id'],
+                                                          );
+
+                                                          Navigator.push(
+                                                            context,
+                                                            CupertinoPageRoute(
+                                                              builder: (context) {
+                                                                return LessonsHomeworkView(
+                                                                  homeworkID:
+                                                                      LessonsCubit.get(
+                                                                        context,
+                                                                      ).classData['homework_id'],
+                                                                );
+                                                              },
+                                                            ),
+                                                          );
+                                                        },
+                                                      )
+                                                      : Container(),
+                                                  LessonsCubit.get(
+                                                            context,
+                                                          ).classData['has_quizzes'] ==
+                                                          true
+                                                      ? _buildActionButton(
+                                                        context,
+                                                        Icons.quiz,
+                                                        'عرض الامتحان',
+                                                        () async {
+                                                          controller.pause;
+
+                                                          await LessonsCubit.get(
+                                                            context,
+                                                          ).startQuiz(
+                                                            quizId:
+                                                                LessonsCubit.get(
+                                                                  context,
+                                                                ).classData['quiz_id'],
+                                                          );
+
+                                                          showDialog(
+                                                            context: context,
+                                                            barrierDismissible:
+                                                                true,
+                                                            builder:
+                                                                (
+                                                                  context,
+                                                                ) => WillPopScope(
+                                                                  onWillPop:
+                                                                      () async =>
+                                                                          false,
+                                                                  child: Directionality(
+                                                                    textDirection:
+                                                                        TextDirection
+                                                                            .rtl,
+                                                                    child: AlertDialog(
+                                                                      backgroundColor:
+                                                                          Colors
+                                                                              .white,
+                                                                      title: Text(
+                                                                        'تنبيهات مهمة',
+                                                                        textAlign:
+                                                                            TextAlign
+                                                                                .center,
+                                                                      ),
+                                                                      titleTextStyle: TextStyles.textStyle16w700(
+                                                                        context,
+                                                                      ).copyWith(
+                                                                        color:
+                                                                            AppColors
+                                                                                .secondary,
+                                                                      ),
+                                                                      content: SingleChildScrollView(
+                                                                        child: Column(
+                                                                          children: [
+                                                                            Image.asset(
+                                                                              'assets/images/pic2.png',
+                                                                            ),
+                                                                            Container(
+                                                                              decoration: BoxDecoration(
+                                                                                color: const Color(
+                                                                                  0xFFFDF3D0,
+                                                                                ),
+                                                                                borderRadius: BorderRadius.circular(
+                                                                                  15,
+                                                                                ),
+                                                                              ),
+                                                                              child: Column(
+                                                                                children: [
+                                                                                  LessonsCubit.get(
+                                                                                            context,
+                                                                                          ).quiz ==
+                                                                                          null
+                                                                                      ? const Center(
+                                                                                        child:
+                                                                                            AppLoaderInkDrop(),
+                                                                                      )
+                                                                                      : Padding(
+                                                                                        padding: const EdgeInsets.all(
+                                                                                          8.0,
+                                                                                        ),
+                                                                                        child: Text(
+                                                                                          HtmlUnescape().convert(
+                                                                                            LessonsCubit.get(
+                                                                                                  context,
+                                                                                                ).quiz['quiz']['description']
+                                                                                                .replaceAll(
+                                                                                                  RegExp(
+                                                                                                    r'<style[^>]*>[\s\S]*?</style>',
+                                                                                                    caseSensitive:
+                                                                                                        false,
+                                                                                                  ),
+                                                                                                  '',
+                                                                                                )
+                                                                                                .replaceAll(
+                                                                                                  RegExp(
+                                                                                                    r'<[^>]+>',
+                                                                                                  ),
+                                                                                                  '',
+                                                                                                )
+                                                                                                .replaceAll(
+                                                                                                  RegExp(
+                                                                                                    r'\s+',
+                                                                                                  ),
+                                                                                                  ' ',
+                                                                                                )
+                                                                                                .trim(),
+                                                                                          ),
+                                                                                          style: TextStyles.textStyle16w700(
+                                                                                            context,
+                                                                                          ).copyWith(
+                                                                                            color:
+                                                                                                AppColors.secondary,
+                                                                                          ),
+                                                                                          textDirection:
+                                                                                              TextDirection.rtl,
+                                                                                          textAlign:
+                                                                                              TextAlign.right,
+                                                                                        ),
+                                                                                      ),
+                                                                                  Padding(
+                                                                                    padding: const EdgeInsets.symmetric(
+                                                                                      horizontal:
+                                                                                          16.0,
+                                                                                      vertical:
+                                                                                          16,
+                                                                                    ),
                                                                                     child: Container(
                                                                                       decoration: BoxDecoration(
-                                                                                        border: Border.all(
-                                                                                          color:
-                                                                                              AppColors.primaryColor,
-                                                                                          width:
-                                                                                              2,
-                                                                                        ),
+                                                                                        color:
+                                                                                            AppColors.primaryColor,
                                                                                         borderRadius: BorderRadius.circular(
                                                                                           25,
                                                                                         ),
-                                                                                        color:
-                                                                                            Colors.white,
                                                                                       ),
                                                                                       width:
                                                                                           double.infinity,
                                                                                       height:
-                                                                                          50,
-                                                                                      child: Center(
+                                                                                          44,
+                                                                                      child: MaterialButton(
+                                                                                        onPressed: () async {
+                                                                                          controller.pause();
+                                                                                          await LessonsCubit.get(
+                                                                                            context,
+                                                                                          ).startQuiz(
+                                                                                            quizId:
+                                                                                                LessonsCubit.get(
+                                                                                                  context,
+                                                                                                ).classData['quiz_id'],
+                                                                                          );
+                                                                                          //Navigator.pop(context);
+                                                                                          Navigator.pushAndRemoveUntil(
+                                                                                            context,
+                                                                                            CupertinoPageRoute(
+                                                                                              builder:
+                                                                                                  (
+                                                                                                    context,
+                                                                                                  ) => LessonsExamView(
+                                                                                                    quizID:
+                                                                                                        LessonsCubit.get(
+                                                                                                          context,
+                                                                                                        ).classData['quiz_id'],
+                                                                                                  ),
+                                                                                            ),
+                                                                                            (
+                                                                                              route,
+                                                                                            ) =>
+                                                                                                false,
+                                                                                          );
+                                                                                        },
                                                                                         child: Text(
-                                                                                          'الغاء',
-                                                                                          style: TextStyle(
-                                                                                            fontSize:
-                                                                                                20,
-                                                                                            fontWeight:
-                                                                                                FontWeight.w900,
+                                                                                          'ابدا الامتحان',
+                                                                                          style: TextStyles.textStyle16w700(
+                                                                                            context,
+                                                                                          ).copyWith(
+                                                                                            color:
+                                                                                                Colors.white,
                                                                                           ),
                                                                                         ),
                                                                                       ),
@@ -952,73 +1302,14 @@ class _LessonVideoScreenState extends State<LessonVideoScreen> {
                                                                                 ],
                                                                               ),
                                                                             ),
-                                                                          ),
-                                                                    );
-                                                                    return;
-                                                                  }
-
-
-                                                                  // If neither is required, navigate to next lesson
-                                                                  if (classData['has_quizzes'] == true && classData['quiz_required'] ==0) {
-                                                                    Navigator.pushReplacement(
-                                                                      context,
-                                                                      CupertinoPageRoute(
-                                                                        builder:
-                                                                            (
-                                                                              context,
-                                                                            ) => NextLessonVideoView(
-                                                                              videoIndex:
-                                                                                  LessonsCubit.get(
-                                                                                    context,
-                                                                                  ).nextClass ?? 0,
-                                                                            ),
-                                                                      ),
-                                                                    );
-                                                                  } else {
-                                                                    LessonsCubit.get(
-                                                                      context,
-                                                                    ).showSnackBar(
-                                                                      context,
-                                                                      'فشل في تحميل بيانات الحصة التالية',
-                                                                      3,
-                                                                      Colors.red,
-                                                                    );
-                                                                  }
-                                                                  setState(() {
-                                                                    LessonsCubit.get(
-                                                                          context,
-                                                                        ).isLessonLoading =
-                                                                        false;
-                                                                  });
-                                                                },
-                                                                style: ElevatedButton.styleFrom(
-                                                                  backgroundColor: AppColors.primaryColor,
-                                                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12,),
-                                                                  shape: RoundedRectangleBorder(
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                          12,
+                                                                          ],
                                                                         ),
+                                                                      ),
+                                                                    ),
                                                                   ),
                                                                 ),
-                                                                child:
-                                                                    LessonsCubit.get(context).isLessonLoading
-                                                                        ? Center(
-                                                                          child: CircularProgressIndicator(
-                                                                            color:
-                                                                                Colors.white,
-                                                                          ),
-                                                                        )
-                                                                        : Text(
-                                                                          "الحصة التالية",
-                                                                          style: TextStyles.textStyle16w700(context).copyWith(color: Colors.white,),
-                                                                        ),
-                                                              ),
-                                                            ),
-                                                          const SizedBox(
-                                                            height: 12,
-                                                          ),
-                                                        ],
+                                                          );
+                                                        },
                                                       )
                                                       : Container(),
                                                 ],
@@ -1026,294 +1317,10 @@ class _LessonVideoScreenState extends State<LessonVideoScreen> {
                                             ),
                                           ),
                                         ),
-                                      ),
-
-                                      Container(
-                                        width: MediaQuery.sizeOf(context).width * 1,
-                                        //height: 40,
-                                        child: SingleChildScrollView(
-                                          scrollDirection: Axis.horizontal,
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(
-                                              top: 20.0,
-                                            ),
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              crossAxisAlignment: CrossAxisAlignment.center,
-                                              spacing: 5,
-                                              children: [
-                                                LessonsCubit.get(context).classData['attachment'] != null
-                                                    ? _buildActionButton(
-                                                      context,
-                                                      Icons
-                                                          .picture_as_pdf_outlined,
-                                                      'تحميل المذكرة',
-                                                      () async {
-                                                        var url = LessonsCubit.get(context).classData['attachment'];
-                                                        if (url != null && url.toString().isNotEmpty) {
-                                                          var uri = Uri.parse(url);
-                                                          if (await canLaunchUrl(uri)) {
-                                                            await launchUrl(
-                                                              uri, mode: LaunchMode.externalApplication,
-                                                            );
-                                                          } else {
-                                                            LessonsCubit.get(context).showSnackBar(
-                                                              context,
-                                                              'تعذر فتح الرابط',
-                                                              3,
-                                                              Colors.red,
-                                                            );
-                                                          }
-                                                        } else {
-                                                          LessonsCubit.get(context).showSnackBar(
-                                                            context,
-                                                            'لا يوجد ملف مرفق',
-                                                            3,
-                                                            Colors.orange,
-                                                          );
-                                                        }
-                                                      },
-                                                    )
-                                                    : Container(),
-
-                                                LessonsCubit.get(
-                                                          context,
-                                                        ).classData['has_homeworks'] ==
-                                                        true
-                                                    ? _buildActionButton(
-                                                      context,
-                                                      Icons.assignment,
-                                                      'حل الواجب',
-                                                      () async {
-                                                        controller.pause();
-                                                        await LessonsCubit.get(
-                                                          context,
-                                                        ).startHomework(
-                                                          homeworkId:
-                                                              LessonsCubit.get(
-                                                                context,
-                                                              ).classData['homework_id'],
-                                                        );
-
-                                                        Navigator.push(
-                                                          context,
-                                                          CupertinoPageRoute(
-                                                            builder: (context) {
-                                                              return LessonsHomeworkView(
-                                                                homeworkID:
-                                                                    LessonsCubit.get(
-                                                                      context,
-                                                                    ).classData['homework_id'],
-                                                              );
-                                                            },
-                                                          ),
-                                                        );
-                                                      },
-                                                    )
-                                                    : Container(),
-                                                LessonsCubit.get(
-                                                          context,
-                                                        ).classData['has_quizzes'] ==
-                                                        true
-                                                    ? _buildActionButton(
-                                                      context,
-                                                      Icons.quiz,
-                                                      'عرض الامتحان',
-                                                      () async {
-                                                        controller.pause;
-
-                                                        await LessonsCubit.get(
-                                                          context,
-                                                        ).startQuiz(
-                                                          quizId:
-                                                              LessonsCubit.get(
-                                                                context,
-                                                              ).classData['quiz_id'],
-                                                        );
-
-                                                        showDialog(
-                                                          context: context,
-                                                          barrierDismissible:
-                                                              true,
-                                                          builder:
-                                                              (
-                                                                context,
-                                                              ) => WillPopScope(
-                                                                onWillPop:
-                                                                    () async =>
-                                                                        false,
-                                                                child: Directionality(
-                                                                  textDirection:
-                                                                      TextDirection
-                                                                          .rtl,
-                                                                  child: AlertDialog(
-                                                                    backgroundColor:
-                                                                        Colors
-                                                                            .white,
-                                                                    title: Text(
-                                                                      'تنبيهات مهمة',
-                                                                      textAlign:
-                                                                          TextAlign
-                                                                              .center,
-                                                                    ),
-                                                                    titleTextStyle: TextStyles.textStyle16w700(
-                                                                      context,
-                                                                    ).copyWith(
-                                                                      color:
-                                                                          AppColors
-                                                                              .secondary,
-                                                                    ),
-                                                                    content: SingleChildScrollView(
-                                                                      child: Column(
-                                                                        children: [
-                                                                          Image.asset(
-                                                                            'assets/images/pic2.png',
-                                                                          ),
-                                                                          Container(
-                                                                            decoration: BoxDecoration(
-                                                                              color: const Color(
-                                                                                0xFFFDF3D0,
-                                                                              ),
-                                                                              borderRadius: BorderRadius.circular(
-                                                                                15,
-                                                                              ),
-                                                                            ),
-                                                                            child: Column(
-                                                                              children: [
-                                                                                LessonsCubit.get(
-                                                                                          context,
-                                                                                        ).quiz ==
-                                                                                        null
-                                                                                    ? const Center(
-                                                                                      child:
-                                                                                          CircularProgressIndicator(),
-                                                                                    )
-                                                                                    : Padding(
-                                                                                      padding: const EdgeInsets.all(
-                                                                                        8.0,
-                                                                                      ),
-                                                                                      child: Text(
-                                                                                        HtmlUnescape().convert(
-                                                                                          LessonsCubit.get(
-                                                                                                context,
-                                                                                              ).quiz['quiz']['description']
-                                                                                              .replaceAll(
-                                                                                                RegExp(
-                                                                                                  r'<style[^>]*>[\s\S]*?</style>',
-                                                                                                  caseSensitive:
-                                                                                                      false,
-                                                                                                ),
-                                                                                                '',
-                                                                                              )
-                                                                                              .replaceAll(
-                                                                                                RegExp(
-                                                                                                  r'<[^>]+>',
-                                                                                                ),
-                                                                                                '',
-                                                                                              )
-                                                                                              .replaceAll(
-                                                                                                RegExp(
-                                                                                                  r'\s+',
-                                                                                                ),
-                                                                                                ' ',
-                                                                                              )
-                                                                                              .trim(),
-                                                                                        ),
-                                                                                        style: TextStyles.textStyle16w700(
-                                                                                          context,
-                                                                                        ).copyWith(
-                                                                                          color:
-                                                                                              AppColors.secondary,
-                                                                                        ),
-                                                                                        textDirection:
-                                                                                            TextDirection.rtl,
-                                                                                        textAlign:
-                                                                                            TextAlign.right,
-                                                                                      ),
-                                                                                    ),
-                                                                                Padding(
-                                                                                  padding: const EdgeInsets.symmetric(
-                                                                                    horizontal:
-                                                                                        16.0,
-                                                                                    vertical:
-                                                                                        16,
-                                                                                  ),
-                                                                                  child: Container(
-                                                                                    decoration: BoxDecoration(
-                                                                                      color:
-                                                                                          AppColors.primaryColor,
-                                                                                      borderRadius: BorderRadius.circular(
-                                                                                        25,
-                                                                                      ),
-                                                                                    ),
-                                                                                    width:
-                                                                                        double.infinity,
-                                                                                    height:
-                                                                                        44,
-                                                                                    child: MaterialButton(
-                                                                                      onPressed: () async {
-                                                                                        controller.pause();
-                                                                                        await LessonsCubit.get(
-                                                                                          context,
-                                                                                        ).startQuiz(
-                                                                                          quizId:
-                                                                                              LessonsCubit.get(
-                                                                                                context,
-                                                                                              ).classData['quiz_id'],
-                                                                                        );
-                                                                                        //Navigator.pop(context);
-                                                                                        Navigator.pushAndRemoveUntil(
-                                                                                          context,
-                                                                                          CupertinoPageRoute(
-                                                                                            builder:
-                                                                                                (
-                                                                                                  context,
-                                                                                                ) => LessonsExamView(
-                                                                                                  quizID:
-                                                                                                      LessonsCubit.get(
-                                                                                                        context,
-                                                                                                      ).classData['quiz_id'],
-                                                                                                ),
-                                                                                          ),
-                                                                                          (
-                                                                                            route,
-                                                                                          ) =>
-                                                                                              false,
-                                                                                        );
-                                                                                      },
-                                                                                      child: Text(
-                                                                                        'ابدا الامتحان',
-                                                                                        style: TextStyles.textStyle16w700(
-                                                                                          context,
-                                                                                        ).copyWith(
-                                                                                          color:
-                                                                                              Colors.white,
-                                                                                        ),
-                                                                                      ),
-                                                                                    ),
-                                                                                  ),
-                                                                                ),
-                                                                              ],
-                                                                            ),
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                        );
-                                                      },
-                                                    )
-                                                    : Container(),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
+                        ),
                       ),
                     ),
                   ),

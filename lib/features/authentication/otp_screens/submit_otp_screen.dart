@@ -8,6 +8,7 @@ import 'package:mr_alnagar/core/utils/app_colors.dart';
 import 'package:mr_alnagar/core/utils/text_styles.dart';
 import 'package:mr_alnagar/core/widgets/Auth%20widgets/register_widgets/register_password_formfield.dart';
 import 'package:pinput/pinput.dart';
+import '../../../core/utils/app_loaders.dart';
 
 import '../../../core/cubits/auth_cubit/auth_cubit/auth_state.dart';
 
@@ -266,7 +267,7 @@ class _SubmitOtpScreenState extends State<SubmitOtpScreen> {
                                     },
                                     child:
                                         state is UpdatePasswordLoading
-                                            ? const CircularProgressIndicator(
+                                            ? const AppLoaderInkDrop(
                                               color: Colors.white,
                                             )
                                             : Text(

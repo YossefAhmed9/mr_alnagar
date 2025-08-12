@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -34,15 +35,24 @@ class SubscribedCourseCard extends StatelessWidget {
               // Course image
               ClipRRect(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(12.r)),
-                child: Image.network(
-                  course['image'] ?? '',
+                child: CachedNetworkImage(
+                  imageUrl: course['image'] ?? '',
                   height: 130.h,
                   width: double.infinity,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Image.asset('assets/images/error image.png', height: 130.h, fit: BoxFit.cover);
-                  },
-                ),
+                  placeholder: (context, url) => Image.asset(
+                    'assets/images/error image.png',
+                    height: 130.h,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                  errorWidget: (context, url, error) => Image.asset(
+                    'assets/images/error image.png',
+                    height: 130.h,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                )
               ),
 
               // Course name

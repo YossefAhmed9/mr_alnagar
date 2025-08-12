@@ -8,6 +8,7 @@ import 'package:mr_alnagar/core/cubits/home_cubit/home_cubit.dart';
 import 'package:mr_alnagar/core/utils/app_colors.dart';
 import 'package:mr_alnagar/core/utils/text_styles.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import '../../../core/utils/app_loaders.dart';
 
 class HowToUse extends StatefulWidget {
   const HowToUse({Key? key, required this.data}) : super(key: key);
@@ -72,7 +73,7 @@ class _HowToUseState extends State<HowToUse> {
       builder: (context, state) {
         return HomeCubit.get(context).howToUse == null
             ? Center(
-              child: CircularProgressIndicator(color: AppColors.primaryColor),
+              child: AppLoaderInkDrop(color: AppColors.primaryColor),
             )
             : Directionality(
               textDirection: TextDirection.rtl,
@@ -149,12 +150,7 @@ class _HowToUseState extends State<HowToUse> {
                                   '${HomeCubit.get(context).howToUse['description']}',
                                 )
                                 .replaceAll(RegExp(r'<[^>]*>'), ''),
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w200,
-                              color: Colors.white,
-                              height: 2,
-                            ),
+                            style: TextStyles.textStyle16w700(context).copyWith(color: Colors.white,height: 2),
                           ),
                         ),
                         Align(
@@ -164,7 +160,7 @@ class _HowToUseState extends State<HowToUse> {
                             placeholder: (context, url) =>  Container(),
                             errorWidget: (context, url, error) => const Icon(Icons.error),
                             fit: BoxFit.cover,
-                            height: 200,
+                            height: 250,
                           )
                         ),
                       ],

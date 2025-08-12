@@ -4,6 +4,9 @@ final class LessonsInitial extends LessonsState {}
 
 final class ChangeIsCourseDone extends LessonsState {}
 
+
+final class IsOneTimeLessonShowAll extends LessonsState {}
+
 // Tab Bar State
 final class ChangeTabBarIndex extends LessonsState {}
 
@@ -17,6 +20,17 @@ final class EnrollInLessonError extends LessonsState {
   final dynamic error;
   EnrollInLessonError(this.error);
 }
+
+final class GetLessonsListForOneTimeClassesLoading extends LessonsState {}
+
+final class GetLessonsListForOneTimeClassesDone extends LessonsState {}
+
+final class GetLessonsListForOneTimeClassesError extends LessonsState {
+  final dynamic error;
+  GetLessonsListForOneTimeClassesError(this.error);
+}
+
+
 
 final class GetUserLessonsLoading extends LessonsState {}
 

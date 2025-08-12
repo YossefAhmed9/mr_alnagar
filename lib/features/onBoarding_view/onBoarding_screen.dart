@@ -12,6 +12,7 @@ import '../../core/cubits/splash_cubit/splash_cubit.dart';
 import '../../core/utils/text_styles.dart';
 import '../authentication/login_layout/login_page.dart';
 import 'onBoarding_model.dart';
+import '../../../core/utils/app_loaders.dart';
 
 class OnBoarding extends StatefulWidget {
   const OnBoarding({super.key});

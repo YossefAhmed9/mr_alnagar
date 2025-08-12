@@ -4,6 +4,7 @@ import 'package:html_unescape/html_unescape.dart';
 import 'package:mr_alnagar/core/cubits/home_cubit/home_cubit.dart';
 import 'package:mr_alnagar/core/utils/app_colors.dart';
 import 'package:mr_alnagar/core/utils/text_styles.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class FAQSection extends StatefulWidget {
   const FAQSection({super.key});
@@ -26,11 +27,21 @@ class _FAQSectionState extends State<FAQSection> {
             Container(
               width: double.infinity,
               decoration: BoxDecoration(),
-              child: Image.network(
-                HomeCubit.get(context).faqQuestion['image_url'],
+              child: CachedNetworkImage(
+                imageUrl: HomeCubit.get(context).faqQuestion['image_url'],
                 fit: BoxFit.cover,
                 height: 140.h,
-              ),
+                placeholder: (context, url) => Image.asset(
+                  'assets/images/error image.png',
+                  fit: BoxFit.cover,
+                  height: 140.h,
+                ),
+                errorWidget: (context, url, error) => Image.asset(
+                  'assets/images/error image.png',
+                  fit: BoxFit.cover,
+                  height: 140.h,
+                ),
+              )
             ),
             SizedBox(height: 16.h),
 
@@ -55,7 +66,7 @@ class _FAQSectionState extends State<FAQSection> {
                         .replaceAll(RegExp(r'<[^>]*>'), ''),
                     style: TextStyle(
                       fontSize: 20,
-                      fontWeight: FontWeight.w200,
+                      fontWeight: FontWeight.w600,
                       color: Colors.black,
                       height: 2,
                     ),

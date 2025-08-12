@@ -13,8 +13,10 @@ import 'package:mr_alnagar/features/lessons_view/videos_view/videos_view.dart';
 import '../../core/cubits/lessons_cubit/lessons_cubit.dart';
 import '../../core/cubits/lessons_cubit/lessons_state.dart';
 import '../../core/utils/app_colors.dart';
+import '../../main.dart';
 import '../lessons_view/subscriptions_list_view.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../../../core/utils/app_loaders.dart';
 
 class LessonReservationScreen extends StatefulWidget {
   const LessonReservationScreen({Key? key, required this.data})
@@ -67,7 +69,7 @@ class _LessonReservationScreenState extends State<LessonReservationScreen> {
         TextEditingController rateController = TextEditingController();
         return LessonsCubit.get(context).courseResult.isEmpty
             ? Center(
-              child: CircularProgressIndicator(color: AppColors.primaryColor),
+              child: AppLoaderInkDrop(color: AppColors.primaryColor),
             )
             : Directionality(
               textDirection: TextDirection.rtl,
@@ -189,7 +191,7 @@ class _LessonReservationScreenState extends State<LessonReservationScreen> {
                                 child:
                                     LessonsCubit.get(context).isLessonLoading
                                         ? const Center(
-                                          child: CircularProgressIndicator(
+                                          child: AppLoaderInkDrop(
                                             color: Colors.white,
                                           ),
                                         )
@@ -223,177 +225,186 @@ class _LessonReservationScreenState extends State<LessonReservationScreen> {
                   ),
                   centerTitle: true,
                 ),
-                body: SingleChildScrollView(
-                  controller: scrollController,
-                  child: ModalProgressHUD(
-                    inAsyncCall: LessonsCubit.get(context).isLessonLoading,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8.0,
-                        vertical: 8.0,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: double.infinity,
-                            height: 30.h,
+                body: InternetAwareWrapper(
+                  onInternetRestored:[
 
-                            child: ListView.builder(
-                              itemCount: icons.length,
-                              scrollDirection: Axis.horizontal,
-                              shrinkWrap: true,
-                              itemBuilder: (context, index) {
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 5.0,
-                                  ),
-                                  child: Container(
-                                    width: 140,
-                                    //height: 55.h,
-                                    decoration: BoxDecoration(
-                                      color: AppColors.secondary70,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0,
-                                        vertical: 5,
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        spacing: 3,
-                                        children: [
-                                          Icon(
-                                            icons[index],
-                                            color: Colors.white,
-                                          ),
-                                          Text(
-                                            '${LessonsCubit.get(context).courseResult[0][counts[index]]}',
-                                            style: TextStyles.textStyle12w700(
-                                              context,
-                                            ).copyWith(color: Colors.white),
-                                          ),
+                  ],
 
-                                          Text(
-                                            titles[index],
-                                            style: TextStyles.textStyle14w400(
-                                              context,
-                                            ).copyWith(color: Colors.white),
-                                          ),
-                                        ],
+                  child: SingleChildScrollView(
+                    controller: scrollController,
+                    physics: AlwaysScrollableScrollPhysics(),
+                    child: ModalProgressHUD(
+                      progressIndicator: AppLoaderHourglass(),
+
+                      inAsyncCall: LessonsCubit.get(context).isLessonLoading,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0,
+                          vertical: 8.0,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: double.infinity,
+                              height: 30.h,
+
+                              child: ListView.builder(
+                                itemCount: icons.length,
+                                scrollDirection: Axis.horizontal,
+                                shrinkWrap: true,
+                                itemBuilder: (context, index) {
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 5.0,
+                                    ),
+                                    child: Container(
+                                      width: 140,
+                                      //height: 55.h,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.secondary70,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8.0,
+                                          vertical: 5,
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          spacing: 3,
+                                          children: [
+                                            Icon(
+                                              icons[index],
+                                              color: Colors.white,
+                                            ),
+                                            Text(
+                                              '${LessonsCubit.get(context).courseResult[0][counts[index]]}',
+                                              style: TextStyles.textStyle12w700(
+                                                context,
+                                              ).copyWith(color: Colors.white),
+                                            ),
+
+                                            Text(
+                                              titles[index],
+                                              style: TextStyles.textStyle14w400(
+                                                context,
+                                              ).copyWith(color: Colors.white),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              top: 15.0,
-                              bottom: 5,
-                            ),
-                            child: Text(
-                              'اشترك دلوقتي وابدأ رحلة التفوق مع مستر محمد النجار !',
-                              style: TextStyles.textStyle16w700(context),
-                            ),
-                          ),
-                          Text(
-                            HtmlUnescape()
-                                .convert(
-                                  LessonsCubit.get(
-                                    context,
-                                  ).courseResult[0]['note'],
-                                )
-                                .replaceAll(RegExp(r'<[^>]*>'), ''),
-                            style: TextStyles.textStyle16w400(context),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 16.0),
-                            child: Container(
-                              alignment: AlignmentDirectional.center,
-                              decoration: BoxDecoration(
-                                color: AppColors.secondary8,
-                                borderRadius: BorderRadius.circular(10),
+                                  );
+                                },
                               ),
-                              clipBehavior: Clip.antiAliasWithSaveLayer,
-                              child: CachedNetworkImage(
-                                imageUrl:
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                top: 15.0,
+                                bottom: 5,
+                              ),
+                              child: Text(
+                                'اشترك دلوقتي وابدأ رحلة التفوق مع مستر محمد النجار !',
+                                style: TextStyles.textStyle16w700(context),
+                              ),
+                            ),
+                            Text(
+                              HtmlUnescape()
+                                  .convert(
                                     LessonsCubit.get(
                                       context,
-                                    ).courseResult[0]['image'],
-                                placeholder: (context, url) => Container(),
-                                errorWidget:
-                                    (context, url, error) =>
-                                        const Icon(Icons.error),
-                                fit: BoxFit.cover,
-                                height: 200,
-                                width: double.infinity,
+                                    ).courseResult[0]['note'],
+                                  )
+                                  .replaceAll(RegExp(r'<[^>]*>'), ''),
+                              style: TextStyles.textStyle16w400(context),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 16.0),
+                              child: Container(
+                                alignment: AlignmentDirectional.center,
+                                decoration: BoxDecoration(
+                                  color: AppColors.secondary8,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                clipBehavior: Clip.antiAliasWithSaveLayer,
+                                child: CachedNetworkImage(
+                                  imageUrl:
+                                      LessonsCubit.get(
+                                        context,
+                                      ).courseResult[0]['image'],
+                                  placeholder: (context, url) => Container(),
+                                  errorWidget:
+                                      (context, url, error) =>
+                                          const Icon(Icons.error),
+                                  fit: BoxFit.cover,
+                                  height: 200,
+                                  width: double.infinity,
+                                ),
                               ),
                             ),
-                          ),
-                          Text(
-                            'محتوى الإشتراك الشهري',
-                            style: TextStyles.textStyle16w700(context),
-                          ),
+                            Text(
+                              'محتوى الإشتراك الشهري',
+                              style: TextStyles.textStyle16w700(context),
+                            ),
 
-                          Wrap(
-                            alignment: WrapAlignment.center,
-                            children: [
-                              Text(
-                                maxLines: newMaxLinesValue,
-                                HtmlUnescape()
-                                    .convert(
-                                      '${LessonsCubit.get(context).courseResult[0]['description']}',
-                                    )
-                                    .replaceAll(RegExp(r'<[^>]*>'), ''),
-                                style:
-                                    TextStyles.textStyle16w400(
-                                      context,
-                                    ).copyWith(),
-                              ),
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              children: [
+                                Text(
+                                  maxLines: newMaxLinesValue,
+                                  HtmlUnescape()
+                                      .convert(
+                                        '${LessonsCubit.get(context).courseResult[0]['description']}',
+                                      )
+                                      .replaceAll(RegExp(r'<[^>]*>'), ''),
+                                  style:
+                                      TextStyles.textStyle16w400(
+                                        context,
+                                      ).copyWith(),
+                                ),
 
-                              TextButton(
-                                onPressed: () {
-                                  print(newMaxLinesValue);
-                                  setState(() {
-                                    showMoreButton = !showMoreButton;
-                                    if (newMaxLinesValue == 5) {
-                                      newMaxLinesValue = 200;
-                                    } else if (newMaxLinesValue == 200) {
-                                      newMaxLinesValue = 5;
-                                    }
-                                  });
-                                },
-                                child: Container(
-                                  width: 100,
-                                  height: 30,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.secondary,
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      showMoreButton ? showLess : showMore,
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.white,
+                                TextButton(
+                                  onPressed: () {
+                                    print(newMaxLinesValue);
+                                    setState(() {
+                                      showMoreButton = !showMoreButton;
+                                      if (newMaxLinesValue == 5) {
+                                        newMaxLinesValue = 200;
+                                      } else if (newMaxLinesValue == 200) {
+                                        newMaxLinesValue = 5;
+                                      }
+                                    });
+                                  },
+                                  child: Container(
+                                    width: 100,
+                                    height: 30,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.secondary,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        showMoreButton ? showLess : showMore,
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w900,
+                                          color: Colors.white,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
+                              ],
+                            ),
 
 
-                          ReservationStepsListView(data: widget.data),
+                            ReservationStepsListView(data: widget.data),
 
 
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),

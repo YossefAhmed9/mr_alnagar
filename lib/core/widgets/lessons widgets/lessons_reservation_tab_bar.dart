@@ -21,23 +21,30 @@ class LessonsReservationTabBar extends StatelessWidget {
   Widget build(BuildContext context) {
     if (lessons.isEmpty) {
       return RefreshIndicator(
+        triggerMode: RefreshIndicatorTriggerMode.anywhere,
         onRefresh:()async {
           await LessonsCubit.get(context).getCoursesByCategory(categoryID: CacheHelper.getData(key: CacheKeys.categoryId));
           return await LessonsCubit.get(context).getMyLessons(categoryID: CacheHelper.getData(key: CacheKeys.categoryId));
         },
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Center(
-              child: Text('لا توجد بيانات',style: TextStyles.textStyle16w700(context).copyWith(color: AppColors.primaryColor),),
+        child: Center(
+          child: SingleChildScrollView(
+            physics: AlwaysScrollableScrollPhysics(),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Center(
+                  child: Text('لا توجد بيانات',style: TextStyles.textStyle16w700(context).copyWith(color: AppColors.primaryColor),),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       );
     }
 
     return ListView.builder(
+
       itemCount: lessons.length,
       itemBuilder: (context, index) {
         final course = lessons[index];

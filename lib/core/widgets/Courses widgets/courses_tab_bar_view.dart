@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:mr_alnagar/core/cubits/courses_cubit/courses_cubit.dart';
 import 'package:mr_alnagar/core/cubits/courses_cubit/courses_state.dart';
+import '../../../core/utils/app_loaders.dart';
 
 import '../../cubits/lessons_cubit/lessons_cubit.dart';
 import '../../cubits/profile_cubit/profile_cubit.dart';
@@ -66,13 +67,24 @@ class MyCoursesListView extends StatelessWidget {
       builder: (context, state) {
         final courses = ProfileCubit.get(context).inProgressCourses;
         return courses.isEmpty
-            ?  Center(child: Text('لا توجد اشتراكات',style:TextStyles.textStyle20w700(context).copyWith(color: AppColors.primaryColor)),)
-            : ModalProgressHUD(
-          inAsyncCall: CoursesCubit.get(context).isCourseLoading,
+            ?  RefreshIndicator(
+          color: AppColors.primaryColor,
+          triggerMode: RefreshIndicatorTriggerMode.anywhere,
+          onRefresh: () async {
+            return ProfileCubit.get(context).getMyInProgressCourses();
+          },
+          child: Center(child: SingleChildScrollView(
+              physics: AlwaysScrollableScrollPhysics(),
+              child: Text('لا توجد اشتراكات',style:TextStyles.textStyle20w700(context).copyWith(color: AppColors.primaryColor))),),
+            )
+            : RefreshIndicator(
+              triggerMode: RefreshIndicatorTriggerMode.anywhere,
+              onRefresh: () => CoursesCubit.get(context).getCourses(),
+              child: ModalProgressHUD(
+                progressIndicator: AppLoaderHourglass(),
 
-          child: RefreshIndicator(
-                        onRefresh: () => CoursesCubit.get(context).getCourses(),
-                        child: Padding(
+                inAsyncCall: CoursesCubit.get(context).isCourseLoading,
+                child: Padding(
               padding: const EdgeInsets.only(left: 5.0),
               child: Scrollbar(
                 controller: controller,
@@ -81,6 +93,7 @@ class MyCoursesListView extends StatelessWidget {
                 interactive: true,
                 thickness: 10,
                 child: ListView.builder(
+                  physics: AlwaysScrollableScrollPhysics(),
                   itemCount: courses.length,
                   controller: controller,
                   shrinkWrap: true,
@@ -122,7 +135,7 @@ class MyCoursesListView extends StatelessWidget {
                 ),
               ),
                         ),
-                      ),
+              ),
             );
       },
     );
@@ -140,13 +153,15 @@ class AllCoursesListView extends StatelessWidget {
       builder: (context, state) {
         final courses = CoursesCubit.get(context).courses;
         return courses.isEmpty
-            ? Center(child: CircularProgressIndicator(color: AppColors.primaryColor))
-            : ModalProgressHUD(
-          inAsyncCall: CoursesCubit.get(context).isCourseLoading,
+            ? Center(child: AppLoaderInkDrop(color: AppColors.primaryColor))
+            : RefreshIndicator(
+              triggerMode: RefreshIndicatorTriggerMode.anywhere,
+              onRefresh: () => CoursesCubit.get(context).getCourses(),
+              child: ModalProgressHUD(
+                progressIndicator: AppLoaderHourglass(),
 
-          child: RefreshIndicator(
-                        onRefresh: () => CoursesCubit.get(context).getCourses(),
-                        child: Padding(
+                inAsyncCall: CoursesCubit.get(context).isCourseLoading,
+                child: Padding(
               padding: const EdgeInsets.only(left: 5.0),
               child: Scrollbar(
                 controller: controller,
@@ -156,7 +171,7 @@ class AllCoursesListView extends StatelessWidget {
                 thickness: 10,
                 child: ListView.builder(
                   itemCount: courses.length,
-                  controller: controller,
+                  controller: controller,physics: AlwaysScrollableScrollPhysics(),
                   shrinkWrap: true,
                   itemBuilder: (context, index) {
                     final course = courses[index];
@@ -171,8 +186,8 @@ class AllCoursesListView extends StatelessWidget {
                   },
                 ),
               ),
-                        ),
-                      ),
+                ),
+              ),
             );
       },
     );

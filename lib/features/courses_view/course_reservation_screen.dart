@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,10 +13,12 @@ import 'package:mr_alnagar/core/network/local/shared_prefrence.dart';
 import 'package:mr_alnagar/core/utils/text_styles.dart';
 import 'package:mr_alnagar/core/widgets/lessons%20widgets/reservation_steps_list_view.dart';
 import 'package:mr_alnagar/features/courses_view/videos_view/videos_view.dart';
+import 'package:mr_alnagar/main.dart';
 import '../../core/cubits/lessons_cubit/lessons_cubit.dart';
 import '../../core/cubits/lessons_cubit/lessons_state.dart';
 import '../../core/utils/app_colors.dart';
 import '../lessons_view/subscriptions_list_view.dart';
+import '../../../core/utils/app_loaders.dart';
 
 class CourseReservationScreen extends StatefulWidget {
   const CourseReservationScreen({Key? key, required this.data})
@@ -130,273 +133,282 @@ class _CourseReservationScreenState extends State<CourseReservationScreen> {
 
         return CoursesCubit.get(context).courseResult.isEmpty
             ? Center(
-              child: CircularProgressIndicator(color: AppColors.primaryColor),
+              child: AppLoaderInkDrop(color: AppColors.primaryColor),
             )
             : RefreshIndicator(
               onRefresh: () async {
                 showLoadOnRefresh();
               },
-              child: Directionality(
-                textDirection: TextDirection.rtl,
-                child: Scaffold(
-                  bottomNavigationBar: Container(
-                    decoration: BoxDecoration(color: Colors.grey.shade100),
-                    height: 80,
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                        bottom: 5.0,
-                        right: 10,
-                        left: 10,
-                      ),
-                      child: Builder(
-                        builder: (context) {
-                          return Row(
-                            children: [
-                              if (showPrice &&
-                                  status != 'approved' &&
-                                  status != 'pending') ...[
-                                Text(
-                                  '${course['price']} جنيه',
-                                  style: TextStyles.textStyle20w700(
-                                    context,
-                                  ).copyWith(color: Colors.red),
-                                ),
-                                const SizedBox(width: 10),
-                              ],
-                              Expanded(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: buttonColor,
-                                    borderRadius: BorderRadius.circular(25),
+              child: InternetAwareWrapper(
+                onInternetRestored: [
+
+                ],
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: Scaffold(
+                    bottomNavigationBar: Container(
+                      decoration: BoxDecoration(color: Colors.grey.shade100),
+                      height: 80,
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          bottom: 5.0,
+                          right: 10,
+                          left: 10,
+                        ),
+                        child: Builder(
+                          builder: (context) {
+                            return Row(
+                              children: [
+                                if (showPrice &&
+                                    status != 'approved' &&
+                                    status != 'pending') ...[
+                                  Text(
+                                    '${course['price']} جنيه',
+                                    style: TextStyles.textStyle20w700(
+                                      context,
+                                    ).copyWith(color: Colors.red),
                                   ),
-                                  height: 45.h,
-                                  child: MaterialButton(
-                                    onPressed:
-                                        isDisabled
-                                            ? null
-                                            : () async {
-                                              if (status == 'approved') {
-                                                CoursesCubit.get(context,).changeIsCourseLoading();
+                                  const SizedBox(width: 10),
+                                ],
+                                Expanded(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: buttonColor,
+                                      borderRadius: BorderRadius.circular(25),
+                                    ),
+                                    height: 45.h,
+                                    child: MaterialButton(
+                                      onPressed:
+                                          isDisabled
+                                              ? null
+                                              : () async {
+                                                if (status == 'approved') {
+                                                  CoursesCubit.get(context,).changeIsCourseLoading();
 
-                                                await CoursesCubit.get(context).getVideosByCourse(id:
-                                                course['id'], context: context,).then((value){
-                                                  Navigator.push(
-                                                    context,
-                                                    CupertinoPageRoute(
-                                                      builder:
-                                                          (context) =>
-                                                          CourseVideoScreen(
-                                                            videoIndex:
-                                                            course['id'],
-                                                          ),
-                                                    ),
-                                                  );
-                                                });
+                                                  await CoursesCubit.get(context).getVideosByCourse(id:
+                                                  course['id'], context: context,).then((value){
+                                                    Navigator.push(
+                                                      context,
+                                                      CupertinoPageRoute(
+                                                        builder:
+                                                            (context) =>
+                                                            CourseVideoScreen(
+                                                              videoIndex:
+                                                              course['id'],
+                                                            ),
+                                                      ),
+                                                    );
+                                                  });
 
-                                              } else {
-                                                // await CoursesCubit.get(context).enrollInCourse(
-                                                //   courseID: course['id'],
-                                                //   paymentType:
-                                                //       course['payment_type']!,
-                                                // );
-                                                // // After enrollment, fetch the latest course data
-                                                // await CoursesCubit.get(
-                                                //   context,
-                                                // ).getCourseByID(
-                                                //   id: course['id'],
-                                                // );
-                                                setState(() {});
-                                              }
-                                            },
-                                    child:
-                                        CoursesCubit.get(
-                                              context,
-                                            ).isCourseLoading
-                                            ? const Center(
-                                              child: CircularProgressIndicator(
+                                                } else {
+                                                  // await CoursesCubit.get(context).enrollInCourse(
+                                                  //   courseID: course['id'],
+                                                  //   paymentType:
+                                                  //       course['payment_type']!,
+                                                  // );
+                                                  // // After enrollment, fetch the latest course data
+                                                  // await CoursesCubit.get(
+                                                  //   context,
+                                                  // ).getCourseByID(
+                                                  //   id: course['id'],
+                                                  // );
+                                                  setState(() {});
+                                                }
+                                              },
+                                      child:
+                                          CoursesCubit.get(
+                                                context,
+                                              ).isCourseLoading
+                                              ? const Center(
+                                                child: AppLoaderInkDrop(
+                                                  color: Colors.white,
+                                                ),
+                                              )
+                                              : Text(
+                                                buttonLabel,
+                                                style: TextStyles.textStyle16w700(
+                                                  context,
+                                                ).copyWith(color: textColor),
+                                              ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    //             floatingActionButton: FloatingActionButton(onPressed: () async {
+                    //
+                    //
+                    //               //await CoursesCubit.get(context).watchVideo(videoId: 4);
+                    //               await CoursesCubit.get(context).postVideoSeconds(videoId: 7,watchSeconds: 30,lastWatchedSecond: 40);
+                    // //               print(CoursesCubit.get(context).courses[2]['is_enrolled']);
+                    // //               print(CoursesCubit.get(context).courses);
+                    // // //
+                    // //               await CoursesCubit.get(context).getVideosByCourse(id:4);
+                    // //               print(CacheHelper.getData(key: CacheKeys.token));
+                    // //               await CoursesCubit.get(context).getCourseByID(id: 4);
+                    //               //print(CoursesCubit.get(context).courses[index]['phone']);
+                    //             }),
+                    appBar: AppBar(
+                      elevation: 0,
+                      backgroundColor: Colors.white,
+                      leading: IconButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        icon: Icon(Icons.arrow_back_ios),
+                      ),
+                      title: Text(
+                        '${course['title']}',
+                        style: TextStyles.textStyle16w700(context),
+                      ),
+                      centerTitle: true,
+                    ),
+                    body: isLoad ? Center(child: AppLoaderInkDrop(),) :
+
+                    SingleChildScrollView(
+                      child: ModalProgressHUD(
+                        progressIndicator: AppLoaderHourglass(),
+
+                        inAsyncCall: CoursesCubit.get(context).isCourseLoading,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0,
+                            vertical: 0.0,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: double.infinity,
+                                height: 30.h,
+
+                                child: ListView.builder(
+                                  itemCount: icons.length,
+                                  scrollDirection: Axis.horizontal,
+                                  itemBuilder: (context, index) {
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 5.0,
+                                      ),
+                                      child: Container(
+                                        width: 140,
+                                        //height: 55.h,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.secondary70,
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0,
+                                            vertical: 5,
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            spacing: 3,
+                                            children: [
+                                              Icon(
+                                                icons[index],
                                                 color: Colors.white,
                                               ),
-                                            )
-                                            : Text(
-                                              buttonLabel,
-                                              style: TextStyles.textStyle16w700(
-                                                context,
-                                              ).copyWith(color: textColor),
-                                            ),
-                                  ),
+                                              Text(
+                                                '${CoursesCubit.get(context).courseResult[0][counts[index]]}',
+                                                style: TextStyles.textStyle12w700(
+                                                  context,
+                                                ).copyWith(color: Colors.white),
+                                              ),
+
+                                              Text(
+                                                titles[index],
+                                                style: TextStyles.textStyle14w400(
+                                                  context,
+                                                ).copyWith(color: Colors.white),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  //             floatingActionButton: FloatingActionButton(onPressed: () async {
-                  //
-                  //
-                  //               //await CoursesCubit.get(context).watchVideo(videoId: 4);
-                  //               await CoursesCubit.get(context).postVideoSeconds(videoId: 7,watchSeconds: 30,lastWatchedSecond: 40);
-                  // //               print(CoursesCubit.get(context).courses[2]['is_enrolled']);
-                  // //               print(CoursesCubit.get(context).courses);
-                  // // //
-                  // //               await CoursesCubit.get(context).getVideosByCourse(id:4);
-                  // //               print(CacheHelper.getData(key: CacheKeys.token));
-                  // //               await CoursesCubit.get(context).getCourseByID(id: 4);
-                  //               //print(CoursesCubit.get(context).courses[index]['phone']);
-                  //             }),
-                  appBar: AppBar(
-                    elevation: 0,
-                    backgroundColor: Colors.white,
-                    leading: IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: Icon(Icons.arrow_back_ios),
-                    ),
-                    title: Text(
-                      '${course['title']}',
-                      style: TextStyles.textStyle16w700(context),
-                    ),
-                    centerTitle: true,
-                  ),
-                  body: isLoad ? Center(child: CircularProgressIndicator(),) :
-
-                  SingleChildScrollView(
-                    child: ModalProgressHUD(
-                      inAsyncCall: CoursesCubit.get(context).isCourseLoading,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0,
-                          vertical: 0.0,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                              width: double.infinity,
-                              height: 30.h,
-
-                              child: ListView.builder(
-                                itemCount: icons.length,
-                                scrollDirection: Axis.horizontal,
-                                itemBuilder: (context, index) {
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 5.0,
-                                    ),
-                                    child: Container(
-                                      width: 140,
-                                      //height: 55.h,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.secondary70,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8.0,
-                                          vertical: 5,
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          spacing: 3,
-                                          children: [
-                                            Icon(
-                                              icons[index],
-                                              color: Colors.white,
-                                            ),
-                                            Text(
-                                              '${CoursesCubit.get(context).courseResult[0][counts[index]]}',
-                                              style: TextStyles.textStyle12w700(
-                                                context,
-                                              ).copyWith(color: Colors.white),
-                                            ),
-
-                                            Text(
-                                              titles[index],
-                                              style: TextStyles.textStyle14w400(
-                                                context,
-                                              ).copyWith(color: Colors.white),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  top: 15.0,
+                                  bottom: 5,
+                                ),
+                                child: Text(
+                                  'اشترك دلوقتي وابدأ رحلة التفوق مع مستر محمد النجار !',
+                                  style: TextStyles.textStyle16w700(context),
+                                ),
                               ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                top: 15.0,
-                                bottom: 5,
+                              Text(
+                                HtmlUnescape()
+                                    .convert(course['note'])
+                                    .replaceAll(RegExp(r'<[^>]*>'), ''),
+                                style: TextStyles.textStyle16w400(context),
                               ),
-                              child: Text(
-                                'اشترك دلوقتي وابدأ رحلة التفوق مع مستر محمد النجار !',
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16.0,
+                                ),
+                                child: Container(
+                                  alignment: AlignmentDirectional.center,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.secondary8,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  clipBehavior: Clip.antiAliasWithSaveLayer,
+                                  child: CachedNetworkImage(
+                                    imageUrl: course['image'] ?? widget.data['image'],
+                                    placeholder: (context, url) => Image.asset('assets/images/error image.png'),
+                                    errorWidget: (context, url, error) => Image.asset('assets/images/error image.png'),
+                                  )
+                                ),
+                              ),
+                              Text(
+                                'محتوى الإشتراك الشهري',
                                 style: TextStyles.textStyle16w700(context),
                               ),
-                            ),
-                            Text(
-                              HtmlUnescape()
-                                  .convert(course['note'])
-                                  .replaceAll(RegExp(r'<[^>]*>'), ''),
-                              style: TextStyles.textStyle16w400(context),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 16.0,
+
+                              Wrap(alignment:WrapAlignment.center,
+                                children: [
+                                  Text(maxLines: newMaxLinesValue,
+                                    HtmlUnescape()
+                                        .convert('${course['description']}')
+                                        .replaceAll(RegExp(r'<[^>]*>'), ''),
+                                    style:
+                                    TextStyles.textStyle16w400(
+                                      context,
+                                    ).copyWith(),
+                                  ),
+                                  TextButton(onPressed: (){
+                                    print(newMaxLinesValue);
+                                    setState(() {
+                                      showMoreButton=!showMoreButton;
+                                      if (newMaxLinesValue == 5) {
+                                        newMaxLinesValue=200;
+                                      }
+                                      else if (newMaxLinesValue ==200){
+                                        newMaxLinesValue=5;
+                                      }
+                                    });
+                                  }, child: Container(
+                                      width: 100,height: 30,
+                                      decoration: BoxDecoration(color: AppColors.secondary,borderRadius: BorderRadius.circular(20)),
+                                      child: Center(child: Text(showMoreButton ? showLess : showMore,style: TextStyle(fontSize: 15,fontWeight: FontWeight.w900,color: Colors.white),))))
+
+                                ],
                               ),
-                              child: Container(
-                                alignment: AlignmentDirectional.center,
-                                decoration: BoxDecoration(
-                                  color: AppColors.secondary8,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                clipBehavior: Clip.antiAliasWithSaveLayer,
-                                child: Image.network(
-                                  course['image'] ?? widget.data['image'],
-                                ),
-                              ),
-                            ),
-                            Text(
-                              'محتوى الإشتراك الشهري',
-                              style: TextStyles.textStyle16w700(context),
-                            ),
 
-                            Wrap(alignment:WrapAlignment.center,
-                              children: [
-                                Text(maxLines: newMaxLinesValue,
-                                  HtmlUnescape()
-                                      .convert('${course['description']}')
-                                      .replaceAll(RegExp(r'<[^>]*>'), ''),
-                                  style:
-                                  TextStyles.textStyle16w400(
-                                    context,
-                                  ).copyWith(),
-                                ),
-                                TextButton(onPressed: (){
-                                  print(newMaxLinesValue);
-                                  setState(() {
-                                    showMoreButton=!showMoreButton;
-                                    if (newMaxLinesValue == 5) {
-                                      newMaxLinesValue=200;
-                                    }
-                                    else if (newMaxLinesValue ==200){
-                                      newMaxLinesValue=5;
-                                    }
-                                  });
-                                }, child: Container(
-                                    width: 100,height: 30,
-                                    decoration: BoxDecoration(color: AppColors.secondary,borderRadius: BorderRadius.circular(20)),
-                                    child: Center(child: Text(showMoreButton ? showLess : showMore,style: TextStyle(fontSize: 15,fontWeight: FontWeight.w900,color: Colors.white),))))
+                              ReservationStepsListView(data: course),
 
-                              ],
-                            ),
-
-                            ReservationStepsListView(data: course),
-
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),

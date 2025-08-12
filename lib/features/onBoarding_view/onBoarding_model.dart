@@ -24,7 +24,7 @@ Widget onBoardBuildingItem(OnBoardingModel model, BuildContext context) =>
         SizedBox(height: 50),
         Center(
           child: Image.asset(
-            'assets/images/logo_light.png',
+            'assets/images/logo light.png',
             height: 100,
             width: 180,
             fit: BoxFit.fitWidth,

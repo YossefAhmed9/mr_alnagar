@@ -6,6 +6,7 @@ import 'package:mr_alnagar/core/cubits/auth_cubit/auth_cubit/auth_cubit.dart';
 import 'package:mr_alnagar/core/cubits/auth_cubit/auth_cubit/auth_state.dart';
 import 'package:mr_alnagar/core/widgets/Auth%20widgets/register_widgets/register_password_formfield.dart';
 import 'package:mr_alnagar/core/widgets/Auth%20widgets/register_widgets/register_text_field.dart';
+import '../../../core/utils/app_loaders.dart';
 
 import '../../../core/utils/app_colors.dart';
 import '../../../core/utils/text_styles.dart';
@@ -57,20 +58,20 @@ class RegisterScreen extends StatelessWidget {
         return Directionality(
           textDirection: TextDirection.rtl,
           child: Scaffold(
-            body: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: RefreshIndicator(
-                  color: AppColors.primaryColor,
-                  triggerMode: RefreshIndicatorTriggerMode.anywhere,
-                  onRefresh: () async {
-                    await cubit.getLevelsForAuthCategories();
-                    await cubit.getGovernments();
-                  },
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    child: Form(
-                      key: formKey,
+            body: RefreshIndicator(
+              color: AppColors.primaryColor,
+              triggerMode: RefreshIndicatorTriggerMode.anywhere,
+              onRefresh: () async {
+                await cubit.getLevelsForAuthCategories();
+                return cubit.getGovernments();
+              },
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Form(
+                    key: formKey,
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -243,7 +244,7 @@ class RegisterScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 10),
                                 cubit.governments.length < 2
-                                    ? CircularProgressIndicator(
+                                    ? AppLoaderInkDrop(
                                       color: AppColors.primaryColor,
                                     )
                                     : Expanded(
@@ -314,7 +315,7 @@ class RegisterScreen extends StatelessWidget {
                                         ),
                                       ),
                                       cubit.levelsForAuthCategories.length <= 2
-                                          ? CircularProgressIndicator(
+                                          ? AppLoaderInkDrop(
                                             color: AppColors.primaryColor,
                                           )
                                           : DropdownButtonFormField<String>(
@@ -489,7 +490,7 @@ Confirm Password: ${confirmPassController.text}
                                 child:
                                     AuthCubit.get(context).loading == true
                                         ? Center(
-                                          child: CircularProgressIndicator(
+                                          child: AppLoaderInkDrop(
                                             color: Colors.white,
                                           ),
                                         )

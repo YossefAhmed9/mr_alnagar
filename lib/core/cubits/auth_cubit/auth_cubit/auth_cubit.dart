@@ -112,9 +112,9 @@ class AuthCubit extends Cubit<AuthState> {
 
       if ((statusCode ~/ 100) == 2) {
         // Success (200, 201, etc.)
-        CacheHelper.setData(key: CacheKeys.levelID, value: categoryID);
+        CacheHelper.setData(key: CacheKeys.categoryId, value: categoryID);
 
-        showSnackBar(context, 'تم انشاء الحساب', 4, AppColors.primaryColor);
+        showSnackBar(context, ' تم انشاء الحساب بنجاح', 4, Colors.green);
         Navigator.pop(context);
         emit(RegisterDone());
       } else if ((statusCode ~/ 100) == 4) {

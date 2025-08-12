@@ -9,7 +9,11 @@ import 'package:mr_alnagar/core/widgets/lessons%20widgets/lessons_subscribtion_t
 import 'package:mr_alnagar/core/widgets/lessons%20widgets/one_time_lessons_tab_bar.dart';
 import '../../core/cubits/lessons_cubit/lessons_state.dart';
 import '../../core/utils/app_colors.dart';
+import '../../core/utils/app_loaders.dart';
 import '../../core/utils/text_styles.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+
+import '../../main.dart';
 
 class LessonsView extends StatelessWidget {
   final List courses;
@@ -38,69 +42,86 @@ class LessonsView extends StatelessWidget {
             textDirection: TextDirection.rtl,
             child: SafeArea(
               child: ModalProgressHUD(
+                progressIndicator: AppLoaderHourglass(),
                 inAsyncCall: LessonsCubit.get(context).isLessonLoading,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                  child: DefaultTabController(
-                    animationDuration: Duration(milliseconds: 400),
-                    length: 3,
-                    initialIndex: 0,
-                    child: Column(
-                      children: [
-                        Container(
-                          // height: 70,
-                          padding: EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: TabBar(
-                            tabAlignment: TabAlignment.start,
-                            onTap: (int index) async{
-                               LessonsCubit.get(context).getAllOneTimeClasses();
-                                await LessonsCubit.get(context).getCoursesByCategory(categoryID: CacheHelper.getData(key: CacheKeys.categoryId));
-                                 await LessonsCubit.get(context).getMyLessons(categoryID: CacheHelper.getData(key: CacheKeys.categoryId));
-
-                              LessonsCubit.get(
-                                context,
-                              ).changeTabBarIndex(index: index);
-                            },
-                            tabs: [
-                              Tab(text: 'احجز الان'),
-                              Tab(text: 'اشتراكاتي'),
-                              Tab(text: 'حصص المرة الواحدة'),
-                            ],
-                            labelStyle: TextStyles.textStyle16w700(context),
-                            labelPadding: EdgeInsets.symmetric(horizontal: 35),
-                            labelColor: Colors.white,
-                            indicatorAnimation: TabIndicatorAnimation.elastic,
-                            unselectedLabelColor: AppColors.primaryColor,
-                            isScrollable: true,
-                            automaticIndicatorColorAdjustment: true,
-
-                            indicator: BoxDecoration(
-                              color: AppColors.primaryColor, // Deep blue
-                              borderRadius: BorderRadius.circular(25),
+                child: InternetAwareWrapper(
+                  onInternetRestored:[
+                        ()=>LessonsCubit.get(context).getCoursesByCategory(categoryID: CacheHelper.getData(key: CacheKeys.categoryId)),
+                        ()=>LessonsCubit.get(context).getMyLessons(categoryID: CacheHelper.getData(key: CacheKeys.categoryId)),
+                  ],
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 0.0),
+                    child: DefaultTabController(
+                      animationDuration: Duration(milliseconds: 400),
+                      length: 3,
+                      initialIndex: 0,
+                      child: Column(
+                        children: [
+                          Container(
+                            // height: 70,
+                            padding: EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(16),
                             ),
-                            indicatorSize: TabBarIndicatorSize.tab,
-                            dividerColor: Colors.transparent,
-                            enableFeedback: true,
-                          ),
-                        ),
-                        //SizedBox(height: 20),
-                        // Optional: TabBarView for switching content
-                        Expanded(
-                          child: TabBarView(
-                            children: [
-                              LessonsReservationTabBar(
-                                lessons: LessonsCubit.get(context).otherLessons,
+                            child: TabBar(
+                              tabAlignment: TabAlignment.start,
+                              onTap: (int index) async{
+                                 LessonsCubit.get(context).getAllOneTimeClasses();
+                                 await LessonsCubit.get(context).getOtherLessons(categoryID: CacheHelper.getData(key: CacheKeys.categoryId));
+                                  await LessonsCubit.get(context).getCoursesByCategory(categoryID: CacheHelper.getData(key: CacheKeys.categoryId));
+                                   await LessonsCubit.get(context).getMyLessons(categoryID: CacheHelper.getData(key: CacheKeys.categoryId));
+
+                                LessonsCubit.get(
+                                  context,
+                                ).changeTabBarIndex(index: index);
+                              },
+                              tabs: [
+                                Tab(text: 'احجز الان'),
+                                Tab(text: 'اشتراكاتي'),
+                                Tab(text: 'حصص المرة الواحدة'),
+                              ],
+                              labelStyle: TextStyles.textStyle16w700(context),
+                              labelPadding: EdgeInsets.symmetric(horizontal: 35),
+                              labelColor: Colors.white,
+                              indicatorAnimation: TabIndicatorAnimation.elastic,
+                              unselectedLabelColor: AppColors.primaryColor,
+                              isScrollable: true,
+                              automaticIndicatorColorAdjustment: true,
+
+                              indicator: BoxDecoration(
+                                color: AppColors.primaryColor, // Deep blue
+                                borderRadius: BorderRadius.circular(25),
                               ),
-                              LessonsSubscribtionTabBar(),
-                              OneTimeLessonsTabBar(lessons: LessonsCubit.get(context).oneTimeClassesAll)
-                            ],
+                              indicatorSize: TabBarIndicatorSize.tab,
+                              dividerColor: Colors.transparent,
+                              enableFeedback: true,
+                            ),
                           ),
-                        ),
-                      ],
+                          //SizedBox(height: 20),
+                          // Optional: TabBarView for switching content
+                          Expanded(
+                            child: TabBarView(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                                  child: LessonsReservationTabBar(
+                                    lessons: LessonsCubit.get(context).otherLessons,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                                  child: LessonsSubscribtionTabBar(),
+                                ),
+                                OneTimeLessonsTabBar(
+                                    lessons: LessonsCubit.get(context).oneTimeClassesAll,
+                                physics: AlwaysScrollableScrollPhysics(),
+                                )
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

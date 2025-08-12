@@ -11,8 +11,12 @@ import 'package:mr_alnagar/core/cubits/courses_cubit/courses_state.dart';
 import 'package:mr_alnagar/core/utils/app_colors.dart';
 import 'package:mr_alnagar/core/utils/text_styles.dart';
 import 'package:dotted_border/dotted_border.dart';
+import '../../../core/utils/app_loaders.dart';
+
+
 import 'package:mr_alnagar/features/profile_view/homework_results/home_work_results.dart';
 
+import '../../../main.dart';
 import '../../home_screen/home_layout.dart';
 import 'homework_result.dart';
 
@@ -394,6 +398,8 @@ class _HomeworkViewState extends State<HomeworkView> {
         final homework = CoursesCubit.get(context).homework;
 
         return ModalProgressHUD(
+          progressIndicator: AppLoaderHourglass(),
+
           inAsyncCall: CoursesCubit.get(context).isSubmissionLoading,
 
           child: Scaffold(
@@ -407,13 +413,67 @@ class _HomeworkViewState extends State<HomeworkView> {
             ),
             body:
                 homework == null
-                    ? const Center(child: CircularProgressIndicator())
-                    : Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            if (homework?['have_duration'] == true)
+                    ? const Center(child: AppLoaderInkDrop())
+                    : InternetAwareWrapper(
+                  onInternetRestored: [
+                    ()=>_submitHomework(auto:true),
+                  ],
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              if (homework?['have_duration'] == true)
+                                Container(
+                                  width: 300.w,
+                                  height: 140.h,
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                    image: DecorationImage(
+                                      image: AssetImage(
+                                        'assets/images/pattern 2.png',
+                                      ),
+                                      fit: BoxFit.fill,
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: DottedBorder(
+                                      borderType: BorderType.RRect,
+                                      radius: const Radius.circular(40),
+                                      dashPattern: [6, 4],
+                                      color: AppColors.secondary30,
+                                      strokeWidth: 2,
+                                      child: Container(
+                                        width: 270,
+                                        height: 60,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(40),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              MingCuteIcons
+                                                  .mgc_time_duration_line,
+                                              color: AppColors.secondary30,
+                                              size: 40,
+                                            ),
+                                            const SizedBox(width: 10),
+                                            Text(
+                                              _formatTime(remainingSeconds),
+                                              style: TextStyles.textStyle20w700(
+                                                context,
+                                              ).copyWith(fontSize: 32),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              const SizedBox(height: 10),
                               Container(
                                 width: 300.w,
                                 height: 140.h,
@@ -445,8 +505,7 @@ class _HomeworkViewState extends State<HomeworkView> {
                                             MainAxisAlignment.center,
                                         children: [
                                           Icon(
-                                            MingCuteIcons
-                                                .mgc_time_duration_line,
+                                            MingCuteIcons.mgc_time_duration_line,
                                             color: AppColors.secondary30,
                                             size: 40,
                                           ),
@@ -463,226 +522,178 @@ class _HomeworkViewState extends State<HomeworkView> {
                                   ),
                                 ),
                               ),
-                            const SizedBox(height: 10),
-                            Container(
-                              width: 300.w,
-                              height: 140.h,
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                image: DecorationImage(
-                                  image: AssetImage(
-                                    'assets/images/pattern 2.png',
-                                  ),
-                                  fit: BoxFit.fill,
-                                ),
-                              ),
-                              child: Center(
-                                child: DottedBorder(
-                                  borderType: BorderType.RRect,
-                                  radius: const Radius.circular(40),
-                                  dashPattern: [6, 4],
-                                  color: AppColors.secondary30,
-                                  strokeWidth: 2,
-                                  child: Container(
-                                    width: 270,
-                                    height: 60,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(40),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          MingCuteIcons.mgc_time_duration_line,
-                                          color: AppColors.secondary30,
-                                          size: 40,
-                                        ),
-                                        const SizedBox(width: 10),
-                                        Text(
-                                          _formatTime(remainingSeconds),
-                                          style: TextStyles.textStyle20w700(
-                                            context,
-                                          ).copyWith(fontSize: 32),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
 
-                            Text(
-                              'Choose the correct answer from a, b, c or d:',
-                              style: TextStyles.textStyle18w700(
-                                context,
-                              ).copyWith(color: AppColors.secondary),
-                            ),
-                            _buildQuestionTypeSection(
-                              'reading_passage',
-                              'Reading Passage Questions',
-                            ),
-                            _buildQuestionTypeSection(
-                              'multiple_choice',
-                              'Multiple Choice Questions',
-                            ),
-                            _buildQuestionTypeSection(
-                              'true_false',
-                              'True or False Questions',
-                            ),
-                            _buildQuestionTypeSection(
-                              'short_answer',
-                              'Short Answer Questions',
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0,
+                              Text(
+                                'Choose the correct answer from a, b, c or d:',
+                                style: TextStyles.textStyle18w700(
+                                  context,
+                                ).copyWith(color: AppColors.secondary),
                               ),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: AppColors.primaryColor,
-                                  borderRadius: BorderRadius.circular(25),
+                              _buildQuestionTypeSection(
+                                'reading_passage',
+                                'Reading Passage Questions',
+                              ),
+                              _buildQuestionTypeSection(
+                                'multiple_choice',
+                                'Multiple Choice Questions',
+                              ),
+                              _buildQuestionTypeSection(
+                                'true_false',
+                                'True or False Questions',
+                              ),
+                              _buildQuestionTypeSection(
+                                'short_answer',
+                                'Short Answer Questions',
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0,
                                 ),
-                                width: double.infinity,
-                                height: 44,
-                                child: MaterialButton(
-                                  onPressed: () async {
-                                    CoursesCubit.get(
-                                      context,
-                                    ).changeIsSubmissionLoading();
-                                    await _submitHomework().then((value) {
-                                      showDialog(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder:
-                                            (_) => AlertDialog(
-                                              backgroundColor: Colors.white,
-                                              title: Text(
-                                                "Result",
-                                                textAlign: TextAlign.center,
-                                              ),
-                                              titleTextStyle:
-                                                  TextStyles.textStyle16w700(
-                                                    context,
-                                                  ).copyWith(
-                                                    color: AppColors.secondary,
-                                                  ),
-                                              content: Text(
-                                                "Your Score:  ${CoursesCubit.get(context).homewrokSubmission['score_text']}",
-                                                textAlign: TextAlign.center,
-                                                style:
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primaryColor,
+                                    borderRadius: BorderRadius.circular(25),
+                                  ),
+                                  width: double.infinity,
+                                  height: 44,
+                                  child: MaterialButton(
+                                    onPressed: () async {
+                                      CoursesCubit.get(
+                                        context,
+                                      ).changeIsSubmissionLoading();
+                                      await _submitHomework().then((value) {
+                                        showDialog(
+                                          context: context,
+                                          barrierDismissible: false,
+                                          builder:
+                                              (_) => AlertDialog(
+                                                backgroundColor: Colors.white,
+                                                title: Text(
+                                                  "Result",
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                                titleTextStyle:
                                                     TextStyles.textStyle16w700(
                                                       context,
+                                                    ).copyWith(
+                                                      color: AppColors.secondary,
                                                     ),
-                                              ),
-                                              actionsAlignment:
-                                                  MainAxisAlignment.center,
-                                              actionsPadding:
-                                                  const EdgeInsets.only(
-                                                    bottom: 12,
-                                                  ),
-                                              actions: [
-                                                SizedBox(
-                                                  height: 44,
-                                                  width: 160,
-                                                  child: TextButton(
-                                                    style: TextButton.styleFrom(
-                                                      backgroundColor:
-                                                          AppColors
-                                                              .primaryColor,
-                                                      shape: RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              25,
-                                                            ),
-                                                      ),
-                                                    ),
-                                                    onPressed: () {
-                                                      Navigator.pushAndRemoveUntil(
+                                                content: Text(
+                                                  "Your Score:  ${CoursesCubit.get(context).homewrokSubmission['score_text']}",
+                                                  textAlign: TextAlign.center,
+                                                  style:
+                                                      TextStyles.textStyle16w700(
                                                         context,
-                                                        CupertinoPageRoute(
-                                                          builder:
-                                                              (
-                                                                context,
-                                                              ) => HomeworkResultView(
-                                                                attemptID:
-                                                                    CoursesCubit.get(
-                                                                      context,
-                                                                    ).homework['attempt']['attempt_id'],
+                                                      ),
+                                                ),
+                                                actionsAlignment:
+                                                    MainAxisAlignment.center,
+                                                actionsPadding:
+                                                    const EdgeInsets.only(
+                                                      bottom: 12,
+                                                    ),
+                                                actions: [
+                                                  SizedBox(
+                                                    height: 44,
+                                                    width: 160,
+                                                    child: TextButton(
+                                                      style: TextButton.styleFrom(
+                                                        backgroundColor:
+                                                            AppColors
+                                                                .primaryColor,
+                                                        shape: RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                25,
                                                               ),
                                                         ),
-                                                        (context) => false,
-                                                      );
-                                                    },
-                                                    child: Text(
-                                                      "Show Questions",
-                                                      style:
-                                                          TextStyles.textStyle16w700(
-                                                            context,
-                                                          ).copyWith(
-                                                            color: Colors.white,
+                                                      ),
+                                                      onPressed: () {
+                                                        Navigator.pushAndRemoveUntil(
+                                                          context,
+                                                          CupertinoPageRoute(
+                                                            builder:
+                                                                (
+                                                                  context,
+                                                                ) => HomeworkResultView(
+                                                                  attemptID:
+                                                                      CoursesCubit.get(
+                                                                        context,
+                                                                      ).homework['attempt']['attempt_id'],
+                                                                ),
                                                           ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                SizedBox(height: 12),
-                                                SizedBox(
-                                                  height: 44,
-                                                  width: 120,
-                                                  child: TextButton(
-                                                    style: TextButton.styleFrom(
-                                                      backgroundColor:
-                                                          AppColors
-                                                              .primaryColor,
-                                                      shape: RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              25,
+                                                          (context) => false,
+                                                        );
+                                                      },
+                                                      child: Text(
+                                                        "Show Questions",
+                                                        style:
+                                                            TextStyles.textStyle16w700(
+                                                              context,
+                                                            ).copyWith(
+                                                              color: Colors.white,
                                                             ),
                                                       ),
                                                     ),
-                                                    onPressed: () {
-                                                      Navigator.pushAndRemoveUntil(
-                                                        context,
-                                                        CupertinoPageRoute(
-                                                          builder:
-                                                              (context) =>
-                                                                  HomeLayout(),
+                                                  ),
+                                                  SizedBox(height: 12),
+                                                  SizedBox(
+                                                    height: 44,
+                                                    width: 120,
+                                                    child: TextButton(
+                                                      style: TextButton.styleFrom(
+                                                        backgroundColor:
+                                                            AppColors
+                                                                .primaryColor,
+                                                        shape: RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                25,
+                                                              ),
                                                         ),
-                                                        (context) => false,
-                                                      );
-                                                    },
-                                                    child: Text(
-                                                      "OK",
-                                                      style:
-                                                          TextStyles.textStyle16w700(
-                                                            context,
-                                                          ).copyWith(
-                                                            color: Colors.white,
+                                                      ),
+                                                      onPressed: () {
+                                                        Navigator.pushAndRemoveUntil(
+                                                          context,
+                                                          CupertinoPageRoute(
+                                                            builder:
+                                                                (context) =>
+                                                                    HomeLayout(),
                                                           ),
+                                                          (context) => false,
+                                                        );
+                                                      },
+                                                      child: Text(
+                                                        "OK",
+                                                        style:
+                                                            TextStyles.textStyle16w700(
+                                                              context,
+                                                            ).copyWith(
+                                                              color: Colors.white,
+                                                            ),
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                              ],
-                                            ),
-                                      );
-                                    });
-                                    CoursesCubit.get(
-                                      context,
-                                    ).changeIsSubmissionLoading();
-                                  },
-                                  child: Text(
-                                    'Submit Homework',
-                                    style: TextStyles.textStyle16w700(
-                                      context,
-                                    ).copyWith(color: Colors.white),
+                                                ],
+                                              ),
+                                        );
+                                      });
+                                      CoursesCubit.get(
+                                        context,
+                                      ).changeIsSubmissionLoading();
+                                    },
+                                    child: Text(
+                                      'Submit Homework',
+                                      style: TextStyles.textStyle16w700(
+                                        context,
+                                      ).copyWith(color: Colors.white),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 20),
-                          ],
+                              const SizedBox(height: 20),
+                            ],
+                          ),
                         ),
                       ),
                     ),

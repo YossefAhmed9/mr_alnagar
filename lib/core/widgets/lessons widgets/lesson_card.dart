@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -60,16 +61,23 @@ class LessonCard extends StatelessWidget {
                   // Course image
                   ClipRRect(
                     borderRadius: BorderRadius.vertical(top: Radius.circular(12.r)),
-                    child: Image.network(
-                      data['image'], // Replace with your actual course image
+                    child: CachedNetworkImage(
+                      imageUrl: data['image'],
                       height: 130.h,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Image.asset(
-                          'assets/images/error image.png',fit: BoxFit.fill,height: 130,width: double.infinity,
-                        );
-                      },
-                    ),
+                      placeholder: (context, url) => Image.asset(
+                        'assets/images/error image.png',
+                        fit: BoxFit.fill,
+                        height: 130,
+                        width: double.infinity,
+                      ),
+                      errorWidget: (context, url, error) => Image.asset(
+                        'assets/images/error image.png',
+                        fit: BoxFit.fill,
+                        height: 130,
+                        width: double.infinity,
+                      ),
+                    )
                   ),
 
                   // Course name
@@ -144,7 +152,7 @@ class LessonCard extends StatelessWidget {
                           ),
                         ],
                         // LessonsCubit.get(context).isLessonLoading ?
-                        // CircularProgressIndicator(color: AppColors.primaryColor,)
+                        // AppLoaderInkDrop(color: AppColors.primaryColor,)
                         //     :
                         Padding(
                           padding: const EdgeInsets.all(8.0),

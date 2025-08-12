@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -45,16 +46,24 @@ class WelcomeContainer extends StatelessWidget {
                       backgroundColor: Colors.transparent,
                       child: ClipOval(
                         clipBehavior: Clip.antiAliasWithSaveLayer,
-                        child: Image.network(
-                          height: 150,width: 150,
-                          fit:BoxFit.cover,
-                          CacheHelper.getData(key: CacheKeys.image),
-                          errorBuilder: (context, error, stackTrace) {
-                            return Image.asset(
-                              'assets/images/error image.png',
-                            );
-                          },
-                        ),
+                        child: CachedNetworkImage(
+                          imageUrl: CacheHelper.getData(key: CacheKeys.image),
+                          height: 150,
+                          width: 150,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Image.asset(
+                            'assets/images/error image.png',
+                            height: 150,
+                            width: 150,
+                            fit: BoxFit.cover,
+                          ),
+                          errorWidget: (context, url, error) => Image.asset(
+                            'assets/images/error image.png',
+                            height: 150,
+                            width: 150,
+                            fit: BoxFit.cover,
+                          ),
+                        )
                       ),
                     ),
                   ),

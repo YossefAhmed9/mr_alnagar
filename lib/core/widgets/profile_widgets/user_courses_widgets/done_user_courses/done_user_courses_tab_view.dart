@@ -7,6 +7,7 @@ import 'package:mr_alnagar/core/utils/app_colors.dart';
 import 'package:mr_alnagar/core/utils/text_styles.dart';
 
 import '../../../../cubits/courses_cubit/courses_state.dart';
+import '../../../../utils/app_loaders.dart';
 import 'done_user_course_card.dart';
 
 class DoneUserCoursesTabView extends StatelessWidget {
@@ -25,8 +26,28 @@ class DoneUserCoursesTabView extends StatelessWidget {
       },
       builder: (context, state) {
         if(ProfileCubit.get(context).completedCourses.isEmpty){
-          return Center(
-            child: Text('No Courses available'),
+          return RefreshIndicator(
+            triggerMode: RefreshIndicatorTriggerMode.anywhere,
+
+            onRefresh: ()async{
+
+
+              return await ProfileCubit.get(context).getMyCompletedCourses();
+            },
+            child: Center(
+              child: SingleChildScrollView(
+                physics: AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  children: [
+                    Text('No Courses Completed',
+                      style: TextStyles.textStyle20w700(context).copyWith(
+                          color: AppColors.primaryColor
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           );
         }
         if (completedCourses.isNotEmpty) {
@@ -79,7 +100,7 @@ class DoneUserCoursesTabView extends StatelessWidget {
           );
         }
         else{
-          return Center(child: CircularProgressIndicator(),);
+          return Center(child: AppLoaderInkDrop(),);
         }
 
       },

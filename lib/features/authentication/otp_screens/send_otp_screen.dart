@@ -7,6 +7,7 @@ import 'package:mr_alnagar/core/utils/app_colors.dart';
 import 'package:mr_alnagar/core/widgets/Auth%20widgets/register_widgets/register_text_field.dart';
 import 'package:mr_alnagar/features/authentication/otp_screens/submit_otp_screen.dart';
 import '../../../core/cubits/auth_cubit/auth_cubit/auth_cubit.dart';
+import '../../../core/utils/app_loaders.dart';
 import '../../../core/utils/text_styles.dart';
 
 class SendOtpScreen extends StatelessWidget {
@@ -126,7 +127,7 @@ class SendOtpScreen extends StatelessWidget {
                           child:
                               AuthCubit.get(context).loading
                                   ? Center(
-                                    child: CircularProgressIndicator(
+                                    child: AppLoaderInkDrop(
                                       color: Colors.white,
                                     ),
                                   )
